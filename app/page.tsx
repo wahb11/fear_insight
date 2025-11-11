@@ -3,6 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { motion, useScroll, useTransform, useInView, useAnimation } from "framer-motion"
+import { useCart } from "@/app/context/CartContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -266,6 +267,8 @@ export default function FearInsightLanding() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isMounted, setIsMounted] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { items, addToCart } = useCart()
+  const cartButtonControls = useAnimation()
   // Remove pageLoading state and timer
   // const [pageLoading, setPageLoading] = useState(true)
 
@@ -277,6 +280,16 @@ export default function FearInsightLanding() {
     //   clearTimeout(pageTimer)
     // }
   }, [])
+
+  // Animate cart button when items are added
+  useEffect(() => {
+    if (items.length > 0) {
+      cartButtonControls.start({
+        scale: [1, 1.2, 1],
+        transition: { duration: 0.3, ease: "easeInOut" }
+      })
+    }
+  }, [items.length, cartButtonControls])
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -393,16 +406,19 @@ export default function FearInsightLanding() {
             </motion.div>
 
             {/* Cart Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 relative"
-            >
-              <ShoppingBag className="w-6 h-6 text-stone-100" />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                0
-              </span>
-            </motion.button>
+            <Link href="/cart">
+              <motion.button
+                animate={cartButtonControls}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 relative"
+              >
+                <ShoppingBag className="w-6 h-6 text-stone-100" />
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {items.length}
+                </span>
+              </motion.button>
+            </Link>
           </div>
 
           {/* Mobile Menu */}
@@ -975,7 +991,22 @@ export default function FearInsightLanding() {
                         <h3 className="text-lg font-semibold text-stone-100">{p.title}</h3>
                         <p className="text-stone-300 mb-3">{p.price}</p>
                         <div className="flex gap-2">
-                          <Button size="sm" className="bg-gradient-to-r from-stone-800 to-stone-900 text-stone-50">Buy Now</Button>
+                          <motion.button
+                            onClick={() =>
+                              addToCart({
+                                id: `${p.title}-${i}`,
+                                title: p.title,
+                                price: parseInt(p.price.replace('$', '')),
+                                quantity: 1,
+                                color: p.color,
+                              })
+                            }
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex-1 bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 px-3 py-1 rounded text-sm font-semibold transition-all"
+                          >
+                            Buy Now
+                          </motion.button>
                           <Button size="sm" className="border border-stone-700 text-stone-100">Quick View</Button>
                         </div>
                       </CardContent>

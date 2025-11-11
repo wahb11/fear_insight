@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, ShoppingBag, Star, Filter, Grid, List, Heart, Eye, ArrowRight, Mail, Instagram, Twitter, SlidersHorizontal, Search } from "lucide-react"
 import Link from "next/link"
+import { useCart } from "@/app/context/CartContext"
 
 const products = [
 	{
@@ -199,6 +200,7 @@ const Pill = ({ children, color = "green" }: { children: React.ReactNode; color?
 
 export default function ProductsPage() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const { addToCart } = useCart()
   const [selectedColor, setSelectedColor] = useState("All")
   const [selectedSize, setSelectedSize] = useState("All")
   const [selectedPrice, setSelectedPrice] = useState("All")
@@ -539,7 +541,15 @@ export default function ProductsPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Button className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25">
+                      <Button 
+                        onClick={() => addToCart({
+                          id: String(product.id),
+                          title: product.title,
+                          price: product.price,
+                          quantity: 1,
+                          color: product.colorName
+                        })}
+                        className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25">
                         Add to Cart
                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
