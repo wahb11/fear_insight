@@ -317,11 +317,18 @@ export default function FearInsightLanding() {
   const controls = useAnimation()
   const [carX, setCarX] = useState(0)
 
-  function scrollByPixels(delta: number) {
+  function scrollByPixels(direction: 'left' | 'right') {
     const containerW = carouselRef.current?.offsetWidth || 300
     const move = Math.round(containerW * 0.75)
-    let next = carX + (delta === 0 ? -move : delta)
-    // clamp
+    let next = carX
+    if (direction === 'right') {
+      // move carousel to the left (show next items)
+      next = carX - move
+    } else {
+      // move carousel to the right (show previous items)
+      next = carX + move
+    }
+    // clamp within allowed range
     next = Math.max(-carWidth, Math.min(0, next))
     setCarX(next)
     controls.start({ x: next, transition: { type: 'spring', stiffness: 200, damping: 30 } })
@@ -929,14 +936,14 @@ export default function FearInsightLanding() {
             <div ref={carouselRef} className="overflow-hidden relative">
               {/* Left / Right arrows */}
               <motion.button
-                onClick={() => scrollByPixels(0)}
+                onClick={() => scrollByPixels('left')}
                 whileHover={{ scale: 1.05 }}
                 className="absolute left-2 top-1/2 -translate-y-1/2 z-40 bg-stone-900/60 p-2 rounded-full border border-stone-700/50"
               >
                 <ArrowRight className="w-5 h-5 text-stone-100 rotate-180" />
               </motion.button>
               <motion.button
-                onClick={() => scrollByPixels( - (carouselRef.current?.offsetWidth ? Math.round(carouselRef.current.offsetWidth * 0.75) : 300) )}
+                onClick={() => scrollByPixels('right')}
                 whileHover={{ scale: 1.05 }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 z-40 bg-stone-900/60 p-2 rounded-full border border-stone-700/50"
               >
@@ -951,6 +958,12 @@ export default function FearInsightLanding() {
                 whileTap={{ cursor: "grabbing" }}
                 animate={controls}
                 initial={{ x: 0 }}
+                onDragEnd={(_: any, info: { offset: { x: number } }) => {
+                  // info.offset.x is the delta applied during the drag
+                  const next = Math.max(-carWidth, Math.min(0, carX + info.offset.x))
+                  setCarX(next)
+                  controls.start({ x: next, transition: { type: 'spring', stiffness: 200, damping: 30 } })
+                }}
               >
                 {products.map((p, i) => (
                   <motion.div key={i} className="min-w-[220px] md:min-w-[280px] lg:min-w-[320px]">                    <Card className="bg-stone-900/30 border border-stone-700/50 hover:border-stone-600/80 transition-all duration-300">
