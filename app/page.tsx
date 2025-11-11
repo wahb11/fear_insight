@@ -6,7 +6,7 @@ import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { Instagram, Twitter, Mail, ShoppingBag, Star, ArrowRight, Play, Loader2 } from "lucide-react"
+import { Instagram, Twitter, Mail, ShoppingBag, Star, ArrowRight, Play, Loader2, Menu, X } from "lucide-react"
 import { useRef, useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 
@@ -265,6 +265,7 @@ function PageLoadingOverlay({ isLoading }: { isLoading: boolean }) {
 export default function FearInsightLanding() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isMounted, setIsMounted] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   // Remove pageLoading state and timer
   // const [pageLoading, setPageLoading] = useState(true)
 
@@ -305,10 +306,25 @@ export default function FearInsightLanding() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="fixed top-0 w-full z-50 bg-stone-950/90 border-b border-stone-800"
+          className="fixed top-0 w-full z-50 bg-stone-950/90 border-b border-stone-800 backdrop-blur-md"
           style={{ willChange: "opacity" }}
         >
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            {/* Hamburger Menu Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200"
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6 text-green-400" />
+              ) : (
+                <Menu className="w-6 h-6 text-green-400" />
+              )}
+            </motion.button>
+
+            {/* Logo in Center */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -318,25 +334,40 @@ export default function FearInsightLanding() {
               FEAR INSIGHT
             </motion.div>
 
-            <motion.div
-              className="flex space-x-4 md:space-x-8 text-sm md:text-base"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              style={{ willChange: "opacity" }}
+            {/* Cart Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 relative"
             >
-              {["Home", "Products", "About", "Contact"].map((item, index) => (
-                <a
+              <ShoppingBag className="w-6 h-6 text-green-400" />
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                0
+              </span>
+            </motion.button>
+          </div>
+
+          {/* Mobile Menu */}
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: isMenuOpen ? 1 : 0, height: isMenuOpen ? "auto" : 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden bg-stone-900/95 border-t border-stone-800"
+          >
+            <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+              {["Home", "Products", "About", "Contact"].map((item) => (
+                <motion.a
                   key={item}
                   href={item === "Products" ? "/products" : `#${item.toLowerCase()}`}
-                  className="hover:text-green-400 transition-colors duration-200 relative group text-stone-100"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-stone-100 hover:text-green-400 transition-colors duration-200 py-2 px-4 rounded-lg hover:bg-stone-800"
+                  whileHover={{ x: 10 }}
                 >
                   {item}
-                  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-500 to-red-500 group-hover:w-full transition-all duration-300" />
-                </a>
+                </motion.a>
               ))}
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </motion.nav>
 
         {/* Hero Section with Video Background */}
