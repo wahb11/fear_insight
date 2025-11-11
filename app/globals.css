@@ -19,33 +19,33 @@
     --card-foreground: 24 10% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 24 10% 10%;
-    /* Green primary, red accents */
-    --primary: 142 72% 35%; /* emerald */
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 40%;
-    --accent: 0 85% 45%; /* red */
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 70% 45%;
-    --destructive-foreground: 0 0% 98%;
+  /* Monochrome primary (matte black) and white foreground */
+  --primary: 0 0% 8%; /* matte black */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 10%;
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 50%;
+  --accent: 0 0% 100%; /* white accent for highlights */
+  --accent-foreground: 0 0% 4%;
+  --destructive: 0 0% 20%;
+  --destructive-foreground: 0 0% 98%;
     --border: 24 10% 90%;
     --input: 24 10% 90%;
-    --ring: 142 72% 35%;
-    /* Charts tuned to green/black/red */
-    --chart-1: 142 72% 35%; /* green */
-    --chart-2: 0 0% 15%; /* near-black */
-    --chart-3: 0 85% 45%; /* red */
-    --chart-4: 142 40% 55%; /* light green */
-    --chart-5: 0 60% 50%;
+  --ring: 0 0% 8%;
+  /* Charts tuned to monochrome */
+  --chart-1: 0 0% 8%; /* matte black */
+  --chart-2: 0 0% 15%; /* near-black */
+  --chart-3: 0 0% 60%; /* mid-gray */
+  --chart-4: 0 0% 40%; /* light gray */
+  --chart-5: 0 0% 80%; /* near-white */
     --radius: 0.5rem;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-primary: 0 0% 8%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 0 0% 96%;
+  --sidebar-accent-foreground: 0 0% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
@@ -69,12 +69,12 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 16%;
     --input: 0 0% 16%;
-    --ring: 142 72% 35%;
-    --chart-1: 142 72% 35%;
-    --chart-2: 0 0% 15%;
-    --chart-3: 0 85% 45%;
-    --chart-4: 142 40% 55%;
-    --chart-5: 0 60% 50%;
+  --ring: 0 0% 8%;
+  --chart-1: 0 0% 8%;
+  --chart-2: 0 0% 15%;
+  --chart-3: 0 0% 60%;
+  --chart-4: 0 0% 40%;
+  --chart-5: 0 0% 80%;
     --sidebar-background: 0 0% 6%;
     --sidebar-foreground: 0 0% 96%;
     --sidebar-primary: 142 72% 35%;

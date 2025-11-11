@@ -1,0 +1,13 @@
+<svg viewBox="0 0 512 1200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <!-- Left vertical bar -->
+  <rect x="100" y="200" width="60" height="600" fill="currentColor"/>
+  
+  <!-- Top horizontal bar -->
+  <rect x="100" y="200" width="280" height="60" fill="currentColor"/>
+  
+  <!-- Middle horizontal bar (right side) -->
+  <rect x="240" y="450" width="140" height="60" fill="currentColor"/>
+  
+  <!-- Bottom vertical bar (right side) -->
+  <rect x="240" y="450" width="60" height="350" fill="currentColor"/>
+</svg>

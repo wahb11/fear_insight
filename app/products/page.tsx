@@ -189,8 +189,8 @@ const Pill = ({ children, color = "green" }: { children: React.ReactNode; color?
   <span
     className={
       color === "green"
-        ? "bg-green-500 text-stone-950 text-xs font-bold px-2 py-1 rounded-full"
-        : "bg-yellow-400 text-stone-950 text-xs font-bold px-2 py-1 rounded-full"
+        ? "bg-stone-100 text-stone-950 text-xs font-bold px-2 py-1 rounded-full"
+        : "bg-stone-300 text-stone-950 text-xs font-bold px-2 py-1 rounded-full"
     }
   >
     {children}
@@ -256,7 +256,7 @@ export default function ProductsPage() {
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="text-2xl font-bold bg-gradient-to-r from-green-500 to-green-400 bg-clip-text text-transparent"
+            className="text-2xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
           >
             <Link href="/">FEAR INSIGHT</Link>
           </motion.div>
@@ -276,10 +276,10 @@ export default function ProductsPage() {
               >
                 <Link
                   href={item.href}
-                  className="hover:text-green-400 transition-colors relative group"
+                  className="hover:text-stone-300 transition-colors relative group"
                 >
                   {item.name}
-                  <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-500 to-red-500 group-hover:w-full transition-all duration-300" />
+                  <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-stone-100 to-stone-500 group-hover:w-full transition-all duration-300" />
                 </Link>
               </motion.div>
             ))}
@@ -291,7 +291,7 @@ export default function ProductsPage() {
       <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
-        <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 to-red-600/10" />
+  <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
         
         <motion.div
           className="relative z-10 text-center px-4"
@@ -300,7 +300,7 @@ export default function ProductsPage() {
           transition={{ duration: 1, delay: 0.5 }}
         >
           <motion.h1
-            className="text-5xl md:text-7xl font-black mb-4 bg-gradient-to-r from-stone-100 via-green-300 to-green-400 bg-clip-text text-transparent"
+            className="text-5xl md:text-7xl font-black mb-4 bg-gradient-to-r from-stone-100 via-stone-400 to-stone-600 bg-clip-text text-transparent"
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
@@ -308,7 +308,7 @@ export default function ProductsPage() {
             COLLECTION
           </motion.h1>
           <motion.div
-            className="w-24 h-1 bg-gradient-to-r from-green-600 to-red-600 mx-auto mb-6"
+            className="w-24 h-1 bg-gradient-to-r from-stone-700 to-stone-900 mx-auto mb-6"
             initial={{ width: 0 }}
             animate={{ width: 96 }}
             transition={{ duration: 1, delay: 0.8 }}
@@ -337,12 +337,12 @@ export default function ProductsPage() {
             {/* Search */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400 w-4 h-4" />
-              <Input
+                <Input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-stone-950/50 border-stone-700 text-stone-100 placeholder:text-stone-400 focus:border-green-500 transition-colors"
+                className="pl-10 bg-stone-950/50 border-stone-700 text-stone-100 placeholder:text-stone-400 focus:border-stone-300 transition-colors"
               />
             </div>
 
@@ -352,7 +352,7 @@ export default function ProductsPage() {
               <select
                 value={selectedColor}
                 onChange={(e) => setSelectedColor(e.target.value)}
-                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-green-500 transition-colors"
+                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
               >
                 {filters.colors.map((color) => (
                   <option key={color} value={color}>
@@ -365,7 +365,7 @@ export default function ProductsPage() {
               <select
                 value={selectedSize}
                 onChange={(e) => setSelectedSize(e.target.value)}
-                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-green-500 transition-colors"
+                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
               >
                 {filters.sizes.map((size) => (
                   <option key={size} value={size}>
@@ -378,7 +378,7 @@ export default function ProductsPage() {
               <select
                 value={selectedPrice}
                 onChange={(e) => setSelectedPrice(e.target.value)}
-                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-green-500 transition-colors"
+                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
               >
                 {filters.price.map((price) => (
                   <option key={price} value={price}>
@@ -391,7 +391,7 @@ export default function ProductsPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-green-500 transition-colors"
+                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
               >
                 {filters.sort.map((sort) => (
                   <option key={sort} value={sort}>
@@ -430,7 +430,7 @@ export default function ProductsPage() {
                 whileHover={{ scale: 1.02 }}
                 className="group cursor-pointer"
               >
-                <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-green-500/50 transition-all duration-300">
+                <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300">
                   {/* Product Image */}
                   <div className="relative h-80 overflow-hidden">
                     <div
@@ -462,7 +462,7 @@ export default function ProductsPage() {
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        className="bg-green-500 text-stone-950 p-3 rounded-full hover:bg-green-400 transition-colors"
+                        className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors"
                       >
                         <ShoppingBag className="w-5 h-5" />
                       </motion.button>
@@ -478,7 +478,7 @@ export default function ProductsPage() {
 
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-bold text-stone-100 group-hover:text-green-400 transition-colors">
+                      <h3 className="text-lg font-bold text-stone-100 group-hover:text-stone-300 transition-colors">
                         {product.title}
                       </h3>
                     </div>
@@ -499,7 +499,7 @@ export default function ProductsPage() {
 
                     {/* Price */}
                     <div className="flex items-center mb-3">
-                      <span className="text-2xl font-bold text-green-500">${product.price}</span>
+                      <span className="text-2xl font-bold text-stone-100">${product.price}</span>
                       {product.originalPrice && (
                         <span className="text-stone-500 line-through ml-2">${product.originalPrice}</span>
                       )}
@@ -513,8 +513,8 @@ export default function ProductsPage() {
                             key={i}
                             className={`w-4 h-4 ${
                               i < Math.floor(product.rating)
-                                ? "fill-red-500 text-red-500"
-                                : "text-stone-600"
+                                ? "fill-stone-400 text-stone-400"
+                                  : "text-stone-600"
                             }`}
                           />
                         ))}
@@ -527,7 +527,7 @@ export default function ProductsPage() {
                       {product.sizes.map((size) => (
                         <span
                           key={size}
-                          className="px-2 py-1 bg-stone-800 text-stone-200 rounded text-xs border border-stone-700 hover:border-green-500 transition-colors"
+                          className="px-2 py-1 bg-stone-800 text-stone-200 rounded text-xs border border-stone-700 hover:border-stone-400 transition-colors"
                         >
                           {size}
                         </span>
@@ -539,7 +539,7 @@ export default function ProductsPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Button className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-stone-50 group shadow-lg shadow-green-500/25">
+                      <Button className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25">
                         Add to Cart
                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
@@ -569,7 +569,7 @@ export default function ProductsPage() {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-green-500 to-red-500 bg-clip-text text-transparent">
+              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent">
                 FEAR INSIGHT
               </h3>
               <p className="text-stone-400 mb-4 max-w-md">
@@ -579,7 +579,7 @@ export default function ProductsPage() {
                 <p className="text-stone-300 mb-2">Get in touch:</p>
                 <a
                   href="mailto:wahbusman@fearinsight.com"
-                  className="text-green-400 hover:text-green-300 transition-colors flex items-center gap-2"
+                  className="text-stone-100 hover:text-stone-300 transition-colors flex items-center gap-2"
                 >
                   <Mail className="w-4 h-4" />
                   wahbusman@fearinsight.com
@@ -592,7 +592,7 @@ export default function ProductsPage() {
                     whileHover={{ scale: 1.2, rotate: 5 }}
                     whileTap={{ scale: 0.9 }}
                     href="#"
-                    className="text-stone-400 hover:text-green-400 transition-colors"
+                    className="text-stone-400 hover:text-stone-300 transition-colors"
                   >
                     <Icon className="w-6 h-6" />
                   </motion.a>
@@ -638,7 +638,7 @@ export default function ProductsPage() {
                       viewport={{ once: true }}
                     >
                       <motion.div whileHover={{ x: 5 }}>
-                        <Link href={item.href} className="hover:text-green-400 transition-colors">
+                        <Link href={item.href} className="hover:text-stone-300 transition-colors">
                           {item.name}
                         </Link>
                       </motion.div>

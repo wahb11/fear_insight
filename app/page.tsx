@@ -47,7 +47,7 @@ function LoadingSpinner({ size = "default" }: { size?: "sm" | "default" | "lg" }
 
   return (
     <div className="flex items-center justify-center">
-      <Loader2 className={`${sizeClasses[size]} animate-spin text-green-500`} />
+  <Loader2 className={`${sizeClasses[size]} animate-spin text-stone-100`} />
     </div>
   )
 }
@@ -66,7 +66,7 @@ function EnhancedLoading({ text = "Loading...", showSpinner = true }: { text?: s
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
         >
-          <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full" />
+          <div className="w-8 h-8 border-2 border-stone-600 border-t-transparent rounded-full" />
         </motion.div>
       )}
       <motion.div
@@ -169,7 +169,7 @@ function ProductCard({
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: index * 0.2 + 0.5 }}
           >
-            <span className="text-2xl font-bold text-green-500">{price}</span>
+            <span className="text-2xl font-bold text-stone-100">{price}</span>
             <div className="flex items-center space-x-1">
               {[...Array(5)].map((_, i) => (
                 <motion.div
@@ -178,7 +178,7 @@ function ProductCard({
                   animate={isInView ? { opacity: 1, scale: 1 } : {}}
                   transition={{ delay: index * 0.2 + 0.6 + i * 0.1 }}
                 >
-                  <Star className="w-4 h-4 fill-red-500 text-red-500" />
+                  <Star className="w-4 h-4 fill-stone-400 text-stone-400" />
                 </motion.div>
               ))}
             </div>
@@ -217,7 +217,7 @@ function AnimatedCounter({ end }: { end: number }) {
   return (
     <span
       ref={countRef}
-      className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent"
+      className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
     >
       {count}
     </span>
@@ -310,26 +310,45 @@ export default function FearInsightLanding() {
           style={{ willChange: "opacity" }}
         >
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            {/* Hamburger Menu Button */}
+            {/* Hamburger Menu Button with Animation */}
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200"
+              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 group"
             >
-              {isMenuOpen ? (
-                <X className="w-6 h-6 text-green-400" />
-              ) : (
-                <Menu className="w-6 h-6 text-green-400" />
-              )}
+              <div className="w-6 h-5 flex flex-col justify-between items-center cursor-pointer">
+                <motion.div
+                  className="w-full h-0.5 bg-stone-100 rounded-full"
+                  animate={{
+                    rotate: isMenuOpen ? 45 : 0,
+                    y: isMenuOpen ? 9 : 0,
+                  }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.div
+                  className="w-full h-0.5 bg-stone-100 rounded-full"
+                  animate={{
+                    opacity: isMenuOpen ? 0 : 1,
+                    x: isMenuOpen ? 10 : 0,
+                  }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.div
+                  className="w-full h-0.5 bg-stone-100 rounded-full"
+                  animate={{
+                    rotate: isMenuOpen ? -45 : 0,
+                    y: isMenuOpen ? -9 : 0,
+                  }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
             </motion.button>
 
-            {/* Logo in Center */}
+            {/* Logo Text in Center */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className="text-2xl font-bold bg-gradient-to-r from-green-500 to-green-400 bg-clip-text text-transparent"
+              className="text-xl md:text-2xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
             >
               FEAR INSIGHT
             </motion.div>
@@ -340,7 +359,7 @@ export default function FearInsightLanding() {
               whileTap={{ scale: 0.95 }}
               className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 relative"
             >
-              <ShoppingBag className="w-6 h-6 text-green-400" />
+              <ShoppingBag className="w-6 h-6 text-stone-100" />
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
                 0
               </span>
@@ -360,7 +379,7 @@ export default function FearInsightLanding() {
                   key={item}
                   href={item === "Products" ? "/products" : `#${item.toLowerCase()}`}
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-stone-100 hover:text-green-400 transition-colors duration-200 py-2 px-4 rounded-lg hover:bg-stone-800"
+                  className="text-stone-100 hover:text-stone-300 transition-colors duration-200 py-2 px-4 rounded-lg hover:bg-stone-800"
                   whileHover={{ x: 10 }}
                 >
                   {item}
@@ -435,7 +454,7 @@ export default function FearInsightLanding() {
               transition={{ duration: 0.8, delay: 0.3 }}
             >
               <motion.h1
-                className="text-6xl md:text-8xl lg:text-9xl font-black mb-4 bg-gradient-to-r from-stone-100 via-green-300 to-green-400 bg-clip-text text-transparent"
+                className="text-6xl md:text-8xl lg:text-9xl font-black mb-4 bg-gradient-to-r from-stone-100 via-stone-400 to-stone-600 bg-clip-text text-transparent"
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
@@ -454,7 +473,7 @@ export default function FearInsightLanding() {
                 transition={{ duration: 0.8, delay: 0.7 }}
                 style={{ willChange: "transform" }}
               >
-                <div className="h-2 bg-gradient-to-r from-green-600 via-red-500 to-green-600 mx-auto rounded-full" style={{ width: "96px" }} />
+                <div className="h-2 bg-gradient-to-r from-stone-700 via-stone-400 to-stone-900 mx-auto rounded-full" style={{ width: "96px" }} />
               </motion.div>
 
               <motion.p
@@ -497,7 +516,7 @@ export default function FearInsightLanding() {
                 <Link href="/products">
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-stone-50 text-lg px-8 py-3 group transition-all duration-300"
+                    className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 text-lg px-8 py-3 group transition-all duration-300"
                   >
                     Explore Collection
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
@@ -553,7 +572,7 @@ export default function FearInsightLanding() {
               className="text-center mb-16"
             >
               <motion.h2
-                className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-green-500 to-red-500 bg-clip-text text-transparent"
+                className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent"
                 initial={{ opacity: 0, scale: 0.5 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8 }}
@@ -563,7 +582,7 @@ export default function FearInsightLanding() {
               </motion.h2>
 
               <motion.div
-                className="w-24 h-1 bg-gradient-to-r from-green-600 to-red-600 mx-auto mb-6"
+                className="w-24 h-1 bg-gradient-to-r from-stone-700 to-stone-900 mx-auto mb-6"
                 initial={{ width: 0 }}
                 whileInView={{ width: 96 }}
                 transition={{ duration: 1, delay: 0.5 }}
@@ -602,7 +621,7 @@ export default function FearInsightLanding() {
           className="py-20 px-4 bg-gradient-to-b from-stone-950 to-stone-900 relative overflow-hidden"
         >
           {/* Background Image */}
-          <div className="absolute inset-0 bg-gradient-to-br from-green-600/20 to-red-600/20 rounded-lg backdrop-blur-sm border border-stone-100/10 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-stone-700/20 to-stone-900/20 rounded-lg backdrop-blur-sm border border-stone-100/10 overflow-hidden">
             {/* Background Image */}
             <img
               src="/premium-streetwear-hoodie-brand-lifestyle-spiritua.png"
@@ -611,7 +630,7 @@ export default function FearInsightLanding() {
             />
 
             {/* Gradient Overlay for blending */}
-            <div className="absolute inset-0 bg-gradient-to-br from-green-600/30 via-stone-900/40 to-red-600/30 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-gradient-to-br from-stone-700/30 via-stone-900/40 to-stone-900/30 mix-blend-multiply" />
 
             {/* Additional texture overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-stone-900/40" />
@@ -628,7 +647,7 @@ export default function FearInsightLanding() {
                 viewport={{ once: true }}
               >
                 <motion.h2
-                  className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-green-500 to-red-500 bg-clip-text text-transparent"
+                  className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent"
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8 }}
@@ -684,7 +703,7 @@ export default function FearInsightLanding() {
                 >
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-stone-50 group shadow-lg shadow-green-500/25 backdrop-blur-sm"
+                    className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25 backdrop-blur-sm"
                   >
                     Learn More
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -692,6 +711,183 @@ export default function FearInsightLanding() {
                 </motion.div>
               </motion.div>
             </div>
+          </div>
+        </section>
+
+        {/* Our Process Section */}
+        <section className="py-20 px-4 bg-gradient-to-b from-stone-900 to-stone-950 relative overflow-hidden">
+          <div className="container mx-auto relative z-10">
+            <motion.div
+              className="mb-16"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <motion.h2
+                className="text-4xl md:text-6xl font-bold mb-4 text-center bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                OUR PROCESS
+              </motion.h2>
+              <motion.p
+                className="text-xl text-stone-300 text-center max-w-2xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                How we select and craft the finest quality cloth for every piece
+              </motion.p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  number: "01",
+                  title: "Source Selection",
+                  description: "We carefully source premium fabrics from certified suppliers worldwide, ensuring ethical production and superior quality in every material we choose.",
+                  icon: "🎯",
+                },
+                {
+                  number: "02",
+                  title: "Quality Testing",
+                  description: "Each fabric undergoes rigorous testing for durability, comfort, and sustainability standards. We only approve materials that meet our exacting requirements.",
+                  icon: "✓",
+                },
+                {
+                  number: "03",
+                  title: "Design & Crafting",
+                  description: "Our master craftsmen transform selected fabrics into unique pieces through meticulous design and careful construction, ensuring perfect fit and finish.",
+                  icon: "✨",
+                },
+                {
+                  number: "04",
+                  title: "Final Inspection",
+                  description: "Before delivery, every garment undergoes a comprehensive final inspection to guarantee it meets our premium standards and your expectations.",
+                  icon: "⭐",
+                },
+              ].map((step, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: index * 0.15 }}
+                  viewport={{ once: true }}
+                  whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                  className="group"
+                >
+                  <Card className="h-full bg-gradient-to-br from-stone-800/40 to-stone-900/40 border border-stone-700/50 hover:border-stone-600/80 transition-all duration-300 overflow-hidden">
+                    <CardContent className="p-6 flex flex-col h-full relative">
+                      {/* Step number background */}
+                      <div className="absolute -top-8 -right-8 text-8xl font-bold text-stone-700/20 group-hover:text-stone-600/30 transition-colors duration-300">
+                        {step.number}
+                      </div>
+
+                      {/* Icon */}
+                      <motion.div
+                        className="text-5xl mb-4 relative z-10"
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        whileInView={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: index * 0.15 + 0.2 }}
+                        viewport={{ once: true }}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                      >
+                        {step.icon}
+                      </motion.div>
+
+                      {/* Title */}
+                      <motion.h3
+                        className="text-xl font-bold mb-3 text-stone-100 relative z-10"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: index * 0.15 + 0.1 }}
+                        viewport={{ once: true }}
+                      >
+                        {step.title}
+                      </motion.h3>
+
+                      {/* Description */}
+                      <motion.p
+                        className="text-stone-300 text-sm leading-relaxed relative z-10 flex-grow"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: index * 0.15 + 0.2 }}
+                        viewport={{ once: true }}
+                      >
+                        {step.description}
+                      </motion.p>
+
+                      {/* Connection line indicator */}
+                      {index < 3 && (
+                        <div className="hidden lg:block absolute -right-3 top-1/2 transform translate-x-full">
+                          <motion.div
+                            className="w-6 h-0.5 bg-gradient-to-r from-stone-600 to-stone-800"
+                            initial={{ scaleX: 0 }}
+                            whileInView={{ scaleX: 1 }}
+                            transition={{ duration: 0.8, delay: index * 0.15 + 0.3 }}
+                            viewport={{ once: true }}
+                            style={{ transformOrigin: "left center" }}
+                          />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Process Highlights */}
+            <motion.div
+              className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              viewport={{ once: true }}
+            >
+              {[
+                {
+                  label: "Premium Materials",
+                  value: "100%",
+                  description: "Ethical sourced fabrics",
+                },
+                {
+                  label: "Quality Assurance",
+                  value: "5",
+                  description: "Point inspection process",
+                },
+                {
+                  label: "Craftsmanship",
+                  value: "∞",
+                  description: "Dedication to perfection",
+                },
+              ].map((highlight, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: index * 0.15 }}
+                  viewport={{ once: true }}
+                  className="text-center p-6 bg-stone-800/30 border border-stone-700/50 rounded-lg hover:bg-stone-800/50 transition-colors duration-300"
+                >
+                  <motion.div
+                    className="text-3xl font-bold text-stone-100 mb-2"
+                    whileHover={{ scale: 1.1 }}
+                  >
+                    {highlight.value}
+                  </motion.div>
+                  <motion.h4 className="text-sm font-semibold text-stone-200 mb-1">
+                    {highlight.label}
+                  </motion.h4>
+                  <motion.p className="text-xs text-stone-400">
+                    {highlight.description}
+                  </motion.p>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </section>
 
@@ -735,10 +931,10 @@ export default function FearInsightLanding() {
                 <Input
                   type="email"
                   placeholder="Enter your email"
-                  className="bg-stone-950/50 border-stone-600 text-stone-100 placeholder:text-stone-400 focus:border-green-500 transition-colors"
+                  className="bg-stone-950/50 border-stone-600 text-stone-100 placeholder:text-stone-400 focus:border-stone-300 transition-colors"
                 />
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-stone-50 whitespace-nowrap">
+                  <Button className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 whitespace-nowrap">
                     Join Us
                   </Button>
                 </motion.div>
@@ -764,7 +960,7 @@ export default function FearInsightLanding() {
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
               >
-                <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-green-500 to-red-500 bg-clip-text text-transparent">
+                <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent">
                   FEAR INSIGHT
                 </h3>
                 <p className="text-stone-400 mb-4 max-w-md">
@@ -775,7 +971,7 @@ export default function FearInsightLanding() {
                   <p className="text-stone-300 mb-2">Get in touch:</p>
                   <a
                     href="mailto:wahbusman@fearinsight.com"
-                    className="text-green-400 hover:text-green-300 transition-colors flex items-center gap-2"
+                    className="text-stone-100 hover:text-stone-300 transition-colors flex items-center gap-2"
                   >
                     <Mail className="w-4 h-4" />
                     wahbusman@fearinsight.com
@@ -788,7 +984,7 @@ export default function FearInsightLanding() {
                       whileHover={{ scale: 1.2, rotate: 5 }}
                       whileTap={{ scale: 0.9 }}
                       href="#"
-                      className="text-stone-400 hover:text-green-400 transition-colors"
+                      className="text-stone-400 hover:text-stone-300 transition-colors"
                     >
                       <Icon className="w-6 h-6" />
                     </motion.a>
@@ -835,7 +1031,7 @@ export default function FearInsightLanding() {
                       >
                         <motion.a
                           href={item.href}
-                          className="hover:text-green-400 transition-colors"
+                          className="hover:text-stone-300 transition-colors"
                           whileHover={{ x: 5 }}
                         >
                           {item.name}

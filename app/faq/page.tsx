@@ -137,7 +137,7 @@ export default function FAQPage() {
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="text-2xl font-bold bg-gradient-to-r from-green-500 to-green-400 bg-clip-text text-transparent"
+            className="text-2xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
           >
             <Link href="/">FEAR INSIGHT</Link>
           </motion.div>
@@ -157,10 +157,10 @@ export default function FAQPage() {
               >
                 <Link
                   href={item.href}
-                  className="hover:text-green-400 transition-colors relative group"
+                  className="hover:text-stone-300 transition-colors relative group"
                 >
                   {item.name}
-                  <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-500 to-red-500 group-hover:w-full transition-all duration-300" />
+                  <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-stone-100 to-stone-500 group-hover:w-full transition-all duration-300" />
                 </Link>
               </motion.div>
             ))}
@@ -172,7 +172,7 @@ export default function FAQPage() {
       <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
-        <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 to-red-600/10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
         
         <motion.div
           className="relative z-10 text-center px-4"
@@ -186,8 +186,8 @@ export default function FAQPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
           >
-            <HelpCircle className="w-16 h-16 text-green-400 mr-4" />
-            <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-stone-100 via-green-300 to-green-400 bg-clip-text text-transparent"
+            <HelpCircle className="w-16 h-16 text-stone-100 mr-4" />
+            <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-stone-100 via-stone-400 to-stone-600 bg-clip-text text-transparent"
               style={{
                 textShadow: "0 0 40px rgba(16, 185, 129, 0.8), 0 4px 8px rgba(0, 0, 0, 0.9)",
                 filter: "drop-shadow(0 8px 16px rgba(0, 0, 0, 0.9))",
@@ -197,7 +197,7 @@ export default function FAQPage() {
             </h1>
           </motion.div>
           <motion.div
-            className="w-24 h-1 bg-gradient-to-r from-green-600 to-red-600 mx-auto mb-6"
+            className="w-24 h-1 bg-gradient-to-r from-stone-700 to-stone-900 mx-auto mb-6"
             initial={{ width: 0 }}
             animate={{ width: 96 }}
             transition={{ duration: 1, delay: 0.8 }}
@@ -229,7 +229,7 @@ export default function FAQPage() {
               transition={{ duration: 0.8, delay: categoryIndex * 0.2 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-2xl md:text-3xl font-bold mb-6 bg-gradient-to-r from-green-500 to-red-500 bg-clip-text text-transparent border-b border-stone-700 pb-3">
+              <h2 className="text-2xl md:text-3xl font-bold mb-6 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent border-b border-stone-700 pb-3">
                 {category.category}
               </h2>
 
@@ -247,9 +247,9 @@ export default function FAQPage() {
                         <div className="flex justify-between items-center">
                           <h3 className="text-lg font-semibold text-stone-200 pr-4">{faq.question}</h3>
                           {isOpen ? (
-                            <ChevronUp className="w-5 h-5 text-green-400 flex-shrink-0" />
+                            <ChevronUp className="w-5 h-5 text-stone-100 flex-shrink-0" />
                           ) : (
-                            <ChevronDown className="w-5 h-5 text-green-400 flex-shrink-0" />
+                            <ChevronDown className="w-5 h-5 text-stone-100 flex-shrink-0" />
                           )}
                         </div>
                       </button>
@@ -278,7 +278,7 @@ export default function FAQPage() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-stone-900/50 to-green-900/40 relative overflow-hidden">
+  <section className="py-16 px-4 bg-gradient-to-r from-stone-900/50 to-stone-900/40 relative overflow-hidden">
         <div className="container mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -293,32 +293,32 @@ export default function FAQPage() {
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
-              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-green-500/50 transition-all duration-300">
+              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
                 <CardContent className="p-6 text-center">
-                  <Mail className="w-8 h-8 text-green-400 mx-auto mb-3" />
+                  <Mail className="w-8 h-8 text-stone-100 mx-auto mb-3" />
                   <h3 className="font-semibold mb-2 text-stone-200">Email Support</h3>
                   <p className="text-stone-400 text-sm mb-3">Get help via email</p>
                   <a
                     href="mailto:wahbusman@fearinsight.com"
-                    className="text-green-400 hover:text-green-300 text-sm font-semibold"
+                    className="text-stone-100 hover:text-stone-300 text-sm font-semibold"
                   >
                     wahbusman@fearinsight.com
                   </a>
                 </CardContent>
               </Card>
 
-              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-green-500/50 transition-all duration-300">
+              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
                 <CardContent className="p-6 text-center">
-                  <MessageCircle className="w-8 h-8 text-green-400 mx-auto mb-3" />
+                  <MessageCircle className="w-8 h-8 text-stone-100 mx-auto mb-3" />
                   <h3 className="font-semibold mb-2 text-stone-200">Live Chat</h3>
                   <p className="text-stone-400 text-sm mb-3">Chat with us in real-time</p>
                   <span className="text-stone-500 text-sm">Coming Soon</span>
                 </CardContent>
               </Card>
 
-              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-green-500/50 transition-all duration-300">
+              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
                 <CardContent className="p-6 text-center">
-                  <Phone className="w-8 h-8 text-green-400 mx-auto mb-3" />
+                  <Phone className="w-8 h-8 text-stone-100 mx-auto mb-3" />
                   <h3 className="font-semibold mb-2 text-stone-200">Phone Support</h3>
                   <p className="text-stone-400 text-sm mb-3">Speak with our team</p>
                   <span className="text-stone-500 text-sm">Coming Soon</span>
@@ -329,7 +329,7 @@ export default function FAQPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-stone-50 group shadow-lg shadow-green-500/25"
+                className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
               >
                 <a href="mailto:wahbusman@fearinsight.com" className="flex items-center">
                   Contact Support
@@ -367,7 +367,7 @@ export default function FAQPage() {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-green-500 to-red-500 bg-clip-text text-transparent">
+              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent">
                 FEAR INSIGHT
               </h3>
               <p className="text-stone-400 mb-4 max-w-md">
@@ -377,7 +377,7 @@ export default function FAQPage() {
                 <p className="text-stone-300 mb-2">Get in touch:</p>
                 <a
                   href="mailto:wahbusman@fearinsight.com"
-                  className="text-green-400 hover:text-green-300 transition-colors flex items-center gap-2"
+                  className="text-stone-100 hover:text-stone-300 transition-colors flex items-center gap-2"
                 >
                   <Mail className="w-4 h-4" />
                   wahbusman@fearinsight.com
@@ -390,7 +390,7 @@ export default function FAQPage() {
                     whileHover={{ scale: 1.2, rotate: 5 }}
                     whileTap={{ scale: 0.9 }}
                     href="#"
-                    className="text-stone-400 hover:text-green-400 transition-colors"
+                    className="text-stone-400 hover:text-stone-300 transition-colors"
                   >
                     <Icon className="w-6 h-6" />
                   </motion.a>
@@ -436,7 +436,7 @@ export default function FAQPage() {
                       viewport={{ once: true }}
                     >
                       <motion.div whileHover={{ x: 5 }}>
-                        <Link href={item.href} className="hover:text-green-400 transition-colors">
+                        <Link href={item.href} className="hover:text-stone-300 transition-colors">
                           {item.name}
                         </Link>
                       </motion.div>
