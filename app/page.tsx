@@ -302,39 +302,38 @@ export default function FearInsightLanding() {
       <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
         {/* Navigation */}
         <motion.nav
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1, type: "spring", stiffness: 100, delay: 0 }}
-          className="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-stone-800"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="fixed top-0 w-full z-50 bg-stone-950/90 border-b border-stone-800"
+          style={{ willChange: "opacity" }}
         >
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
               className="text-2xl font-bold bg-gradient-to-r from-green-500 to-green-400 bg-clip-text text-transparent"
             >
               FEAR INSIGHT
             </motion.div>
 
             <motion.div
-              className="hidden md:flex space-x-8"
+              className="flex space-x-4 md:space-x-8 text-sm md:text-base"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, staggerChildren: 0.1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              style={{ willChange: "opacity" }}
             >
               {["Home", "Products", "About", "Contact"].map((item, index) => (
-                <motion.a
+                <a
                   key={item}
                   href={item === "Products" ? "/products" : `#${item.toLowerCase()}`}
-                  className="hover:text-green-400 transition-colors relative group"
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: (0.5) + index * 0.1 }}
-                  whileHover={{ y: -2 }}
+                  className="hover:text-green-400 transition-colors duration-200 relative group text-stone-100"
                 >
                   {item}
-                  <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-500 to-red-500 group-hover:w-full transition-all duration-300" />
-                </motion.a>
+                  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-500 to-red-500 group-hover:w-full transition-all duration-300" />
+                </a>
               ))}
             </motion.div>
           </div>
@@ -344,43 +343,74 @@ export default function FearInsightLanding() {
         <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
           {/* Video Background */}
           <div className="absolute inset-0 z-0">
+            {/* Fallback background */}
+            <div className="w-full h-full bg-gradient-to-br from-stone-900 via-stone-950 to-stone-800" />
+            
+            {/* Debug indicator - remove this later */}
+            <div className="absolute top-4 left-4 z-50 bg-red-500 text-white px-2 py-1 text-xs rounded opacity-75">
+              VIDEO SECTION
+            </div>
+            
+            {/* Clothing/fashion video background */}
             <video
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-full object-cover"
-              style={{ filter: "brightness(0.4) contrast(1.2) sepia(0.3)" }}
+              preload="auto"
+              className="w-full h-full object-cover absolute inset-0"
+              style={{ 
+                filter: "brightness(0.7) contrast(1.2) saturate(1.0)", // Even brighter for testing
+                transform: "scale(1.05)",
+                zIndex: 1 // Above background but below overlay
+              }}
+              onLoadStart={() => console.log('Video loading...')}
+              onLoadedData={() => console.log('Video loaded successfully')}
+              onError={(e) => {
+                console.log('Video failed to load:', e)
+                // Show fallback background
+                e.currentTarget.style.display = 'none'
+              }}
             >
+              
               <source
-                src="https://videos.pexels.com/video-files/6195149/6195149-uhd_2560_1440_25fps.mp4"
+                src="https://www.pexels.com/download/video/4622341/"
                 type="video/mp4"
               />
               <source
-                src="https://videos.pexels.com/video-files/3195394/3195394-uhd_2560_1440_25fps.mp4"
+                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                type="video/mp4"
+              />
+              <source
+                src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4"
+                type="video/mp4"
+              />
+              {/* Fashion video as backup */}
+              <source
+                src="https://videos.pexels.com/video-files/6195149/6195149-hd_1920_1080_25fps.mp4"
                 type="video/mp4"
               />
             </video>
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-900/50 to-stone-950/80 z-10" />
+            {/* Overlay for better text readability - reduced for testing */}
+            <div className="absolute inset-0 bg-gradient-to-b from-stone-950/40 via-stone-900/30 to-stone-950/50 z-10" />
           </div>
 
           {/* Hero Text Content */}
-          <motion.div style={isMounted ? { y: textY } : {}} className="relative z-30 text-center px-4">
+          <motion.div className="relative z-30 text-center px-4">
             <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1.5, type: "spring", stiffness: 50, delay: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
             >
               <motion.h1
                 className="text-6xl md:text-8xl lg:text-9xl font-black mb-4 bg-gradient-to-r from-stone-100 via-green-300 to-green-400 bg-clip-text text-transparent"
-                initial={{ y: 100, opacity: 0 }}
+                initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 1, delay: 0.2 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
                 style={{
-                  textShadow: "0 0 40px rgba(16, 185, 129, 0.8), 0 4px 8px rgba(0, 0, 0, 0.9)",
-                  filter: "drop-shadow(0 8px 16px rgba(0, 0, 0, 0.9))",
+                  textShadow: "0 4px 8px rgba(0, 0, 0, 0.9)",
+                  willChange: "transform",
                 }}
               >
                 FEAR INSIGHT
@@ -388,21 +418,22 @@ export default function FearInsightLanding() {
 
               <motion.div
                 className="relative mb-6"
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 1, delay: 0.5 }}
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+                style={{ willChange: "transform" }}
               >
-                <div className="h-2 bg-gradient-to-r from-green-600 via-red-500 to-green-600 mx-auto rounded-full shadow-lg shadow-green-500/40" />
+                <div className="h-2 bg-gradient-to-r from-green-600 via-red-500 to-green-600 mx-auto rounded-full" style={{ width: "96px" }} />
               </motion.div>
 
               <motion.p
                 className="text-xl md:text-2xl lg:text-3xl font-light mb-8 text-stone-200"
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 1, delay: 0.8 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.9 }}
                 style={{
-                  textShadow: "0 4px 8px rgba(0, 0, 0, 0.9)",
-                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.9))",
+                  textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
+                  willChange: "opacity",
                 }}
               >
                 DIRECTED BY GOD
@@ -410,9 +441,10 @@ export default function FearInsightLanding() {
 
               <motion.p
                 className="text-lg md:text-xl text-stone-300 mb-8 max-w-2xl mx-auto"
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 1, delay: 1.2 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 1.1 }}
+                style={{ willChange: "opacity" }}
               >
                 Welcome to Fear Insight - where faith meets fashion. Our premium streetwear collection embodies
                 spiritual strength and divine inspiration, crafted for those who walk fearlessly in their purpose.
@@ -421,29 +453,38 @@ export default function FearInsightLanding() {
 
             <motion.div
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 1, delay: 1.4 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 1.3 }}
+              style={{ willChange: "opacity" }}
             >
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
                 <Link href="/products">
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-stone-50 text-lg px-8 py-3 group shadow-2xl shadow-green-500/30 backdrop-blur-sm border border-stone-100/10"
+                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-stone-50 text-lg px-8 py-3 group transition-all duration-300"
                   >
                     Explore Collection
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>
                 </Link>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-stone-300/60 text-stone-100 hover:bg-stone-100/90 hover:text-stone-950 text-lg px-8 py-3 bg-stone-950/30 backdrop-blur-md group shadow-2xl border-2"
+                  className="border-stone-300/60 text-stone-100 hover:bg-stone-100/90 hover:text-stone-950 text-lg px-8 py-3 bg-stone-950/30 group border-2 transition-all duration-300"
                 >
-                  <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                  <Play className="w-5 h-5 mr-2 group-hover:scale-105 transition-transform duration-200" />
                   Watch Story
                 </Button>
               </motion.div>
@@ -452,16 +493,18 @@ export default function FearInsightLanding() {
 
           {/* Scroll Indicator */}
           <motion.div
-            animate={{ y: [0, -10, 0], opacity: 1 }}
-            transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, delay: 2 }}
+            animate={{ opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, delay: 2 }}
             className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-stone-100/90 z-30"
             initial={{ opacity: 0 }}
+            style={{ willChange: "opacity" }}
           >
-            <div className="w-8 h-12 border-2 border-stone-300/70 rounded-full flex justify-center backdrop-blur-md bg-stone-950/20 shadow-lg">
+            <div className="w-8 h-12 border-2 border-stone-300/70 rounded-full flex justify-center bg-stone-950/20">
               <motion.div
                 className="w-2 h-4 bg-gradient-to-b from-amber-400 to-yellow-500 rounded-full mt-2"
-                animate={{ y: [0, 20, 0] }}
-                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+                animate={{ y: [2, 16, 2] }}
+                transition={{ duration: 2.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+                style={{ willChange: "transform" }}
               />
             </div>
             <p className="text-xs mt-2 text-stone-300/70 font-light">Scroll Down</p>
