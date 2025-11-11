@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { motion, useScroll, useTransform, useInView, useAnimation } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -295,6 +295,38 @@ export default function FearInsightLanding() {
     { title: "PRAYER HOODIE", price: "$90", color: "#8b4513" },
   ]
 
+  // Carousel refs and width calculation for Best Sellers
+  const carouselRef = useRef<HTMLDivElement | null>(null)
+  const innerRef = useRef<HTMLDivElement | null>(null)
+  const [carWidth, setCarWidth] = useState(0)
+
+  useEffect(() => {
+    function updateWidth() {
+      if (!innerRef.current || !carouselRef.current) return
+      const scrollWidth = innerRef.current.scrollWidth
+      const offsetWidth = carouselRef.current.offsetWidth
+      setCarWidth(Math.max(0, scrollWidth - offsetWidth))
+    }
+
+    updateWidth()
+    window.addEventListener("resize", updateWidth)
+    return () => window.removeEventListener("resize", updateWidth)
+  }, [products])
+
+  // Carousel animation controls
+  const controls = useAnimation()
+  const [carX, setCarX] = useState(0)
+
+  function scrollByPixels(delta: number) {
+    const containerW = carouselRef.current?.offsetWidth || 300
+    const move = Math.round(containerW * 0.75)
+    let next = carX + (delta === 0 ? -move : delta)
+    // clamp
+    next = Math.max(-carWidth, Math.min(0, next))
+    setCarX(next)
+    controls.start({ x: next, transition: { type: 'spring', stiffness: 200, damping: 30 } })
+  }
+
   return (
     <>
       {/* Remove PageLoadingOverlay */}
@@ -466,18 +498,8 @@ export default function FearInsightLanding() {
                 FEAR INSIGHT
               </motion.h1>
 
-              <motion.div
-                className="relative mb-6"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.8, delay: 0.7 }}
-                style={{ willChange: "transform" }}
-              >
-                <div className="h-2 bg-gradient-to-r from-stone-700 via-stone-400 to-stone-900 mx-auto rounded-full" style={{ width: "96px" }} />
-              </motion.div>
-
               <motion.p
-                className="text-xl md:text-2xl lg:text-3xl font-light mb-8 text-stone-200"
+                className="text-xl md:text-2xl lg:text-3xl font-light mb-6 text-stone-200"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.9 }}
@@ -488,6 +510,16 @@ export default function FearInsightLanding() {
               >
                 DIRECTED BY GOD
               </motion.p>
+
+              <motion.div
+                className="relative mb-6"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.8, delay: 1.0 }}
+                style={{ willChange: "transform" }}
+              >
+                <div className="h-2 bg-gradient-to-r from-stone-700 via-stone-400 to-stone-900 mx-auto rounded-full" style={{ width: "96px" }} />
+              </motion.div>
 
               <motion.p
                 className="text-lg md:text-xl text-stone-300 mb-8 max-w-2xl mx-auto"
@@ -541,24 +573,6 @@ export default function FearInsightLanding() {
             </motion.div>
           </motion.div>
 
-          {/* Scroll Indicator */}
-          <motion.div
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, delay: 2 }}
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-stone-100/90 z-30"
-            initial={{ opacity: 0 }}
-            style={{ willChange: "opacity" }}
-          >
-            <div className="w-8 h-12 border-2 border-stone-300/70 rounded-full flex justify-center bg-stone-950/20">
-              <motion.div
-                className="w-2 h-4 bg-gradient-to-b from-amber-400 to-yellow-500 rounded-full mt-2"
-                animate={{ y: [2, 16, 2] }}
-                transition={{ duration: 2.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-                style={{ willChange: "transform" }}
-              />
-            </div>
-            <p className="text-xs mt-2 text-stone-300/70 font-light">Scroll Down</p>
-          </motion.div>
         </section>
 
         {/* Products Section */}
@@ -744,7 +758,7 @@ export default function FearInsightLanding() {
               </motion.p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               {[
                 {
                   number: "01",
@@ -766,6 +780,12 @@ export default function FearInsightLanding() {
                 },
                 {
                   number: "04",
+                  title: "Stitching",
+                  description: "Expert stitching with precision techniques ensures every seam is perfect. We use premium threads and meticulous attention to detail for durability and comfort.",
+                  icon: "🧵",
+                },
+                {
+                  number: "05",
                   title: "Final Inspection",
                   description: "Before delivery, every garment undergoes a comprehensive final inspection to guarantee it meets our premium standards and your expectations.",
                   icon: "⭐",
@@ -775,7 +795,7 @@ export default function FearInsightLanding() {
                   key={index}
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: index * 0.15 }}
+                  transition={{ duration: 0.8, delay: (index % 5) * 0.15 }}
                   viewport={{ once: true }}
                   whileHover={{ y: -10, transition: { duration: 0.3 } }}
                   className="group"
@@ -822,7 +842,7 @@ export default function FearInsightLanding() {
                       </motion.p>
 
                       {/* Connection line indicator */}
-                      {index < 3 && (
+                      {index < 4 && (
                         <div className="hidden lg:block absolute -right-3 top-1/2 transform translate-x-full">
                           <motion.div
                             className="w-6 h-0.5 bg-gradient-to-r from-stone-600 to-stone-800"
@@ -891,54 +911,103 @@ export default function FearInsightLanding() {
           </div>
         </section>
 
-        {/* Newsletter Section */}
-        <section className="py-20 px-4 bg-gradient-to-r from-stone-900/50 to-red-900/40 relative overflow-hidden">
-          <div className="container mx-auto text-center relative z-10">
+        {/* Our Best Sellers (carousel) - replaces the Newsletter block */}
+        <section className="py-16 px-4 relative overflow-hidden">
+          <div className="container mx-auto relative z-10">
             <motion.div
-              initial={{ opacity: 0, y: 100 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 0.8 }}
               viewport={{ once: true }}
+              className="mb-8 text-center"
             >
-              <motion.h2
-                className="text-4xl md:text-5xl font-bold mb-4 text-stone-100"
-                initial={{ opacity: 0, scale: 0.5 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-              >
-                STAY CONNECTED
-              </motion.h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent">OUR BEST SELLERS</h2>
+              <p className="text-stone-300 max-w-2xl mx-auto">Explore the pieces our community wears most — heavyweight hoodies built for comfort, durability, and style.</p>
+            </motion.div>
 
-              <motion.p
-                className="text-xl text-stone-300 mb-8 max-w-2xl mx-auto"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                viewport={{ once: true }}
+            {/* Carousel container */}
+            <div ref={carouselRef} className="overflow-hidden relative">
+              {/* Left / Right arrows */}
+              <motion.button
+                onClick={() => scrollByPixels(0)}
+                whileHover={{ scale: 1.05 }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-40 bg-stone-900/60 p-2 rounded-full border border-stone-700/50"
               >
-                Be the first to know about new drops, exclusive releases, and spiritual insights. Join our community of
-                faith-driven fashion enthusiasts.
-              </motion.p>
+                <ArrowRight className="w-5 h-5 text-stone-100 rotate-180" />
+              </motion.button>
+              <motion.button
+                onClick={() => scrollByPixels( - (carouselRef.current?.offsetWidth ? Math.round(carouselRef.current.offsetWidth * 0.75) : 300) )}
+                whileHover={{ scale: 1.05 }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-40 bg-stone-900/60 p-2 rounded-full border border-stone-700/50"
+              >
+                <ArrowRight className="w-5 h-5 text-stone-100" />
+              </motion.button>
 
               <motion.div
-                className="max-w-md mx-auto flex gap-4"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                viewport={{ once: true }}
+                ref={innerRef}
+                className="flex gap-6 pb-6"
+                drag="x"
+                dragConstraints={{ right: 0, left: -carWidth }}
+                whileTap={{ cursor: "grabbing" }}
+                animate={controls}
+                initial={{ x: 0 }}
               >
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="bg-stone-950/50 border-stone-600 text-stone-100 placeholder:text-stone-400 focus:border-stone-300 transition-colors"
-                />
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 whitespace-nowrap">
-                    Join Us
-                  </Button>
-                </motion.div>
+                {products.map((p, i) => (
+                  <motion.div key={i} className="min-w-[220px] md:min-w-[280px] lg:min-w-[320px]">                    <Card className="bg-stone-900/30 border border-stone-700/50 hover:border-stone-600/80 transition-all duration-300">
+                      <CardContent className="p-4">
+                        <div className="w-full h-44 mb-4 bg-stone-800 rounded-md flex items-center justify-center" style={{ backgroundColor: p.color }}>
+                          {/* Placeholder thumbnail */}
+                          <div className="text-stone-50 font-semibold">{p.title}</div>
+                        </div>
+                        <h3 className="text-lg font-semibold text-stone-100">{p.title}</h3>
+                        <p className="text-stone-300 mb-3">{p.price}</p>
+                        <div className="flex gap-2">
+                          <Button size="sm" className="bg-gradient-to-r from-stone-800 to-stone-900 text-stone-50">Buy Now</Button>
+                          <Button size="sm" className="border border-stone-700 text-stone-100">Quick View</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
               </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Hoodie Highlight / Story */}
+        <section className="py-12 px-4 bg-stone-900/60 relative overflow-hidden">
+          <div className="container mx-auto relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="max-w-4xl mx-auto text-center"
+            >
+              <h3 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent">The Hoodie — 465gsm Heavyweight</h3>
+              <p className="text-stone-300 mb-6">
+                Our signature 465gsm heavyweight hoodie is built to last — dense, structured, and luxuriously soft. Every
+                fiber is chosen for warmth, drape, and resilience so the garment keeps its shape and feels premium wash
+                after wash. From the moment you unbox it, the experience is carefully crafted: premium tissue, branded
+                stickers, a thank-you card, and protective wrapping that highlights the garment like the piece of art it is.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="p-4 bg-stone-800/30 border border-stone-700/50 rounded-lg">
+                  <h4 className="text-lg font-semibold text-stone-100">465gsm Fabric</h4>
+                  <p className="text-xs text-stone-400">Heavyweight, durable, and premium hand feel.</p>
+                </div>
+                <div className="p-4 bg-stone-800/30 border border-stone-700/50 rounded-lg">
+                  <h4 className="text-lg font-semibold text-stone-100">Premium Stitching</h4>
+                  <p className="text-xs text-stone-400">Double-needle seams and reinforced stress points for longevity.</p>
+                </div>
+                <div className="p-4 bg-stone-800/30 border border-stone-700/50 rounded-lg">
+                  <h4 className="text-lg font-semibold text-stone-100">Unboxing Experience</h4>
+                  <p className="text-xs text-stone-400">Thoughtful packaging that makes every purchase feel like a gift.</p>
+                </div>
+              </div>
+
+              <p className="text-stone-300">Our goal is simple: to create garments that make you feel confident, valued, and satisfied. Every choice — from fabric weight to packaging — aims to deliver joy when you open the box and pride every time you wear it.</p>
             </motion.div>
           </div>
         </section>
