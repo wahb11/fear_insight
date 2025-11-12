@@ -588,11 +588,11 @@ export default function ProductsPage() {
               <div className="mb-4">
                 <p className="text-stone-300 mb-2">Get in touch:</p>
                 <a
-                  href="mailto:wahbusman@fearinsight.com"
+                  href="mailto:info@fearinsight.com"
                   className="text-stone-100 hover:text-stone-300 transition-colors flex items-center gap-2"
                 >
                   <Mail className="w-4 h-4" />
-                  wahbusman@fearinsight.com
+                  info@fearinsight.com
                 </a>
               </div>
               <div className="flex space-x-4">
