@@ -9,6 +9,7 @@ import { ShoppingBag, Star, Heart, ArrowRight, Search } from "lucide-react"
 import { useCart } from "@/app/context/CartContext"
 import { useAllProducts } from "@/hooks/useAllProducts"
 import { Product } from "@/types/products"
+import { useRouter } from "next/navigation"
 
 
 
@@ -41,6 +42,8 @@ const Pill = ({ children, color = "green" }: { children: React.ReactNode; color?
 )
 
 export default function ProductsPage() {
+
+  const router = useRouter()
   const { data: products, isLoading, error } = useAllProducts()
   const containerRef = useRef<HTMLDivElement>(null)
   const { addToCart } = useCart()
@@ -327,7 +330,9 @@ export default function ProductsPage() {
                   whileHover={{ scale: 1.02 }}
                   className="group cursor-pointer"
                 >
-                  <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300">
+                  <Card 
+                  onClick={() => router.push(`/product/${product.id}`)}
+                  className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300">
                     {/* Product Image */}
                     <div className="relative h-80 overflow-hidden">
                       {firstImage ? (
