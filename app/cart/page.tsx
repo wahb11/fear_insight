@@ -251,6 +251,7 @@ export default function CartPage() {
                       CHECKOUT
                     </Button>
                   </motion.div>
+                  
 
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Link href="/products" className="block">
