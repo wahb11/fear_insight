@@ -11,75 +11,9 @@ import { Instagram, Twitter, Mail, ShoppingBag, Star, ArrowRight, Play, Loader2,
 import { useRef, useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 
-// Error Boundary Component
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; fallback?: React.ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
 
-  static getDerivedStateFromError() {
-    return { hasError: true }
-  }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Error caught by boundary:", error, errorInfo)
-  }
 
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback || <div className="w-full h-full bg-stone-800 rounded" />
-    }
-
-    return this.props.children
-  }
-}
-
-// Loading Spinner Component
-function LoadingSpinner({ size = "default" }: { size?: "sm" | "default" | "lg" }) {
-  const sizeClasses = {
-    sm: "w-4 h-4",
-    default: "w-6 h-6",
-    lg: "w-8 h-8",
-  }
-
-  return (
-    <div className="flex items-center justify-center">
-  <Loader2 className={`${sizeClasses[size]} animate-spin text-stone-100`} />
-    </div>
-  )
-}
-
-// Enhanced Loading Component with animations
-function EnhancedLoading({ text = "Loading...", showSpinner = true }: { text?: string; showSpinner?: boolean }) {
-  return (
-    <motion.div
-      className="w-full h-full bg-gradient-to-br from-stone-900/20 to-stone-900/40 rounded-lg flex flex-col items-center justify-center gap-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      {showSpinner && (
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-        >
-          <div className="w-8 h-8 border-2 border-stone-600 border-t-transparent rounded-full" />
-        </motion.div>
-      )}
-      <motion.div
-        className="text-stone-200/70 text-sm font-medium"
-        animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-      >
-        {text}
-      </motion.div>
-    </motion.div>
-  )
-}
 
 // Simple Product Card without 3D
 function ProductCard({
@@ -190,78 +124,8 @@ function ProductCard({
   )
 }
 
-// 3D Canvas removed
 
-// Simple animated counter that works with SSR
-function AnimatedCounter({ end }: { end: number }) {
-  const [count, setCount] = useState(0)
-  const countRef = useRef<HTMLSpanElement>(null)
-  const isInView = useInView(countRef, { once: true })
 
-  useEffect(() => {
-    if (isInView) {
-      let start = 0
-      const increment = end / 100
-      const timer = setInterval(() => {
-        start += increment
-        if (start >= end) {
-          setCount(end)
-          clearInterval(timer)
-        } else {
-          setCount(Math.floor(start))
-        }
-      }, 20)
-      return () => clearInterval(timer)
-    }
-  }, [isInView, end])
-
-  return (
-    <span
-      ref={countRef}
-      className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
-    >
-      {count}
-    </span>
-  )
-}
-
-// 3D Scene removed
-
-// Page Loading Overlay
-function PageLoadingOverlay({ isLoading }: { isLoading: boolean }) {
-  if (!isLoading) return null
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 bg-stone-950 flex items-center justify-center"
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="text-center">
-        <motion.div
-          className="text-6xl font-bold bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent mb-8"
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-        >
-          FEAR INSIGHT
-        </motion.div>
-        <motion.div
-          className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-        />
-        <motion.p
-          className="text-stone-300/70"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-        >
-          DIRECTED BY GOD
-        </motion.p>
-      </div>
-    </motion.div>
-  )
-}
 
 export default function FearInsightLanding() {
   const containerRef = useRef<HTMLDivElement>(null)
