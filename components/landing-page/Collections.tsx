@@ -4,20 +4,19 @@ import React from "react"
 
 import { motion} from "framer-motion"
 import { CollectionsProductCard } from "./CollectionsProductCard"
-import { useFeaturedProducts } from "@/hooks/useFeaturedProducts"
+import { useAllProducts } from "@/hooks/useAllProducts"
 
 
 export default function Collections() {
-     const { data:products, isLoading, error } = useFeaturedProducts()
-
-
+     const { data, isLoading, error } = useAllProducts()
+     const products = data? data.filter(product => product.featured) : [];
    
      if(isLoading){
         return <div>Loading...</div>
      }
         if(error){
         return <div>Error loading products</div>
-        }
+    }
   return (
    <section id="products" className="py-20 px-4 relative bg-stone-900">
              <div className="container mx-auto">

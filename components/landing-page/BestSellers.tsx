@@ -5,8 +5,9 @@ import { motion, useAnimation } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
-import { useBestSellerProducts } from "@/hooks/useBestSellerProducts"
+
 import { Product } from "@/types/products"
+import { useAllProducts } from "@/hooks/useAllProducts"
 
 export default function BestSellers() {
   const controls = useAnimation()
@@ -35,7 +36,8 @@ export default function BestSellers() {
     controls.start({ x: next, transition: { type: 'spring', stiffness: 200, damping: 30 } })
   }
 
-  const { data: products, isLoading, error } = useBestSellerProducts()
+  const { data, isLoading, error } = useAllProducts()
+  const products = data ? data.filter(product => product.best_seller) : []  
 
   if (isLoading) return <p>Loading...</p>
   if (error) return <p>Error fetching best sellers</p>
