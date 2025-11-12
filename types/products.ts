@@ -1,6 +1,6 @@
 export interface Product {
   id: string
-  categoryId: string
+  category_id: string
   name: string
   description?: string
   colors: Record<string, number>[] // e.g. [{ blue: 10, red: 2 }]
@@ -10,5 +10,6 @@ export interface Product {
   price: number
   discount:number
   featured: boolean
-  
+  best_seller: boolean
+
 }
