@@ -5,6 +5,7 @@ import { Montserrat } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from './context/CartContext'
 import './globals.css'
+import QueryProvider from '@/providers/query-provider'
 
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800', '900'] })
 
@@ -30,15 +31,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${montserrat.className}`} suppressHydrationWarning>
+     <QueryProvider>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
+        
         <CartProvider>
           {children}
         </CartProvider>
         <Analytics />
       </body>
+      </QueryProvider>
     </html>
   )
 }

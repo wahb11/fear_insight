@@ -2,127 +2,22 @@
 
 import React from "react"
 import Link from "next/link"
-import { motion, useScroll, useTransform, useInView, useAnimation } from "framer-motion"
+import { motion, useScroll, useTransform,  useAnimation } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+
 import { Card, CardContent } from "@/components/ui/card"
-import { Instagram, Twitter, Mail, ShoppingBag, Star, ArrowRight, Play, Loader2, Menu, X } from "lucide-react"
+import { Instagram, Twitter, Mail, ShoppingBag,  ArrowRight, Play} from "lucide-react"
 import { useRef, useState, useEffect } from "react"
-import dynamic from "next/dynamic"
+import Collections from "@/components/landing-page/Collections"
+
 
 
 
 
 
 // Simple Product Card without 3D
-function ProductCard({
-  title,
-  price,
-  color,
-  index,
-}: {
-  title: string
-  price: string
-  color: string
-  index: number
-}) {
-  const [isHovered, setIsHovered] = useState(false)
-  const cardRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(cardRef, { once: true, margin: "-100px" })
 
-  return (
-    <motion.div
-      ref={cardRef}
-      initial={{ opacity: 0, y: 100 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.8,
-        delay: index * 0.2,
-        type: "spring",
-        stiffness: 100,
-      }}
-      whileHover={{
-        scale: 1.05,
-        transition: { duration: 0.3 },
-      }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="group cursor-pointer"
-    >
-      <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full">
-        <div className="relative h-80">
-          {/* Simple hoodie illustration */}
-          <div
-            className="w-full h-full flex items-center justify-center rounded-t-lg relative overflow-hidden"
-            style={{ backgroundColor: color }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-stone-950/20 to-transparent" />
-            <div className="text-stone-100 text-center z-10">
-              <div className="w-32 h-32 mx-auto mb-4 relative">
-                {/* Simple hoodie shape */}
-                <div className="absolute inset-0 bg-stone-100/90 rounded-t-full" />
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-stone-100/90 rounded-full" />
-                <div className="absolute top-8 left-2 w-8 h-16 bg-stone-100/90 rounded-full transform -rotate-12" />
-                <div className="absolute top-8 right-2 w-8 h-16 bg-stone-100/90 rounded-full transform rotate-12" />
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-stone-100/70 rounded" />
-              </div>
-              <div className="text-sm font-medium text-stone-100">Premium Hoodie</div>
-            </div>
-          </div>
-
-          <motion.div
-            className="absolute top-4 right-4 bg-stone-900/70 backdrop-blur-sm rounded-full p-2"
-            initial={{ scale: 0 }}
-            animate={{ scale: isInView ? 1 : 0 }}
-            transition={{ delay: index * 0.2 + 0.5 }}
-          >
-            <ShoppingBag className="w-5 h-5 text-stone-100" />
-          </motion.div>
-        </div>
-
-        <CardContent className="p-6">
-          <motion.h3
-            className="text-xl font-bold mb-2 text-stone-100"
-            initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: index * 0.2 + 0.3 }}
-          >
-            {title}
-          </motion.h3>
-          <motion.p
-            className="text-stone-400 mb-4"
-            initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: index * 0.2 + 0.4 }}
-          >
-            Premium cotton blend with embroidered details
-          </motion.p>
-          <motion.div
-            className="flex justify-between items-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: index * 0.2 + 0.5 }}
-          >
-            <span className="text-2xl font-bold text-stone-100">{price}</span>
-            <div className="flex items-center space-x-1">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                  transition={{ delay: index * 0.2 + 0.6 + i * 0.1 }}
-                >
-                  <Star className="w-4 h-4 fill-stone-400 text-stone-400" />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-}
 
 
 
@@ -462,60 +357,10 @@ export default function FearInsightLanding() {
 
         </section>
 
-        {/* Products Section */}
-        <section id="products" className="py-20 px-4 relative bg-stone-900">
-          <div className="container mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              viewport={{ once: true }}
-              className="text-center mb-16"
-            >
-              <motion.h2
-                className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent"
-                initial={{ opacity: 0, scale: 0.5 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-              >
-                COLLECTION
-              </motion.h2>
+            <Collections/>
 
-              <motion.div
-                className="w-24 h-1 bg-gradient-to-r from-stone-700 to-stone-900 mx-auto mb-6"
-                initial={{ width: 0 }}
-                whileInView={{ width: 96 }}
-                transition={{ duration: 1, delay: 0.5 }}
-                viewport={{ once: true }}
-              />
 
-              <motion.p
-                className="text-xl text-stone-400 max-w-2xl mx-auto"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                viewport={{ once: true }}
-              >
-                Premium streetwear designed with purpose and crafted with precision. Each piece tells a story of faith,
-                courage, and divine inspiration.
-              </motion.p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {products.map((product, index) => (
-                <ProductCard
-                  key={product.title}
-                  title={product.title}
-                  price={product.price}
-                  color={product.color}
-                  index={index}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
+        
         {/* About Section */}
         <section
           id="about"
