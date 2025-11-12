@@ -4,11 +4,13 @@ import { ShoppingBag } from "lucide-react"
 import { motion, useAnimation } from "framer-motion"
 import { useCart } from '@/app/context/CartContext'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { items } = useCart()
   const cartButtonControls = useAnimation()
+  const router = useRouter()
 
   return (
     <motion.nav
@@ -44,14 +46,16 @@ export default function Header() {
         </motion.button>
 
         {/* Logo */}
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ duration: 0.2 }}
-          className="text-xl md:text-2xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
-        >
-          FEAR INSIGHT
-        </motion.div>
+        <Link href="/">
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="text-xl md:text-2xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent cursor-pointer"
+          >
+            FEAR INSIGHT
+          </motion.div>
+        </Link>
 
         {/* Cart Button */}
         <Link href="/cart">
@@ -79,15 +83,31 @@ export default function Header() {
         <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
           {["Home", "Products", "About", "Contact"].map((item) => {
             const href = item === "Products" ? "/products" : item === "Home" ? `/` : `#${item.toLowerCase()}`
+            const handleClick = (e: React.MouseEvent) => {
+              e.preventDefault()
+              setIsMenuOpen(false)
+              
+              if (item === "Products") {
+                router.push("/products")
+              } else if (item === "Home") {
+                router.push("/")
+              } else {
+                // For anchor links, scroll to section
+                const element = document.getElementById(item.toLowerCase())
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' })
+                }
+              }
+            }
+            
             return (
-              <Link
+              <motion.button
                 key={item}
-                href={href}
-                onClick={() => setIsMenuOpen(false)}
-                className="text-stone-100 hover:text-stone-300 transition-colors duration-200 py-2 px-4 rounded-lg hover:bg-stone-800"
+                onClick={handleClick}
+                className="text-stone-100 hover:text-stone-300 transition-colors duration-200 py-2 px-4 rounded-lg hover:bg-stone-800 text-left w-full"
               >
                 <motion.span whileHover={{ x: 10 }}>{item}</motion.span>
-              </Link>
+              </motion.button>
             )
           })}
         </div>
