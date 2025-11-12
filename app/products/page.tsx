@@ -1,174 +1,16 @@
 "use client"
 
-import React, { useState, useRef } from "react"
-import { motion, useInView, useScroll, useTransform } from "framer-motion"
+import React, { useState, useRef, useMemo } from "react"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, ShoppingBag, Star, Filter, Grid, List, Heart, Eye, ArrowRight, Mail, Instagram, Twitter, SlidersHorizontal, Search } from "lucide-react"
-import Link from "next/link"
+import { ShoppingBag, Star, Heart, ArrowRight, Search } from "lucide-react"
 import { useCart } from "@/app/context/CartContext"
+import { useAllProducts } from "@/hooks/useAllProducts"
+import { Product } from "@/types/products"
 
-const products = [
-	{
-		id: "1",
-		title: "DIVINE HOODIE",
-		price: 89,
-		originalPrice: 109,
-		color: "#d2b48c",
-		colorName: "Tan",
-		sizes: ["S", "M", "L", "XL", "XXL"],
-		rating: 4.9,
-		reviews: 127,
-		isNew: true,
-		isBestseller: false,
-		description: "Premium cotton blend hoodie with embroidered divine inspiration details",
-		images: [
-			"/placeholder.svg?height=400&width=400&text=Divine+Hoodie+Front",
-			"/placeholder.svg?height=400&width=400&text=Divine+Hoodie+Back",
-		],
-	},
-	{
-		id: "2",
-		title: "FAITH HOODIE",
-		price: 95,
-		originalPrice: null,
-		color: "#36454f",
-		colorName: "Charcoal",
-		sizes: ["S", "M", "L", "XL", "XXL"],
-		rating: 4.8,
-		reviews: 89,
-		isNew: false,
-		isBestseller: true,
-		description: "Bold faith statement piece with premium construction and comfort",
-		images: [
-			"/placeholder.svg?height=400&width=400&text=Faith+Hoodie+Front",
-			"/placeholder.svg?height=400&width=400&text=Faith+Hoodie+Back",
-		],
-	},
-	{
-		id: "3",
-		title: "BLESSED HOODIE",
-		price: 92,
-		originalPrice: null,
-		color: "#ffd700",
-		colorName: "Gold",
-		sizes: ["S", "M", "L", "XL", "XXL"],
-		rating: 4.9,
-		reviews: 156,
-		isNew: false,
-		isBestseller: true,
-		description: "Luxurious gold-toned hoodie celebrating divine blessings",
-		images: [
-			"/placeholder.svg?height=400&width=400&text=Blessed+Hoodie+Front",
-			"/placeholder.svg?height=400&width=400&text=Blessed+Hoodie+Back",
-		],
-	},
-	{
-		id: "4",
-		title: "GRACE HOODIE",
-		price: 88,
-		originalPrice: 98,
-		color: "#f5f5dc",
-		colorName: "Cream",
-		sizes: ["S", "M", "L", "XL", "XXL"],
-		rating: 4.7,
-		reviews: 73,
-		isNew: true,
-		isBestseller: false,
-		description: "Elegant cream hoodie embodying grace and spiritual elegance",
-		images: [
-			"/placeholder.svg?height=400&width=400&text=Grace+Hoodie+Front",
-			"/placeholder.svg?height=400&width=400&text=Grace+Hoodie+Back",
-		],
-	},
-	{
-		id: "5",
-		title: "SPIRIT HOODIE",
-		price: 94,
-		originalPrice: null,
-		color: "#cd853f",
-		colorName: "Bronze",
-		sizes: ["S", "M", "L", "XL", "XXL"],
-		rating: 4.8,
-		reviews: 112,
-		isNew: false,
-		isBestseller: false,
-		description: "Spiritual strength meets streetwear style in this bronze masterpiece",
-		images: [
-			"/placeholder.svg?height=400&width=400&text=Spirit+Hoodie+Front",
-			"/placeholder.svg?height=400&width=400&text=Spirit+Hoodie+Back",
-		],
-	},
-	{
-		id: "6",
-		title: "PRAYER HOODIE",
-		price: 90,
-		originalPrice: null,
-		color: "#8b4513",
-		colorName: "Brown",
-		sizes: ["S", "M", "L", "XL", "XXL"],
-		rating: 4.9,
-		reviews: 98,
-		isNew: false,
-		isBestseller: false,
-		description: "Meditative brown hoodie perfect for prayer and reflection",
-		images: [
-			"/placeholder.svg?height=400&width=400&text=Prayer+Hoodie+Front",
-			"/placeholder.svg?height=400&width=400&text=Prayer+Hoodie+Back",
-		],
-	},
-	{
-		id: "7",
-		title: "WORSHIP HOODIE",
-		price: 96,
-		originalPrice: null,
-		color: "#2f4f4f",
-		colorName: "Dark Slate",
-		sizes: ["S", "M", "L", "XL", "XXL"],
-		rating: 4.8,
-		reviews: 84,
-		isNew: true,
-		isBestseller: false,
-		description: "Deep slate hoodie designed for worship and contemplation",
-		images: [
-			"/placeholder.svg?height=400&width=400&text=Worship+Hoodie+Front",
-			"/placeholder.svg?height=400&width=400&text=Worship+Hoodie+Back",
-		],
-	},
-	{
-		id: "8",
-		title: "MIRACLE HOODIE",
-		price: 99,
-		originalPrice: 119,
-		color: "#daa520",
-		colorName: "Goldenrod",
-		sizes: ["S", "M", "L", "XL", "XXL"],
-		rating: 4.9,
-		reviews: 145,
-		isNew: false,
-		isBestseller: true,
-		description: "Limited edition hoodie celebrating life's miracles",
-		images: [
-			"/placeholder.svg?height=400&width=400&text=Miracle+Hoodie+Front",
-			"/placeholder.svg?height=400&width=400&text=Miracle+Hoodie+Back",
-		],
-	},
-]
 
-const filters = {
-	colors: ["All", "Tan", "Charcoal", "Gold", "Cream", "Bronze", "Brown", "Dark Slate", "Goldenrod"],
-	sizes: ["All", "S", "M", "L", "XL", "XXL"],
-	price: ["All", "Under $90", "$90-$95", "Over $95"],
-	sort: ["Featured", "Price: Low to High", "Price: High to Low", "Newest", "Best Selling", "Highest Rated"],
-}
-
-const navigation = [
-  { name: "Home", href: "/" },
-  { name: "Products", href: "/products" },
-  { name: "About", href: "/#about" },
-  { name: "Contact", href: "/#contact" },
-]
 
 // Animation variants for product cards
 const cardVariants = {
@@ -199,8 +41,10 @@ const Pill = ({ children, color = "green" }: { children: React.ReactNode; color?
 )
 
 export default function ProductsPage() {
+  const { data: products, isLoading, error } = useAllProducts()
   const containerRef = useRef<HTMLDivElement>(null)
   const { addToCart } = useCart()
+  
   const [selectedColor, setSelectedColor] = useState("All")
   const [selectedSize, setSelectedSize] = useState("All")
   const [selectedPrice, setSelectedPrice] = useState("All")
@@ -208,86 +52,131 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  })
-  
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
 
-  const filteredProducts = products.filter((product) => {
-    if (searchTerm && !product.title.toLowerCase().includes(searchTerm.toLowerCase())) return false
-    if (selectedColor !== "All" && product.colorName !== selectedColor) return false
-    if (selectedSize !== "All" && !product.sizes.includes(selectedSize)) return false
-    if (selectedPrice !== "All") {
-      if (selectedPrice === "Under $90" && product.price >= 90) return false
-      if (selectedPrice === "$90-$95" && (product.price < 90 || product.price > 95)) return false
-      if (selectedPrice === "Over $95" && product.price <= 95) return false
-    }
-    return true
-  })
+  // Generate dynamic filters from products
+  const dynamicFilters = useMemo(() => {
+    if (!products) return { colors: ["All"], sizes: ["All"], priceRanges: ["All"] }
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "Price: Low to High":
-        return a.price - b.price
-      case "Price: High to Low":
-        return b.price - a.price
-      case "Newest":
-        return a.isNew ? -1 : 1
-      case "Best Selling":
-        return a.isBestseller ? -1 : 1
-      case "Highest Rated":
-        return b.rating - a.rating
-      default:
-        return 0
+    const colorsSet = new Set<string>()
+    const sizesSet = new Set<string>()
+    let minPrice = Infinity
+    let maxPrice = 0
+
+    products.forEach((product: Product) => {
+      // Extract colors from colors array
+      product.colors?.forEach((colorObj) => {
+        Object.keys(colorObj).forEach((color) => colorsSet.add(color))
+      })
+
+      // Extract sizes from sizes array
+      product.sizes?.forEach((sizeObj) => {
+        Object.keys(sizeObj).forEach((size) => sizesSet.add(size.toUpperCase()))
+      })
+
+      // Track price range
+      const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
+      if (finalPrice < minPrice) minPrice = finalPrice
+      if (finalPrice > maxPrice) maxPrice = finalPrice
+    })
+
+    // Generate price ranges dynamically
+    const priceStep = Math.ceil((maxPrice - minPrice) / 3)
+    const priceRanges = [
+      "All",
+      `Under $${minPrice + priceStep}`,
+      `$${minPrice + priceStep}-$${minPrice + priceStep * 2}`,
+      `Over $${minPrice + priceStep * 2}`,
+    ]
+
+    return {
+      colors: ["All", ...Array.from(colorsSet).sort()],
+      sizes: ["All", ...Array.from(sizesSet).sort()],
+      priceRanges,
+      minPrice,
+      maxPrice,
+      priceStep,
     }
-  })
+  }, [products])
+
+  const filteredProducts = useMemo(() => {
+    if (!products) return []
+
+    return products.filter((product: Product) => {
+      // Search filter
+      if (searchTerm && !product.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return false
+      }
+
+      // Color filter
+      if (selectedColor !== "All") {
+        const hasColor = product.colors?.some((colorObj) =>
+          Object.keys(colorObj).some((color) => color.toLowerCase() === selectedColor.toLowerCase())
+        )
+        if (!hasColor) return false
+      }
+
+      // Size filter
+      if (selectedSize !== "All") {
+        const hasSize = product.sizes?.some((sizeObj) =>
+          Object.keys(sizeObj).some((size) => size.toUpperCase() === selectedSize.toUpperCase())
+        )
+        if (!hasSize) return false
+      }
+
+      // Price filter
+      if (selectedPrice !== "All") {
+        const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
+        const priceStep = dynamicFilters.priceStep
+        const minPrice = dynamicFilters.minPrice
+
+        if (selectedPrice.startsWith("Under")) {
+          const maxPriceInRange = (minPrice || 0)+ (priceStep || 0)
+          if (finalPrice >= maxPriceInRange) return false
+        } else if (selectedPrice.includes("-")) {
+          const [min, max] = selectedPrice.replace(/\$/g, "").split("-").map(Number)
+          if (finalPrice < min || finalPrice > max) return false
+        } else if (selectedPrice.startsWith("Over")) {
+          const minPriceInRange = (minPrice || 0) + (priceStep || 0) * 2
+          if (finalPrice <= minPriceInRange) return false
+        }
+      }
+
+      return true
+    })
+  }, [products, searchTerm, selectedColor, selectedSize, selectedPrice, dynamicFilters])
+
+  const sortedProducts = useMemo(() => {
+    if (!filteredProducts) return []
+
+    return [...filteredProducts].sort((a: Product, b: Product) => {
+      switch (sortBy) {
+        case "Price: Low to High":
+          const priceA = a.discount > 0 ? a.price - a.discount : a.price
+          const priceB = b.discount > 0 ? b.price - b.discount : b.price
+          return priceA - priceB
+        case "Price: High to Low":
+          const priceADesc = a.discount > 0 ? a.price - a.discount : a.price
+          const priceBDesc = b.discount > 0 ? b.price - b.discount : b.price
+          return priceBDesc - priceADesc
+        case "Best Selling":
+          return (b.best_seller ? 1 : 0) - (a.best_seller ? 1 : 0)
+        case "Highest Rated":
+          return b.ratings - a.ratings
+        case "Featured":
+          return (b.featured ? 1 : 0) - (a.featured ? 1 : 0)
+        default:
+          return 0
+      }
+    })
+  }, [filteredProducts, sortBy])
+
+  
+    if (isLoading) return <p>Loading...</p>
+    if (error) return <p>Error fetching products</p>
 
   return (
     <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
-      {/* Navigation */}
-      <motion.nav
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1, type: "spring", stiffness: 100 }}
-        className="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-stone-800"
-      >
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-2xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
-          >
-            <Link href="/">FEAR INSIGHT</Link>
-          </motion.div>
-
-          <motion.div
-            className="hidden md:flex space-x-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, staggerChildren: 0.1 }}
-          >
-            {navigation.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
-              >
-                <Link
-                  href={item.href}
-                  className="hover:text-stone-300 transition-colors relative group"
-                >
-                  {item.name}
-                  <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-stone-100 to-stone-500 group-hover:w-full transition-all duration-300" />
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </motion.nav>
+    
 
       {/* Hero Section */}
       <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20">
@@ -356,7 +245,7 @@ export default function ProductsPage() {
                 onChange={(e) => setSelectedColor(e.target.value)}
                 className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
               >
-                {filters.colors.map((color) => (
+                {dynamicFilters.colors.map((color) => (
                   <option key={color} value={color}>
                     {color === "All" ? "All Colors" : color}
                   </option>
@@ -369,7 +258,7 @@ export default function ProductsPage() {
                 onChange={(e) => setSelectedSize(e.target.value)}
                 className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
               >
-                {filters.sizes.map((size) => (
+                {dynamicFilters.sizes.map((size) => (
                   <option key={size} value={size}>
                     {size === "All" ? "All Sizes" : size}
                   </option>
@@ -382,7 +271,7 @@ export default function ProductsPage() {
                 onChange={(e) => setSelectedPrice(e.target.value)}
                 className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
               >
-                {filters.price.map((price) => (
+                {dynamicFilters.priceRanges.map((price) => (
                   <option key={price} value={price}>
                     {price === "All" ? "All Prices" : price}
                   </option>
@@ -395,7 +284,7 @@ export default function ProductsPage() {
                 onChange={(e) => setSortBy(e.target.value)}
                 className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
               >
-                {filters.sort.map((sort) => (
+                {["Featured", "Price: Low to High", "Price: High to Low", "Best Selling", "Highest Rated"].map((sort) => (
                   <option key={sort} value={sort}>
                     Sort by: {sort}
                   </option>
@@ -412,7 +301,7 @@ export default function ProductsPage() {
             viewport={{ once: true }}
             className="text-stone-400 text-sm mb-6"
           >
-            Showing {sortedProducts.length} of {products.length} products
+            Showing {sortedProducts.length} of {products?.length || 0} products
           </motion.div>
         </div>
       </section>
@@ -421,9 +310,15 @@ export default function ProductsPage() {
       <section className="py-12 px-4 bg-stone-950">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {sortedProducts.map((product, index) => (
-              <Link key={product.id} href={`/products/${product.id}`}>
+            {sortedProducts.map((product: Product, index: number) => {
+              const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
+              const firstColor = product.colors?.[0] ? Object.keys(product.colors[0])[0] : "gray"
+              const availableSizes = product.sizes?.flatMap((sizeObj) => Object.keys(sizeObj)) || []
+              const firstImage = product.images?.[0] || ""
+
+              return (
                 <motion.div
+                  key={product.id}
                   custom={index}
                   initial="hidden"
                   whileInView="visible"
@@ -433,245 +328,168 @@ export default function ProductsPage() {
                   className="group cursor-pointer"
                 >
                   <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300">
-                  {/* Product Image */}
-                  <div className="relative h-80 overflow-hidden">
-                    <div
-                      className="w-full h-full flex items-center justify-center rounded-t-lg relative"
-                      style={{ backgroundColor: product.color }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-br from-stone-950/20 to-transparent" />
-                      <div className="text-stone-100 text-center z-10">
-                        <div className="w-32 h-32 mx-auto mb-4 relative">
-                          {/* Simple hoodie shape */}
-                          <div className="absolute inset-0 bg-stone-100/90 rounded-t-full" />
-                          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-stone-100/90 rounded-full" />
-                          <div className="absolute top-8 left-2 w-8 h-16 bg-stone-100/90 rounded-full transform -rotate-12" />
-                          <div className="absolute top-8 right-2 w-8 h-16 bg-stone-100/90 rounded-full transform rotate-12" />
-                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-stone-100/70 rounded" />
-                        </div>
-                        <div className="text-sm font-medium text-stone-100">Premium Hoodie</div>
-                      </div>
-                    </div>
-
-                    {/* Badges */}
-                    <div className="absolute top-4 right-4 flex flex-col gap-2">
-                      {product.isNew && <Pill color="green">NEW</Pill>}
-                      {product.isBestseller && <Pill color="yellow">BESTSELLER</Pill>}
-                    </div>
-
-                    {/* Hover Actions */}
-                    <div className="absolute inset-0 bg-stone-950/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors"
-                      >
-                        <ShoppingBag className="w-5 h-5" />
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors"
-                      >
-                        <Heart className="w-5 h-5" />
-                      </motion.button>
-                    </div>
-                  </div>
-
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-bold text-stone-100 group-hover:text-stone-300 transition-colors">
-                        {product.title}
-                      </h3>
-                    </div>
-                    
-                    <p className="text-stone-400 text-sm mb-4 leading-relaxed">
-                      {product.description}
-                    </p>
-
-                    {/* Color */}
-                    <div className="flex items-center mb-3">
-                      <span
-                        className="w-4 h-4 rounded-full mr-2 border border-stone-600"
-                        style={{ backgroundColor: product.color }}
-                        title={product.colorName}
-                      />
-                      <span className="text-xs text-stone-300">{product.colorName}</span>
-                    </div>
-
-                    {/* Price */}
-                    <div className="flex items-center mb-3">
-                      <span className="text-2xl font-bold text-stone-100">${product.price}</span>
-                      {product.originalPrice && (
-                        <span className="text-stone-500 line-through ml-2">${product.originalPrice}</span>
-                      )}
-                    </div>
-
-                    {/* Rating */}
-                    <div className="flex items-center mb-4">
-                      <div className="flex items-center space-x-1 mr-2">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < Math.floor(product.rating)
-                                ? "fill-stone-400 text-stone-400"
-                                  : "text-stone-600"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-sm text-stone-400">({product.reviews} reviews)</span>
-                    </div>
-
-                    {/* Sizes */}
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {product.sizes.map((size) => (
-                        <span
-                          key={size}
-                          className="px-2 py-1 bg-stone-800 text-stone-200 rounded text-xs border border-stone-700 hover:border-stone-400 transition-colors"
+                    {/* Product Image */}
+                    <div className="relative h-80 overflow-hidden">
+                      {firstImage ? (
+                        <img
+                          src={firstImage}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center rounded-t-lg relative bg-stone-800"
                         >
-                          {size}
-                        </span>
-                      ))}
+                          <div className="absolute inset-0 bg-gradient-to-br from-stone-950/20 to-transparent" />
+                          <div className="text-stone-100 text-center z-10">
+                            <div className="w-32 h-32 mx-auto mb-4 relative">
+                              {/* Simple hoodie shape */}
+                              <div className="absolute inset-0 bg-stone-100/90 rounded-t-full" />
+                              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-stone-100/90 rounded-full" />
+                              <div className="absolute top-8 left-2 w-8 h-16 bg-stone-100/90 rounded-full transform -rotate-12" />
+                              <div className="absolute top-8 right-2 w-8 h-16 bg-stone-100/90 rounded-full transform rotate-12" />
+                              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-stone-100/70 rounded" />
+                            </div>
+                            <div className="text-sm font-medium text-stone-100">Premium Product</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Badges */}
+                      <div className="absolute top-4 right-4 flex flex-col gap-2">
+                        {product.featured && <Pill color="green">FEATURED</Pill>}
+                        {product.best_seller && <Pill color="yellow">BESTSELLER</Pill>}
+                        {product.discount > 0 && (
+                          <Pill color="green">-${product.discount}</Pill>
+                        )}
+                      </div>
+
+                      {/* Hover Actions */}
+                      <div className="absolute inset-0 bg-stone-950/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() =>
+                            addToCart({
+                              id: product.id,
+                              title: product.name,
+                              price: finalPrice,
+                              quantity: 1,
+                              color: firstColor,
+                            })
+                          }
+                          className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors"
+                        >
+                          <ShoppingBag className="w-5 h-5" />
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors"
+                        >
+                          <Heart className="w-5 h-5" />
+                        </motion.button>
+                      </div>
                     </div>
 
-                    {/* Add to Cart Button */}
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button 
-                        onClick={() => addToCart({
-                          id: String(product.id),
-                          title: product.title,
-                          price: product.price,
-                          quantity: 1,
-                          color: product.colorName
-                        })}
-                        className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25">
-                        Add to Cart
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </motion.div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-              </Link>
-            ))}
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-bold text-stone-100 group-hover:text-stone-300 transition-colors">
+                          {product.name}
+                        </h3>
+                      </div>
+
+                      {product.description && (
+                        <p className="text-stone-400 text-sm mb-4 leading-relaxed line-clamp-2">
+                          {product.description}
+                        </p>
+                      )}
+
+                      {/* Colors */}
+                      {product.colors && product.colors.length > 0 && (
+                        <div className="flex items-center mb-3 flex-wrap gap-2">
+                          {product.colors.map((colorObj, idx) =>
+                            Object.entries(colorObj).map(([colorName, stock]) => (
+                              <div key={`${colorName}-${idx}`} className="flex items-center">
+                                <span
+                                  className="w-4 h-4 rounded-full mr-1 border border-stone-600"
+                                  style={{ backgroundColor: colorName }}
+                                  title={`${colorName} (${stock} in stock)`}
+                                />
+                                <span className="text-xs text-stone-400">{stock}</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+
+                      {/* Price */}
+                      <div className="flex items-center mb-3">
+                        <span className="text-2xl font-bold text-stone-100">${finalPrice.toFixed(2)}</span>
+                        {product.discount > 0 && (
+                          <span className="text-stone-500 line-through ml-2">${product.price.toFixed(2)}</span>
+                        )}
+                      </div>
+
+                      {/* Rating */}
+                      <div className="flex items-center mb-4">
+                        <div className="flex items-center space-x-1 mr-2">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < Math.floor(product.ratings)
+                                  ? "fill-stone-400 text-stone-400"
+                                  : "text-stone-600"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm text-stone-400">({product.ratings.toFixed(1)})</span>
+                      </div>
+
+                      {/* Sizes */}
+                      {availableSizes.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {availableSizes.map((size, idx) => (
+                            <span
+                              key={`${size}-${idx}`}
+                              className="px-2 py-1 bg-stone-800 text-stone-200 rounded text-xs border border-stone-700 hover:border-stone-400 transition-colors"
+                            >
+                              {size.toUpperCase()}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Add to Cart Button */}
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          onClick={() =>
+                            addToCart({
+                              id: product.id,
+                              title: product.name,
+                              price: finalPrice,
+                              quantity: 1,
+                              color: firstColor,
+                            })
+                          }
+                          className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
+                        >
+                          Add to Cart
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-4 bg-stone-950 border-t border-stone-800">
-        <div className="container mx-auto">
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-4 gap-8"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, staggerChildren: 0.1 }}
-            viewport={{ once: true }}
-          >
-            <motion.div
-              className="col-span-1 md:col-span-2"
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent">
-                FEAR INSIGHT
-              </h3>
-              <p className="text-stone-400 mb-4 max-w-md">
-                DIRECTED BY GOD - Premium streetwear that speaks to your soul and inspires fearless faith.
-              </p>
-              <div className="mb-4">
-                <p className="text-stone-300 mb-2">Get in touch:</p>
-                <a
-                  href="mailto:info@fearinsight.com"
-                  className="text-stone-100 hover:text-stone-300 transition-colors flex items-center gap-2"
-                >
-                  <Mail className="w-4 h-4" />
-                  info@fearinsight.com
-                </a>
-              </div>
-              <div className="flex space-x-4">
-                {[Instagram, Twitter, Mail].map((Icon, index) => (
-                  <motion.a
-                    key={index}
-                    whileHover={{ scale: 1.2, rotate: 5 }}
-                    whileTap={{ scale: 0.9 }}
-                    href="#"
-                    className="text-stone-400 hover:text-stone-300 transition-colors"
-                  >
-                    <Icon className="w-6 h-6" />
-                  </motion.a>
-                ))}
-              </div>
-            </motion.div>
-
-            {[
-              {
-                title: "Quick Links",
-                items: [
-                  { name: "Home", href: "/" },
-                  { name: "Products", href: "/products" },
-                  { name: "About", href: "/#about" },
-                  { name: "Contact", href: "/#contact" },
-                ],
-              },
-              {
-                title: "Support",
-                items: [
-                  { name: "Size Guide", href: "/products" },
-                  { name: "Shipping & Returns", href: "/shipping-returns" },
-                  { name: "FAQ", href: "/faq" },
-                  { name: "Contact Us", href: "/#contact" },
-                ],
-              },
-            ].map((section, sectionIndex) => (
-              <motion.div
-                key={section.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: sectionIndex * 0.2 }}
-                viewport={{ once: true }}
-              >
-                <h4 className="text-lg font-semibold mb-4 text-stone-100">{section.title}</h4>
-                <ul className="space-y-2 text-stone-400">
-                  {section.items.map((item, itemIndex) => (
-                    <motion.li
-                      key={item.name}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.6, delay: sectionIndex * 0.2 + itemIndex * 0.1 }}
-                      viewport={{ once: true }}
-                    >
-                      <motion.div whileHover={{ x: 5 }}>
-                        <Link href={item.href} className="hover:text-stone-300 transition-colors">
-                          {item.name}
-                        </Link>
-                      </motion.div>
-                    </motion.li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            className="border-t border-stone-800 mt-8 pt-8 text-center text-stone-400"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            viewport={{ once: true }}
-          >
-            <p>&copy; {new Date().getFullYear()} FEAR INSIGHT. All rights reserved. DIRECTED BY GOD.</p>
-            <p className="mt-2 text-sm">Contact us: wahbusman@fearinsight.com</p>
-          </motion.div>
-        </div>
-      </footer>
+      
     </div>
   )
 }
