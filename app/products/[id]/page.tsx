@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 
 // Product database (same as products page)
+
 const products = [
 	{
 		id: "1",
