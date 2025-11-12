@@ -6,6 +6,8 @@ import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from './context/CartContext'
 import './globals.css'
 import QueryProvider from '@/providers/query-provider'
+import Footer from '@/components/layouts/Footer'
+import Header from '@/components/layouts/Header'
 
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800', '900'] })
 
@@ -36,11 +38,13 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        
+    
         <CartProvider>
+              <Header/>
           {children}
         </CartProvider>
         <Analytics />
+        <Footer/>
       </body>
       </QueryProvider>
     </html>
