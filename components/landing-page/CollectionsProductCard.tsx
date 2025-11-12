@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ShoppingBag, Star } from "lucide-react"
 import { Product } from "@/types/products"
 
-
 interface CollectionsProductCardProps {
   product: Product
   index: number
@@ -17,6 +16,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
   const cardRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(cardRef, { once: true, margin: "-100px" })
   const color = Object.keys(product.colors[0] || {})[0] || "#fff"
+  const imageUrl = product.images[0] || null
 
   return (
     <motion.div
@@ -41,16 +41,24 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             style={{ backgroundColor: color }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-stone-950/20 to-transparent" />
-            <div className="text-stone-100 text-center z-10">
-              <div className="w-32 h-32 mx-auto mb-4 relative">
-                <div className="absolute inset-0 bg-stone-100/90 rounded-t-full" />
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-stone-100/90 rounded-full" />
-                <div className="absolute top-8 left-2 w-8 h-16 bg-stone-100/90 rounded-full transform -rotate-12" />
-                <div className="absolute top-8 right-2 w-8 h-16 bg-stone-100/90 rounded-full transform rotate-12" />
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-stone-100/70 rounded" />
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={product.name}
+                className="w-full h-full object-cover rounded-t-lg z-10"
+              />
+            ) : (
+              <div className="text-stone-100 text-center z-10">
+                <div className="w-32 h-32 mx-auto mb-4 relative">
+                  <div className="absolute inset-0 bg-stone-100/90 rounded-t-full" />
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-stone-100/90 rounded-full" />
+                  <div className="absolute top-8 left-2 w-8 h-16 bg-stone-100/90 rounded-full transform -rotate-12" />
+                  <div className="absolute top-8 right-2 w-8 h-16 bg-stone-100/90 rounded-full transform rotate-12" />
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-stone-100/70 rounded" />
+                </div>
+                <div className="text-sm font-medium text-stone-100">{product.name}</div>
               </div>
-              <div className="text-sm font-medium text-stone-100">{product.name}</div>
-            </div>
+            )}
           </div>
 
           <motion.div
