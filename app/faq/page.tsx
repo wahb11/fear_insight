@@ -189,7 +189,8 @@ export default function FAQPage() {
             <HelpCircle className="w-16 h-16 text-stone-100 mr-4" />
             <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-stone-100 via-stone-400 to-stone-600 bg-clip-text text-transparent"
               style={{
-                textShadow: "0 0 40px rgba(16, 185, 129, 0.8), 0 4px 8px rgba(0, 0, 0, 0.9)",
+                // Neutral subtle halo to keep headings visible on dark backgrounds without green tint
+                textShadow: "0 0 24px rgba(255, 255, 255, 0.06), 0 4px 8px rgba(0, 0, 0, 0.9)",
                 filter: "drop-shadow(0 8px 16px rgba(0, 0, 0, 0.9))",
               }}
             >

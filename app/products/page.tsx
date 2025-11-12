@@ -11,7 +11,7 @@ import { useCart } from "@/app/context/CartContext"
 
 const products = [
 	{
-		id: 1,
+		id: "1",
 		title: "DIVINE HOODIE",
 		price: 89,
 		originalPrice: 109,
@@ -29,7 +29,7 @@ const products = [
 		],
 	},
 	{
-		id: 2,
+		id: "2",
 		title: "FAITH HOODIE",
 		price: 95,
 		originalPrice: null,
@@ -47,7 +47,7 @@ const products = [
 		],
 	},
 	{
-		id: 3,
+		id: "3",
 		title: "BLESSED HOODIE",
 		price: 92,
 		originalPrice: null,
@@ -65,7 +65,7 @@ const products = [
 		],
 	},
 	{
-		id: 4,
+		id: "4",
 		title: "GRACE HOODIE",
 		price: 88,
 		originalPrice: 98,
@@ -83,7 +83,7 @@ const products = [
 		],
 	},
 	{
-		id: 5,
+		id: "5",
 		title: "SPIRIT HOODIE",
 		price: 94,
 		originalPrice: null,
@@ -101,7 +101,7 @@ const products = [
 		],
 	},
 	{
-		id: 6,
+		id: "6",
 		title: "PRAYER HOODIE",
 		price: 90,
 		originalPrice: null,
@@ -119,7 +119,7 @@ const products = [
 		],
 	},
 	{
-		id: 7,
+		id: "7",
 		title: "WORSHIP HOODIE",
 		price: 96,
 		originalPrice: null,
@@ -137,7 +137,7 @@ const products = [
 		],
 	},
 	{
-		id: 8,
+		id: "8",
 		title: "MIRACLE HOODIE",
 		price: 99,
 		originalPrice: 119,
@@ -422,17 +422,17 @@ export default function ProductsPage() {
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {sortedProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                custom={index}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
-                variants={cardVariants}
-                whileHover={{ scale: 1.02 }}
-                className="group cursor-pointer"
-              >
-                <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300">
+              <Link key={product.id} href={`/products/${product.id}`}>
+                <motion.div
+                  custom={index}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  variants={cardVariants}
+                  whileHover={{ scale: 1.02 }}
+                  className="group cursor-pointer"
+                >
+                  <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300">
                   {/* Product Image */}
                   <div className="relative h-80 overflow-hidden">
                     <div
@@ -557,6 +557,7 @@ export default function ProductsPage() {
                   </CardContent>
                 </Card>
               </motion.div>
+              </Link>
             ))}
           </div>
         </div>

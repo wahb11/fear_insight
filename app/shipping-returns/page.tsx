@@ -78,7 +78,8 @@ export default function ShippingReturnsPage() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
             style={{
-              textShadow: "0 0 40px rgba(16, 185, 129, 0.8), 0 4px 8px rgba(0, 0, 0, 0.9)",
+              // Neutral subtle halo instead of green glow
+              textShadow: "0 0 24px rgba(255, 255, 255, 0.06), 0 4px 8px rgba(0, 0, 0, 0.9)",
               filter: "drop-shadow(0 8px 16px rgba(0, 0, 0, 0.9))",
             }}
           >
