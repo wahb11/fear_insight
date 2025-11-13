@@ -242,9 +242,11 @@ export default function CartPage() {
 
                   {/* Checkout Buttons */}
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Button className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 font-bold py-2 mb-3">
-                      CHECKOUT
-                    </Button>
+                    <Link href="/checkout" className="block">
+                      <Button className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 font-bold py-2 mb-3">
+                        CHECKOUT
+                      </Button>
+                    </Link>
                   </motion.div>
                   
 
