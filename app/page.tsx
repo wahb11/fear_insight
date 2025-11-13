@@ -169,13 +169,13 @@ export default function FearInsightLanding() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
             >
               <motion.h1
                 className="text-6xl md:text-8xl lg:text-9xl font-black mb-4 bg-gradient-to-r from-stone-100 via-stone-400 to-stone-600 bg-clip-text text-transparent"
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
+                transition={{ duration: 0.4, delay: 0.15 }}
                 style={{
                   textShadow: "0 4px 8px rgba(0, 0, 0, 0.9)",
                   willChange: "transform",
@@ -188,7 +188,7 @@ export default function FearInsightLanding() {
                 className="text-xl md:text-2xl lg:text-3xl font-light mb-6 text-stone-200"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.9 }}
+                transition={{ duration: 0.4, delay: 0.25 }}
                 style={{
                   textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
                   willChange: "opacity",
@@ -201,7 +201,7 @@ export default function FearInsightLanding() {
                 className="relative mb-6"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ duration: 0.8, delay: 1.0 }}
+                transition={{ duration: 0.4, delay: 0.35 }}
                 style={{ willChange: "transform" }}
               >
                 <div className="h-2 bg-gradient-to-r from-stone-700 via-stone-400 to-stone-900 mx-auto rounded-full" style={{ width: "96px" }} />
@@ -211,7 +211,7 @@ export default function FearInsightLanding() {
                 className="text-lg md:text-xl text-stone-300 mb-8 max-w-2xl mx-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 1.1 }}
+                transition={{ duration: 0.4, delay: 0.45 }}
                 style={{ willChange: "opacity" }}
               >
                 Welcome to Fear Insight - where faith meets fashion. Our premium streetwear collection embodies
@@ -300,7 +300,7 @@ export default function FearInsightLanding() {
                   className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent"
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
+                  transition={{ duration: 0.4 }}
                   viewport={{ once: true }}
                 >
                   OUR VISION
@@ -309,7 +309,7 @@ export default function FearInsightLanding() {
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
+                  transition={{ duration: 0.4, delay: 0.08 }}
                   viewport={{ once: true }}
                 >
                   <p className="text-xl text-stone-200 mb-6 leading-relaxed backdrop-blur-sm bg-stone-950/20 p-4 rounded-lg">
@@ -322,7 +322,7 @@ export default function FearInsightLanding() {
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
+                  transition={{ duration: 0.4, delay: 0.15 }}
                   viewport={{ once: true }}
                 >
                   <p className="text-lg text-stone-300 mb-6 backdrop-blur-sm bg-stone-950/20 p-4 rounded-lg">
@@ -334,7 +334,7 @@ export default function FearInsightLanding() {
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
                   viewport={{ once: true }}
                 >
                   <p className="text-md text-stone-400 mb-8 backdrop-blur-sm bg-stone-950/20 p-4 rounded-lg">
@@ -347,7 +347,7 @@ export default function FearInsightLanding() {
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.8 }}
+                  transition={{ duration: 0.4, delay: 0.28 }}
                   viewport={{ once: true }}
                   whileHover={{ scale: 1.05 }}
                 >
@@ -431,9 +431,9 @@ export default function FearInsightLanding() {
                   key={index}
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: (index % 5) * 0.15 }}
+                  transition={{ duration: 0.4, delay: (index % 5) * 0.08 }}
                   viewport={{ once: true }}
-                  whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                  whileHover={{ y: -10, transition: { duration: 0.2 } }}
                   className="group"
                 >
                   <Card className="h-full bg-gradient-to-br from-stone-800/40 to-stone-900/40 border border-stone-700/50 hover:border-stone-600/80 transition-all duration-300 overflow-hidden">
@@ -448,7 +448,7 @@ export default function FearInsightLanding() {
                         className="text-5xl mb-4 relative z-10"
                         initial={{ scale: 0.5, opacity: 0 }}
                         whileInView={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.6, delay: index * 0.15 + 0.2 }}
+                        transition={{ duration: 0.3, delay: index * 0.08 + 0.1 }}
                         viewport={{ once: true }}
                         whileHover={{ scale: 1.1, rotate: 5 }}
                       >
@@ -460,7 +460,7 @@ export default function FearInsightLanding() {
                         className="text-xl font-bold mb-3 text-stone-100 relative z-10"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: index * 0.15 + 0.1 }}
+                        transition={{ duration: 0.3, delay: index * 0.08 }}
                         viewport={{ once: true }}
                       >
                         {step.title}
@@ -471,7 +471,7 @@ export default function FearInsightLanding() {
                         className="text-stone-300 text-sm leading-relaxed relative z-10 flex-grow"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: index * 0.15 + 0.2 }}
+                        transition={{ duration: 0.3, delay: index * 0.08 + 0.12 }}
                         viewport={{ once: true }}
                       >
                         {step.description}
@@ -484,7 +484,7 @@ export default function FearInsightLanding() {
                             className="w-6 h-0.5 bg-gradient-to-r from-stone-600 to-stone-800"
                             initial={{ scaleX: 0 }}
                             whileInView={{ scaleX: 1 }}
-                            transition={{ duration: 0.8, delay: index * 0.15 + 0.3 }}
+                            transition={{ duration: 0.3, delay: index * 0.08 + 0.15 }}
                             viewport={{ once: true }}
                             style={{ transformOrigin: "left center" }}
                           />
@@ -501,7 +501,7 @@ export default function FearInsightLanding() {
               className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
               viewport={{ once: true }}
             >
               {[
@@ -525,7 +525,7 @@ export default function FearInsightLanding() {
                   key={index}
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, delay: index * 0.15 }}
+                  transition={{ duration: 0.3, delay: index * 0.08 }}
                   viewport={{ once: true }}
                   className="text-center p-6 bg-stone-800/30 border border-stone-700/50 rounded-lg hover:bg-stone-800/50 transition-colors duration-300"
                 >
