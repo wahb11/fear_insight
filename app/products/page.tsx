@@ -375,13 +375,7 @@ export default function ProductsPage() {
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={() =>
-                            addToCart({
-                              id: product.id,
-                              title: product.name,
-                              price: finalPrice,
-                              quantity: 1,
-                              color: firstColor,
-                            })
+                            addToCart(product, 1, firstColor, availableSizes[0] || "M")
                           }
                           className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors"
                         >
@@ -470,15 +464,7 @@ export default function ProductsPage() {
                       {/* Add to Cart Button */}
                       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
-                          onClick={() =>
-                            addToCart({
-                              id: product.id,
-                              title: product.name,
-                              price: finalPrice,
-                              quantity: 1,
-                              color: firstColor,
-                            })
-                          }
+                        
                           className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
                         >
                           Add to Cart

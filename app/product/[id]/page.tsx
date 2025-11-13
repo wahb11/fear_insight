@@ -97,13 +97,7 @@ export default function ProductDetailPage() {
 		
 		setIsAdding(true)
 		try {
-			addToCart({
-				id: product.id,
-				title: product.name,
-				price: product.price,
-				quantity,
-				color: selectedColor,
-			})
+			addToCart(product, quantity, selectedColor, selectedSize)
 			// Show success feedback
 			setTimeout(() => {
 				setIsAdding(false)
@@ -423,7 +417,7 @@ export default function ProductDetailPage() {
 								<motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
 									<Button
 										onClick={handleAddToCart}
-										disabled={isOutOfStock || isAdding}
+										
 										className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 h-14 font-semibold text-lg group disabled:opacity-50 disabled:cursor-not-allowed"
 									>
 										{isAdding ? (

@@ -27,25 +27,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
-      {/* Navigation */}
-      <motion.nav
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="fixed top-0 w-full z-50 bg-stone-950/90 border-b border-stone-800 backdrop-blur-md"
-      >
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="text-xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
-            >
-              FEAR INSIGHT
-            </motion.div>
-          </Link>
-          <div className="text-sm text-stone-400">Shopping Cart</div>
-        </div>
-      </motion.nav>
+    
 
       <div className="pt-20 container mx-auto px-4 py-12">
         {/* Breadcrumb */}
@@ -105,60 +87,73 @@ export default function CartPage() {
                 </div>
 
                 {/* Cart Items */}
-                {items.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className="grid grid-cols-4 gap-4 items-center pb-6 border-b border-stone-800"
-                  >
-                    {/* Product Image and Name */}
-                    <div className="flex gap-3 items-center">
-                      <div
-                        className="w-16 h-16 rounded-lg flex-shrink-0 flex items-center justify-center"
-                        style={{ backgroundColor: item.color }}
-                      >
-                        <div className="text-xs font-semibold text-stone-100 text-center px-2">{item.title}</div>
+                {items.map((item, index) => {
+                  const discountedPrice = item.product.price * (1 - item.product.discount / 100)
+                  return (
+                    <motion.div
+                      key={`${item.product.id}-${item.selectedColor}-${item.selectedSize}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                      className="grid grid-cols-4 gap-4 items-center pb-6 border-b border-stone-800"
+                    >
+                      {/* Product Image and Name */}
+                      <div className="flex gap-3 items-center">
+                        <img
+                          src={item.product.images[0]}
+                          alt={item.product.name}
+                          className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border border-stone-700"
+                        />
+                        <div>
+                          <h3 className="font-semibold text-stone-100">{item.product.name}</h3>
+                          <p className="text-xs text-stone-400">
+                            Color: {item.selectedColor} | Size: {item.selectedSize}
+                          </p>
+                        </div>
                       </div>
+
+                      {/* Price */}
                       <div>
-                        <h3 className="font-semibold text-stone-100">{item.title}</h3>
-                        <p className="text-xs text-stone-400">Unisex Premium Hoodie</p>
+                        {item.product.discount > 0 ? (
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-stone-100">${discountedPrice.toFixed(2)}</span>
+                            <span className="text-xs text-stone-400 line-through">${item.product.price.toFixed(2)}</span>
+                          </div>
+                        ) : (
+                          <span className="font-semibold text-stone-100">${item.product.price.toFixed(2)}</span>
+                        )}
                       </div>
-                    </div>
 
-                    {/* Price */}
-                    <div className="font-semibold text-stone-100">${item.price}</div>
+                      {/* Quantity Controls */}
+                      <div className="flex items-center gap-2 bg-stone-900/50 rounded-lg p-1 w-fit">
+                        <button
+                          onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity - 1)}
+                          className="p-1 hover:bg-stone-800 rounded transition-colors"
+                        >
+                          <Minus className="w-4 h-4 text-stone-300" />
+                        </button>
+                        <span className="w-6 text-center text-stone-100">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity + 1)}
+                          className="p-1 hover:bg-stone-800 rounded transition-colors"
+                        >
+                          <Plus className="w-4 h-4 text-stone-300" />
+                        </button>
+                      </div>
 
-                    {/* Quantity Controls */}
-                    <div className="flex items-center gap-2 bg-stone-900/50 rounded-lg p-1 w-fit">
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-1 hover:bg-stone-800 rounded transition-colors"
-                      >
-                        <Minus className="w-4 h-4 text-stone-300" />
-                      </button>
-                      <span className="w-6 text-center text-stone-100">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-1 hover:bg-stone-800 rounded transition-colors"
-                      >
-                        <Plus className="w-4 h-4 text-stone-300" />
-                      </button>
-                    </div>
-
-                    {/* Total */}
-                    <div className="flex items-center justify-between">
-                      <div className="font-semibold text-stone-100">${(item.price * item.quantity).toFixed(2)}</div>
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="p-2 hover:bg-red-900/30 rounded transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-400" />
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
+                      {/* Total */}
+                      <div className="flex items-center justify-between">
+                        <div className="font-semibold text-stone-100">${(discountedPrice * item.quantity).toFixed(2)}</div>
+                        <button
+                          onClick={() => removeFromCart(item.product.id, item.selectedColor, item.selectedSize)}
+                          className="p-2 hover:bg-red-900/30 rounded transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-400" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  )
+                })}
               </div>
 
               {/* Delivery & Payment Info */}
