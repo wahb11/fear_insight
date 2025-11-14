@@ -15,7 +15,7 @@ export default function Collections() {
         return <div>Loading...</div>
      }
         if(error){
-        return <div>Error loading products</div>
+        return <div className="text-center text-stone-300">Error loading products</div>
     }
   return (
    <section id="products" className="py-20 px-4 relative bg-stone-900">
@@ -23,7 +23,7 @@ export default function Collections() {
                <motion.div
                  initial={{ opacity: 0, y: 100 }}
                  whileInView={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 1 }}
+                 transition={{ duration: 0.4 }}
                  viewport={{ once: true }}
                  className="text-center mb-16"
                >
@@ -31,7 +31,7 @@ export default function Collections() {
                    className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent"
                    initial={{ opacity: 0, scale: 0.5 }}
                    whileInView={{ opacity: 1, scale: 1 }}
-                   transition={{ duration: 0.8 }}
+                   transition={{ duration: 0.4 }}
                    viewport={{ once: true }}
                  >
                    Featured products (description to be changed)
@@ -41,7 +41,7 @@ export default function Collections() {
                    className="w-24 h-1 bg-gradient-to-r from-stone-700 to-stone-900 mx-auto mb-6"
                    initial={{ width: 0 }}
                    whileInView={{ width: 96 }}
-                   transition={{ duration: 1, delay: 0.5 }}
+                   transition={{ duration: 0.4, delay: 0.15 }}
                    viewport={{ once: true }}
                  />
    
@@ -49,7 +49,7 @@ export default function Collections() {
                    className="text-xl text-stone-400 max-w-2xl mx-auto"
                    initial={{ opacity: 0, y: 30 }}
                    whileInView={{ opacity: 1, y: 0 }}
-                   transition={{ duration: 0.8, delay: 0.3 }}
+                   transition={{ duration: 0.4, delay: 0.2 }}
                    viewport={{ once: true }}
                  >
                    Premium streetwear designed with purpose and crafted with precision. Each piece tells a story of faith,

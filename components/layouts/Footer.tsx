@@ -1,9 +1,21 @@
 'use client'
 import React from 'react'
-
-import { motion, useScroll, useTransform,  useAnimation } from "framer-motion"
+import Link from 'next/link'
+import { motion } from "framer-motion"
 import { Instagram, Twitter, Mail} from "lucide-react"
+
 export default function Footer() {
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault()
+      const id = href.replace('#', '')
+      const element = document.getElementById(id)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+  }
+
   return (
       <footer id="contact" className="py-12 px-4 bg-stone-950 border-t border-stone-800">
             <div className="container mx-auto">
@@ -39,15 +51,19 @@ export default function Footer() {
                     </a>
                   </div>
                   <div className="flex space-x-4">
-                    {[Instagram, Twitter, Mail].map((Icon, index) => (
+                    {[
+                      { Icon: Instagram, href: "#" },
+                      { Icon: Twitter, href: "#" },
+                      { Icon: Mail, href: "mailto:wahbusman@fearinsight.com" },
+                    ].map((item, index) => (
                       <motion.a
                         key={index}
                         whileHover={{ scale: 1.2, rotate: 5 }}
                         whileTap={{ scale: 0.9 }}
-                        href="#"
+                        href={item.href}
                         className="text-stone-400 hover:text-stone-300 transition-colors"
                       >
-                        <Icon className="w-6 h-6" />
+                        <item.Icon className="w-6 h-6" />
                       </motion.a>
                     ))}
                   </div>
@@ -57,7 +73,7 @@ export default function Footer() {
                   {
                     title: "Quick Links",
                     items: [
-                      { name: "Home", href: "#home" },
+                      { name: "Home", href: "/" },
                       { name: "Products", href: "/products" },
                       { name: "About", href: "#about" },
                       { name: "Contact", href: "#contact" },
@@ -90,13 +106,21 @@ export default function Footer() {
                           transition={{ duration: 0.6, delay: sectionIndex * 0.2 + itemIndex * 0.1 }}
                           viewport={{ once: true }}
                         >
-                          <motion.a
-                            href={item.href}
-                            className="hover:text-stone-300 transition-colors"
-                            whileHover={{ x: 5 }}
-                          >
-                            {item.name}
-                          </motion.a>
+                          <motion.div whileHover={{ x: 5 }}>
+                            {item.href.startsWith('#') ? (
+                              <a
+                                href={item.href}
+                                onClick={(e) => handleAnchorClick(e, item.href)}
+                                className="hover:text-stone-300 transition-colors cursor-pointer"
+                              >
+                                {item.name}
+                              </a>
+                            ) : (
+                              <Link href={item.href} className="hover:text-stone-300 transition-colors">
+                                {item.name}
+                              </Link>
+                            )}
+                          </motion.div>
                         </motion.li>
                       ))}
                     </ul>

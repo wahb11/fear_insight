@@ -110,7 +110,7 @@ export default function ProductDetailPage() {
 	
 
 	if (isLoading) return <p>Loading...</p>
-    if (error) return <p>Error fetching products</p>
+    if (error) return <p className="bg-stone-950 text-stone-100 min-h-screen flex items-center justify-center">Error fetching products</p>
 
 	if (!product) {
 		return (

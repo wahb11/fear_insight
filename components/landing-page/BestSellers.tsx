@@ -42,7 +42,7 @@ export default function BestSellers() {
   const products = data ? data.filter(product => product.best_seller) : []  
 
   if (isLoading) return <p>Loading...</p>
-  if (error) return <p>Error fetching best sellers</p>
+  if (error) return <p className="text-center text-stone-300">Error fetching best sellers</p>
 
   return (
     <section className="py-16 px-4 relative overflow-hidden">
@@ -50,7 +50,7 @@ export default function BestSellers() {
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.4 }}
           viewport={{ once: true }}
           className="mb-8 text-center"
         >

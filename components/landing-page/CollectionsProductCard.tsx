@@ -4,8 +4,7 @@ import React, { useRef, useState } from "react"
 import Link from "next/link"
 import { motion, useInView } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShoppingBag, Star, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ShoppingBag, Star } from "lucide-react"
 import { Product } from "@/types/products"
 
 interface CollectionsProductCardProps {
@@ -15,7 +14,6 @@ interface CollectionsProductCardProps {
 
 export function CollectionsProductCard({ product, index }: CollectionsProductCardProps) {
   const [isHovered, setIsHovered] = useState(false)
-  const [zoomImage, setZoomImage] = useState<string | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(cardRef, { once: true, margin: "-100px" })
   const color = Object.keys(product.colors[0] || {})[0] || "#fff"
@@ -29,8 +27,8 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
         initial={{ opacity: 0, y: 100 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{
-          duration: 0.8,
-          delay: index * 0.2,
+          duration: 0.4,
+          delay: index * 0.08,
           type: "spring",
           stiffness: 100,
         }}
@@ -70,7 +68,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             className="absolute top-4 right-4 bg-stone-900/70 backdrop-blur-sm rounded-full p-2"
             initial={{ scale: 0 }}
             animate={{ scale: isInView ? 1 : 0 }}
-            transition={{ delay: index * 0.2 + 0.5 }}
+            transition={{ delay: index * 0.08 + 0.15 }}
           >
             <ShoppingBag className="w-5 h-5 text-stone-100" />
           </motion.div>
@@ -81,7 +79,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             className="text-xl font-bold mb-2 text-stone-100"
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: index * 0.2 + 0.3 }}
+            transition={{ delay: index * 0.08 + 0.1 }}
           >
             {product.name}
           </motion.h3>
@@ -89,7 +87,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             className="text-stone-400 mb-4"
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: index * 0.2 + 0.4 }}
+            transition={{ delay: index * 0.08 + 0.12 }}
           >
             {product.description || "Premium cotton blend with embroidered details"}
           </motion.p>
@@ -97,7 +95,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             className="flex justify-between items-center mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: index * 0.2 + 0.5 }}
+            transition={{ delay: index * 0.08 + 0.13 }}
           >
             <span className="text-2xl font-bold text-stone-100">
               ${product.price.toFixed(2)}
@@ -108,66 +106,17 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
                   key={i}
                   initial={{ opacity: 0, scale: 0 }}
                   animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                  transition={{ delay: index * 0.2 + 0.6 + i * 0.1 }}
+                  transition={{ delay: index * 0.08 + 0.15 + i * 0.05 }}
                 >
                   <Star className="w-4 h-4 fill-stone-400 text-stone-400" />
                 </motion.div>
               ))}
             </div>
           </motion.div>
-
-          {/* Quick View Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: index * 0.2 + 0.7 }}
-          >
-            <Button 
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                setZoomImage(imageUrl)
-              }}
-              className="w-full border border-stone-700 text-stone-100 hover:bg-stone-800"
-            >
-              Quick View
-            </Button>
-          </motion.div>
         </CardContent>
       </Card>
       </motion.div>
     </Link>
-
-      {/* Zoom Modal - Outside Link to prevent navigation */}
-      {zoomImage && (
-      <motion.div
-        className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={() => setZoomImage(null)}
-      >
-        <motion.div
-          className="relative max-w-2xl w-full"
-          initial={{ scale: 0.5 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0.5 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={() => setZoomImage(null)}
-            className="absolute -top-8 -right-8 bg-stone-900/80 hover:bg-stone-800 rounded-full p-2 transition-colors"
-          >
-            <X className="w-6 h-6 text-stone-100" />
-          </button>
-          <img
-            src={zoomImage}
-            alt="Zoomed product"
-            className="w-full h-auto rounded-lg"
-          />
-        </motion.div>
-      </motion.div>
-      )}
     </>
   )
 }
