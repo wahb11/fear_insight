@@ -5,6 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseKey)
 
+
 export async function createOrder(orderData: {
   first_name: string
   last_name: string
@@ -15,7 +16,7 @@ export async function createOrder(orderData: {
   state?: string
   zip_code?: string
   country?: string
-  product_ids: string[]        // uuid[]
+  products: { product_id: string; size: string; color: string; quantity: number }[]
   payment?: boolean
   tax?: number
   shipping?: number
@@ -24,8 +25,9 @@ export async function createOrder(orderData: {
   const { data, error } = await supabase
     .from('orders')
     .insert([orderData])
-    .select('*')  // return inserted row including FEAR-000xxx
+    .select('*')
 
   if (error) throw error
   return data?.[0]
 }
+

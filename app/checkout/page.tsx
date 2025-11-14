@@ -48,8 +48,13 @@ export default function CheckoutPage() {
   zip_code: formData.zipCode,
   country: formData.country,
 
-  product_ids: [
-    ...items.map(item => item.product.id)
+  products: [
+    ...items.map(item => ({
+      product_id: item.product.id,
+      size: item.selectedSize,
+      color: item.selectedColor,
+      quantity: item.quantity
+    }))
   ],
 
   payment: false,
