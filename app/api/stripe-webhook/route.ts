@@ -8,33 +8,34 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY! // server key
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
 
-export const config = { api: { bodyParser: false } }
+
+// New recommended config
+export const dynamic = 'force-dynamic'  // prevents static optimization
+export const runtime = 'nodejs'         // ensures Node runtime
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(req: NextRequest) {
-  const buf = Buffer.from(await req.arrayBuffer())
-  const sig = req.headers.get('stripe-signature')!
-
-  let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    const buf = Buffer.from(await req.arrayBuffer())
+    const sig = req.headers.get('stripe-signature')!
+    const event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session
+      const orderId = session.metadata?.orderId
+
+      // Idempotent update
+      await supabase
+        .from('orders')
+        .update({ payment: true })
+        .eq('id', orderId)
+        .eq('payment', false)
+    }
+
+    return NextResponse.json({ received: true })
   } catch (err: any) {
     console.error(err)
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
+    return NextResponse.json({ error: err.message }, { status: 400 })
   }
-
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const orderId = session.metadata?.orderId
-
-    // Idempotent update: only update if payment is still false
-    await supabase
-      .from('orders')
-      .update({ payment: true })
-      .eq('id', orderId)
-      .eq('payment', false)
-  }
-
-  return NextResponse.json({ received: true })
 }
