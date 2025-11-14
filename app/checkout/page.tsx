@@ -6,12 +6,12 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft, Check } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useCart } from '@/app/context/CartContext'
+import { createOrder } from '@/functions/createOrder'
 
 export default function CheckoutPage() {
   const { items, subtotal, tax, shipping, total } = useCart()
-  const [currentStep, setCurrentStep] = useState<'shipping' | 'payment' | 'confirmation'>('shipping')
   const [formData, setFormData] = useState({
     // Shipping Details
     firstName: '',
@@ -23,11 +23,6 @@ export default function CheckoutPage() {
     state: '',
     zipCode: '',
     country: '',
-    // Payment Details
-    cardName: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
   })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,21 +33,54 @@ export default function CheckoutPage() {
     }))
   }
 
-  const handleShippingSubmit = (e: React.FormEvent) => {
+  const handleShippingSubmit = async(e: React.FormEvent) => {
     e.preventDefault()
     if (formData.firstName && formData.lastName && formData.address && formData.city && formData.state && formData.zipCode) {
-      setCurrentStep('payment')
+      try{
+         const order = await createOrder({
+  first_name: formData.firstName,
+  last_name: formData.lastName,
+  email: formData.email,
+  phone: formData.phone,
+  address: formData.address,
+  city: formData.city,
+  state: formData.state,
+  zip_code: formData.zipCode,
+  country: formData.country,
+
+  product_ids: [
+    ...items.map(item => item.product.id)
+  ],
+
+  payment: false,
+  tax: tax,
+  shipping: shipping,
+  grand_total: total
+})      
+
+  const res = await fetch('/api/create-checkout-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      orderId: order.id,
+      items: items,
+      customer: { email: formData.email },
+      tax,
+      shipping,
+    }),
+  })
+
+  const data = await res.json()
+  if (data.url) window.location.href = data.url
+
+      //   alert(`Order placed successfully! Thank you ${formData.firstName} ${formData.lastName}. We'll send confirmation to ${formData.email}`)
+  
+      }catch{
+        alert('There was an error placing your order. Please try again.')
+      }
+    
     } else {
       alert('Please fill in all shipping details')
-    }
-  }
-
-  const handlePaymentSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (formData.cardName && formData.cardNumber && formData.expiryDate && formData.cvv) {
-      setCurrentStep('confirmation')
-    } else {
-      alert('Please fill in all payment details')
     }
   }
 
@@ -120,48 +148,7 @@ export default function CheckoutPage() {
             transition={{ duration: 0.4, delay: 0.15 }}
             className="lg:col-span-3"
           >
-            {/* Step Indicators */}
-            <div className="mb-12 relative w-full">
-              <div className="flex justify-between items-start relative">
-                {/* Background connector line */}
-                <div className="absolute top-5 left-0 right-0 h-1 bg-stone-700 rounded-full" style={{ zIndex: 0 }}></div>
-                
-                {['shipping', 'payment', 'confirmation'].map((step, index) => (
-                  <motion.div
-                    key={step}
-                    className="flex flex-col items-center relative"
-                    style={{ zIndex: 10 }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
-                  >
-                    <motion.div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mb-2 transition-all duration-300 border-4 border-stone-950 ${
-                        currentStep === step || (step === 'shipping' && currentStep !== 'shipping')
-                          ? 'bg-stone-100 text-stone-950'
-                          : currentStep === 'payment' && (step === 'payment' || step === 'confirmation')
-                          ? 'bg-stone-700 text-stone-100'
-                          : currentStep === 'confirmation' && step === 'confirmation'
-                          ? 'bg-stone-100 text-stone-950'
-                          : 'bg-stone-800 text-stone-400'
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      {step === 'shipping' && '1'}
-                      {step === 'payment' && '2'}
-                      {step === 'confirmation' && '3'}
-                    </motion.div>
-                    <span className="text-xs md:text-sm text-stone-400 capitalize whitespace-nowrap">
-                      {step === 'confirmation' ? 'Order Confirmation' : step}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Shipping Details Form */}
-            {currentStep === 'shipping' && (
-              <motion.form
+            <motion.form
                 onSubmit={handleShippingSubmit}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -384,242 +371,10 @@ export default function CheckoutPage() {
                     onClick={handleShippingSubmit}
                     className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50"
                   >
-                    Continue to Payment
-                  </Button>
-                </motion.div>
-              </motion.form>
-            )}
-
-            {/* Payment Details Form */}
-            {currentStep === 'payment' && (
-              <motion.form
-                onSubmit={handlePaymentSubmit}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-              >
-              <Card className="bg-gradient-to-br from-stone-800/60 to-stone-900/60 border border-stone-600/60 mb-8">
-                <CardContent className="p-8">
-                  <h2 className="text-2xl font-bold mb-8 text-stone-100 uppercase tracking-wider">
-                    PAYMENT DETAILS
-                  </h2>                    {/* Cardholder Name */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.1 }}
-                      viewport={{ once: true }}
-                      className="mb-6"
-                    >
-                      <label className="block text-sm font-semibold text-stone-200 mb-2">
-                        Name on Card
-                      </label>
-                      <Input
-                        type="text"
-                        name="cardName"
-                        value={formData.cardName}
-                        onChange={handleInputChange}
-                        placeholder="Daniel Hacker"
-                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                        required
-                      />
-                    </motion.div>
-
-                    {/* Card Number */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.15 }}
-                      viewport={{ once: true }}
-                      className="mb-6"
-                    >
-                      <label className="block text-sm font-semibold text-stone-200 mb-2">
-                        Card Number
-                      </label>
-                      <Input
-                        type="text"
-                        name="cardNumber"
-                        value={formData.cardNumber}
-                        onChange={handleInputChange}
-                        placeholder="4034 6666 6666 6666"
-                        maxLength={19}
-                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                        required
-                      />
-                      <div className="flex justify-end mt-2">
-                        <span className="text-xs text-stone-400">VISA</span>
-                      </div>
-                    </motion.div>
-
-                    {/* Expiry and CVV */}
-                    <div className="grid grid-cols-2 gap-6 mb-6">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.2 }}
-                        viewport={{ once: true }}
-                      >
-                        <label className="block text-sm font-semibold text-stone-200 mb-2">
-                          Valid Through
-                        </label>
-                        <Input
-                          type="text"
-                          name="expiryDate"
-                          value={formData.expiryDate}
-                          onChange={handleInputChange}
-                          placeholder="06/19"
-                          maxLength={5}
-                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                          required
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.25 }}
-                        viewport={{ once: true }}
-                      >
-                        <label className="block text-sm font-semibold text-stone-200 mb-2">
-                          CVV Code
-                        </label>
-                        <Input
-                          type="text"
-                          name="cvv"
-                          value={formData.cvv}
-                          onChange={handleInputChange}
-                          placeholder="●●●"
-                          maxLength={4}
-                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                          required
-                        />
-                      </motion.div>
-                    </div>
-
-                    {/* Billing Address Same as Shipping */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.3 }}
-                      viewport={{ once: true }}
-                      className="flex items-center gap-2 text-sm text-stone-200 p-3 bg-stone-950/40 rounded-lg border border-stone-600/40"
-                    >
-                      <input type="checkbox" defaultChecked className="w-4 h-4" />
-                      <span>Billing address same as shipping</span>
-                    </motion.div>
-                  </CardContent>
-                </Card>
-
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3, delay: 0.35 }}
-                  className="flex justify-between gap-4"
-                >
-                  <Button
-                    onClick={() => setCurrentStep('shipping')}
-                    variant="outline"
-                    className="border-stone-600/60 text-stone-100 hover:bg-stone-100/90 hover:text-stone-950 bg-stone-950/30 border-2"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={handlePaymentSubmit}
-                    className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50"
-                  >
                     Place Order
                   </Button>
                 </motion.div>
               </motion.form>
-            )}
-
-            {/* Confirmation */}
-            {currentStep === 'confirmation' && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className="text-center"
-              >
-                <Card className="bg-gradient-to-br from-stone-800/40 to-stone-900/40 border border-stone-700/50 mb-8">
-                  <CardContent className="p-12">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.5, delay: 0.3 }}
-                      className="flex justify-center mb-6"
-                    >
-                      <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center">
-                        <Check className="w-8 h-8 text-stone-950" />
-                      </div>
-                    </motion.div>
-
-                    <motion.h2
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.4 }}
-                      className="text-3xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
-                    >
-                      Order Confirmed!
-                    </motion.h2>
-
-                    <motion.p
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.5 }}
-                      className="text-stone-300 mb-8"
-                    >
-                      Thank you for your purchase. We'll send you an email confirmation shortly with tracking information.
-                    </motion.p>
-
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.6 }}
-                      className="space-y-3 text-left bg-stone-950/30 p-6 rounded-lg border border-stone-700/30 mb-8"
-                    >
-                      <div className="flex justify-between text-stone-300">
-                        <span>Order Number:</span>
-                        <span className="font-semibold">#FI-{Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
-                      </div>
-                      <div className="flex justify-between text-stone-300">
-                        <span>Name:</span>
-                        <span className="font-semibold">{formData.firstName} {formData.lastName}</span>
-                      </div>
-                      <div className="flex justify-between text-stone-300">
-                        <span>Email:</span>
-                        <span className="font-semibold text-sm">{formData.email}</span>
-                      </div>
-                      <div className="flex justify-between text-stone-300">
-                        <span>Delivery Address:</span>
-                        <span className="font-semibold text-right text-sm max-w-xs">{formData.address}, {formData.city}</span>
-                      </div>
-                    </motion.div>
-                  </CardContent>
-                </Card>
-
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.4, delay: 0.7 }}
-                  className="flex flex-col sm:flex-row gap-4 justify-center"
-                >
-                  <Link href="/products">
-                    <Button className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 w-full sm:w-auto">
-                      Continue Shopping
-                    </Button>
-                  </Link>
-                  <Link href="/">
-                    <Button
-                      variant="outline"
-                      className="border-stone-600/60 text-stone-100 hover:bg-stone-100/90 hover:text-stone-950 bg-stone-950/30 border-2 w-full sm:w-auto"
-                    >
-                      Back to Home
-                    </Button>
-                  </Link>
-                </motion.div>
-              </motion.div>
-            )}
           </motion.div>
 
           {/* Order Summary Sidebar */}
