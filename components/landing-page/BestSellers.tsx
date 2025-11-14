@@ -1,10 +1,11 @@
 "use client"
 
 import React, { useRef, useState, useEffect } from "react"
+import Link from "next/link"
 import { motion, useAnimation } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, X } from "lucide-react"
 
 import { Product } from "@/types/products"
 import { useAllProducts } from "@/hooks/useAllProducts"
@@ -15,6 +16,7 @@ export default function BestSellers() {
   const innerRef = useRef<HTMLDivElement | null>(null)
   const [carX, setCarX] = useState(0)
   const [carWidth, setCarWidth] = useState(0)
+  const [zoomImage, setZoomImage] = useState<string | null>(null)
 
   useEffect(() => {
     if (innerRef.current && carouselRef.current) {
@@ -108,15 +110,25 @@ export default function BestSellers() {
                     <h3 className="text-lg font-semibold text-stone-100">{p.name}</h3>
                     <p className="text-stone-300 mb-3">${p.price.toFixed(2)}</p>
                     <div className="flex gap-2">
-                      <motion.button
-                        onClick={() => console.log('Add to cart')}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex-1 bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 px-3 py-1 rounded text-sm font-semibold transition-all"
+                      <Link href={`/product/${p.id}`} className="flex-1">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 px-3 py-1 rounded text-sm font-semibold transition-all"
+                        >
+                          Buy Now
+                        </motion.button>
+                      </Link>
+                      <Button 
+                        size="sm" 
+                        className="border border-stone-700 text-stone-100"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setZoomImage(p.images[0])
+                        }}
                       >
-                        Buy Now
-                      </motion.button>
-                      <Button size="sm" className="border border-stone-700 text-stone-100">Quick View</Button>
+                        Quick View
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -125,6 +137,37 @@ export default function BestSellers() {
           </motion.div>
         </div>
       </div>
+
+      {/* Zoom Modal */}
+      {zoomImage && (
+        <motion.div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setZoomImage(null)}
+        >
+          <motion.div
+            className="relative max-w-2xl w-full"
+            initial={{ scale: 0.5 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0.5 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setZoomImage(null)}
+              className="absolute -top-8 -right-8 bg-stone-900/80 hover:bg-stone-800 rounded-full p-2 transition-colors"
+            >
+              <X className="w-6 h-6 text-stone-100" />
+            </button>
+            <img
+              src={zoomImage}
+              alt="Zoomed product"
+              className="w-full h-auto rounded-lg"
+            />
+          </motion.div>
+        </motion.div>
+      )}
     </section>
   )
 }

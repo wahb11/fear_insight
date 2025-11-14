@@ -1,9 +1,11 @@
 "use client"
 
 import React, { useRef, useState } from "react"
+import Link from "next/link"
 import { motion, useInView } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShoppingBag, Star } from "lucide-react"
+import { ShoppingBag, Star, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Product } from "@/types/products"
 
 interface CollectionsProductCardProps {
@@ -13,27 +15,30 @@ interface CollectionsProductCardProps {
 
 export function CollectionsProductCard({ product, index }: CollectionsProductCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const [zoomImage, setZoomImage] = useState<string | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(cardRef, { once: true, margin: "-100px" })
   const color = Object.keys(product.colors[0] || {})[0] || "#fff"
   const imageUrl = product.images[0] || null
 
   return (
-    <motion.div
-      ref={cardRef}
-      initial={{ opacity: 0, y: 100 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.8,
-        delay: index * 0.2,
-        type: "spring",
-        stiffness: 100,
-      }}
-      whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="group cursor-pointer"
-    >
+    <>
+      <Link href={`/product/${product.id}`}>
+      <motion.div
+        ref={cardRef}
+        initial={{ opacity: 0, y: 100 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{
+          duration: 0.8,
+          delay: index * 0.2,
+          type: "spring",
+          stiffness: 100,
+        }}
+        whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        className="group cursor-pointer"
+      >
       <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full">
         <div className="relative h-80">
           <div
@@ -89,7 +94,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             {product.description || "Premium cotton blend with embroidered details"}
           </motion.p>
           <motion.div
-            className="flex justify-between items-center"
+            className="flex justify-between items-center mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: index * 0.2 + 0.5 }}
@@ -110,8 +115,59 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
               ))}
             </div>
           </motion.div>
+
+          {/* Quick View Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: index * 0.2 + 0.7 }}
+          >
+            <Button 
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setZoomImage(imageUrl)
+              }}
+              className="w-full border border-stone-700 text-stone-100 hover:bg-stone-800"
+            >
+              Quick View
+            </Button>
+          </motion.div>
         </CardContent>
       </Card>
-    </motion.div>
+      </motion.div>
+    </Link>
+
+      {/* Zoom Modal - Outside Link to prevent navigation */}
+      {zoomImage && (
+      <motion.div
+        className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setZoomImage(null)}
+      >
+        <motion.div
+          className="relative max-w-2xl w-full"
+          initial={{ scale: 0.5 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0.5 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => setZoomImage(null)}
+            className="absolute -top-8 -right-8 bg-stone-900/80 hover:bg-stone-800 rounded-full p-2 transition-colors"
+          >
+            <X className="w-6 h-6 text-stone-100" />
+          </button>
+          <img
+            src={zoomImage}
+            alt="Zoomed product"
+            className="w-full h-auto rounded-lg"
+          />
+        </motion.div>
+      </motion.div>
+      )}
+    </>
   )
 }
