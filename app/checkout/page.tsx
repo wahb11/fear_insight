@@ -70,6 +70,7 @@ export default function CheckoutPage() {
     }),
   })
 
+  console.log('Response from create-checkout-session:', res)
   const data = await res.json()
   if (data.url) window.location.href = data.url
 
