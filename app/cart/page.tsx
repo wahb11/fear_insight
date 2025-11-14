@@ -69,17 +69,17 @@ export default function CartPage() {
             </Link>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-12">
             {/* Cart Items */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="lg:col-span-2"
+              className="lg:col-span-3"
             >
-              <div className="space-y-6">
-                {/* Table Header */}
-                <div className="grid grid-cols-4 gap-4 pb-4 border-b border-stone-700 text-sm font-semibold text-stone-300">
+              <div className="space-y-4">
+                {/* Table Header - Hidden on mobile */}
+                <div className="hidden md:grid grid-cols-4 gap-4 pb-4 border-b border-stone-700 text-sm font-semibold text-stone-200">
                   <div>Product</div>
                   <div>Price</div>
                   <div>Quantity</div>
@@ -95,7 +95,7 @@ export default function CartPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
-                      className="grid grid-cols-4 gap-4 items-center pb-6 border-b border-stone-800"
+                      className="hidden md:grid grid-cols-4 gap-4 items-center pb-6 border-b border-stone-800"
                     >
                       {/* Product Image and Name */}
                       <div className="flex gap-3 items-center">
@@ -117,7 +117,7 @@ export default function CartPage() {
                         {item.product.discount > 0 ? (
                           <div className="flex flex-col">
                             <span className="font-semibold text-stone-100">${discountedPrice.toFixed(2)}</span>
-                            <span className="text-xs text-stone-400 line-through">${item.product.price.toFixed(2)}</span>
+                            <span className="text-xs text-stone-500 line-through">${item.product.price.toFixed(2)}</span>
                           </div>
                         ) : (
                           <span className="font-semibold text-stone-100">${item.product.price.toFixed(2)}</span>
@@ -125,14 +125,14 @@ export default function CartPage() {
                       </div>
 
                       {/* Quantity Controls */}
-                      <div className="flex items-center gap-2 bg-stone-900/50 rounded-lg p-1 w-fit">
+                      <div className="flex items-center gap-2 bg-stone-900/80 rounded-lg p-1 w-fit border border-stone-700">
                         <button
                           onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity - 1)}
                           className="p-1 hover:bg-stone-800 rounded transition-colors"
                         >
                           <Minus className="w-4 h-4 text-stone-300" />
                         </button>
-                        <span className="w-6 text-center text-stone-100">{item.quantity}</span>
+                        <span className="w-6 text-center text-stone-100 font-semibold">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity + 1)}
                           className="p-1 hover:bg-stone-800 rounded transition-colors"
@@ -154,6 +154,82 @@ export default function CartPage() {
                     </motion.div>
                   )
                 })}
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4">
+                  {items.map((item, index) => {
+                    const discountedPrice = item.product.price * (1 - item.product.discount / 100)
+                    return (
+                      <motion.div
+                        key={`${item.product.id}-${item.selectedColor}-${item.selectedSize}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                        className="bg-stone-900/50 border border-stone-700 rounded-lg p-4"
+                      >
+                        {/* Product Image and Name */}
+                        <div className="flex gap-3 mb-4">
+                          <img
+                            src={item.product.images[0]}
+                            alt={item.product.name}
+                            className="w-24 h-24 rounded-lg object-cover flex-shrink-0 border border-stone-700"
+                          />
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-stone-100 text-sm mb-1">{item.product.name}</h3>
+                            <p className="text-xs text-stone-400 mb-2">
+                              Color: {item.selectedColor}
+                            </p>
+                            <p className="text-xs text-stone-400">
+                              Size: {item.selectedSize}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => removeFromCart(item.product.id, item.selectedColor, item.selectedSize)}
+                            className="p-2 hover:bg-red-900/30 rounded transition-colors h-fit"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-400" />
+                          </button>
+                        </div>
+
+                        {/* Price and Quantity */}
+                        <div className="flex justify-between items-center">
+                          <div>
+                            {item.product.discount > 0 ? (
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-stone-100">${discountedPrice.toFixed(2)}</span>
+                                <span className="text-xs text-stone-500 line-through">${item.product.price.toFixed(2)}</span>
+                              </div>
+                            ) : (
+                              <span className="font-semibold text-stone-100">${item.product.price.toFixed(2)}</span>
+                            )}
+                          </div>
+
+                          {/* Quantity Controls */}
+                          <div className="flex items-center gap-2 bg-stone-900/80 rounded-lg p-1 border border-stone-700">
+                            <button
+                              onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity - 1)}
+                              className="p-1 hover:bg-stone-800 rounded transition-colors"
+                            >
+                              <Minus className="w-3 h-3 text-stone-300" />
+                            </button>
+                            <span className="w-5 text-center text-stone-100 font-semibold text-sm">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity + 1)}
+                              className="p-1 hover:bg-stone-800 rounded transition-colors"
+                            >
+                              <Plus className="w-3 h-3 text-stone-300" />
+                            </button>
+                          </div>
+
+                          {/* Item Total */}
+                          <div className="font-semibold text-stone-100 text-right">
+                            ${(discountedPrice * item.quantity).toFixed(2)}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
               </div>
 
               {/* Delivery & Payment Info */}
@@ -188,34 +264,34 @@ export default function CartPage() {
               transition={{ duration: 0.6 }}
               className="lg:col-span-1"
             >
-              <Card className="bg-stone-900/50 border border-stone-700/50 sticky top-24">
+              <Card className="bg-stone-900/95 border border-stone-600/80 sticky top-24">
                 <CardContent className="p-6">
-                  <h2 className="text-xl font-bold text-stone-100 mb-6">ORDER SUMMARY</h2>
+                  <h2 className="text-lg font-bold text-stone-50 mb-6 uppercase tracking-wider">Order Summary</h2>
 
-                  <div className="space-y-4 mb-6 pb-6 border-b border-stone-700">
-                    <div className="flex justify-between text-stone-300">
-                      <span>Subtotal</span>
-                      <span>${subtotal.toFixed(2)}</span>
+                  <div className="space-y-3 mb-6 pb-6 border-b border-stone-600/70">
+                    <div className="flex justify-between text-stone-100">
+                      <span className="text-sm">Subtotal</span>
+                      <span className="font-semibold">${subtotal.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-stone-300">
-                      <span>Taxes</span>
-                      <span>${tax.toFixed(2)}</span>
+                    <div className="flex justify-between text-stone-100">
+                      <span className="text-sm">Taxes</span>
+                      <span className="font-semibold">${tax.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-stone-300">
-                      <span>Shipping</span>
-                      <span>{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                    <div className="flex justify-between text-stone-100">
+                      <span className="text-sm">Shipping</span>
+                      <span className="font-semibold">{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
                     </div>
                     {discount > 0 && (
                       <div className="flex justify-between text-green-400">
-                        <span>Discount</span>
-                        <span>-${discount.toFixed(2)}</span>
+                        <span className="text-sm">Discount</span>
+                        <span className="font-semibold">-${discount.toFixed(2)}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex justify-between text-xl font-bold text-stone-100 mb-6">
-                    <span>TOTAL</span>
-                    <span>${finalTotal.toFixed(2)}</span>
+                  <div className="flex justify-between items-center mb-6 p-4 bg-stone-950/80 rounded-lg border border-stone-500/60">
+                    <span className="font-bold text-stone-50 uppercase tracking-wide">TOTAL</span>
+                    <span className="text-2xl font-bold text-stone-50">${finalTotal.toFixed(2)}</span>
                   </div>
 
                   {/* Promo Code */}
@@ -223,14 +299,14 @@ export default function CartPage() {
                     <div className="flex gap-2">
                       <Input
                         type="text"
-                        placeholder="Add promo code"
+                        placeholder="Promo code"
                         value={promoCode}
                         onChange={(e) => setPromoCode(e.target.value)}
-                        className="bg-stone-950/50 border-stone-600 text-stone-100 placeholder:text-stone-500 focus:border-stone-300"
+                        className="bg-stone-950/60 border-stone-600 text-stone-100 placeholder:text-stone-500 focus:border-stone-300 text-sm"
                       />
                       <button
                         onClick={handleApplyPromo}
-                        className="p-2 text-stone-300 hover:text-stone-100 transition-colors"
+                        className="p-2 text-stone-300 hover:text-stone-100 transition-colors hover:bg-stone-800 rounded"
                       >
                         <ArrowLeft className="w-5 h-5 rotate-180" />
                       </button>
@@ -241,10 +317,10 @@ export default function CartPage() {
                   </div>
 
                   {/* Checkout Buttons */}
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mb-3">
                     <Link href="/checkout" className="block">
-                      <Button className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 font-bold py-2 mb-3">
-                        CHECKOUT
+                      <Button className="w-full bg-gradient-to-r from-stone-700 to-stone-800 hover:from-stone-800 hover:to-stone-900 text-stone-50 font-bold py-2 uppercase tracking-wider text-sm">
+                        Checkout
                       </Button>
                     </Link>
                   </motion.div>
@@ -254,9 +330,9 @@ export default function CartPage() {
                     <Link href="/products" className="block">
                       <Button
                         variant="outline"
-                        className="w-full border-stone-600 text-stone-100 hover:bg-stone-800 font-bold"
+                        className="w-full border-stone-600/80 text-stone-200 hover:bg-stone-800/60 hover:text-stone-50 font-bold uppercase tracking-wider text-sm bg-transparent border-2"
                       >
-                        CONTINUE SHOPPING
+                        Continue Shopping
                       </Button>
                     </Link>
                   </motion.div>

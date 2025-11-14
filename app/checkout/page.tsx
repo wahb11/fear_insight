@@ -112,48 +112,51 @@ export default function CheckoutPage() {
       </div>
 
       <div className="container mx-auto px-4 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-12">
           {/* Main Checkout Form */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.15 }}
-            className="lg:col-span-2"
+            className="lg:col-span-3"
           >
             {/* Step Indicators */}
-            <div className="flex justify-between mb-12">
-              {['shipping', 'payment', 'confirmation'].map((step, index) => (
-                <motion.div
-                  key={step}
-                  className="flex flex-col items-center flex-1"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
-                >
+            <div className="mb-12 relative w-full">
+              <div className="flex justify-between items-start relative">
+                {/* Background connector line */}
+                <div className="absolute top-5 left-0 right-0 h-1 bg-stone-700 rounded-full" style={{ zIndex: 0 }}></div>
+                
+                {['shipping', 'payment', 'confirmation'].map((step, index) => (
                   <motion.div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mb-2 transition-all duration-300 ${
-                      currentStep === step || (step === 'shipping' && currentStep !== 'shipping')
-                        ? 'bg-stone-100 text-stone-950'
-                        : currentStep === 'payment' && (step === 'payment' || step === 'confirmation')
-                        ? 'bg-stone-700 text-stone-100'
-                        : currentStep === 'confirmation' && step === 'confirmation'
-                        ? 'bg-stone-100 text-stone-950'
-                        : 'bg-stone-800 text-stone-400'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
+                    key={step}
+                    className="flex flex-col items-center relative"
+                    style={{ zIndex: 10 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
                   >
-                    {step === 'shipping' && '1'}
-                    {step === 'payment' && '2'}
-                    {step === 'confirmation' && '3'}
+                    <motion.div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mb-2 transition-all duration-300 border-4 border-stone-950 ${
+                        currentStep === step || (step === 'shipping' && currentStep !== 'shipping')
+                          ? 'bg-stone-100 text-stone-950'
+                          : currentStep === 'payment' && (step === 'payment' || step === 'confirmation')
+                          ? 'bg-stone-700 text-stone-100'
+                          : currentStep === 'confirmation' && step === 'confirmation'
+                          ? 'bg-stone-100 text-stone-950'
+                          : 'bg-stone-800 text-stone-400'
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {step === 'shipping' && '1'}
+                      {step === 'payment' && '2'}
+                      {step === 'confirmation' && '3'}
+                    </motion.div>
+                    <span className="text-xs md:text-sm text-stone-400 capitalize whitespace-nowrap">
+                      {step === 'confirmation' ? 'Order Confirmation' : step}
+                    </span>
                   </motion.div>
-                  <span className="text-xs md:text-sm text-stone-400 capitalize">
-                    {step === 'confirmation' ? 'Order Confirmation' : step}
-                  </span>
-                  {index < 2 && (
-                    <div className="hidden md:block absolute left-1/3 right-1/3 h-0.5 bg-stone-800 top-5 -z-10" />
-                  )}
-                </motion.div>
-              ))}
+                ))}
+              </div>
             </div>
 
             {/* Shipping Details Form */}
@@ -164,13 +167,11 @@ export default function CheckoutPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
               >
-                <Card className="bg-gradient-to-br from-stone-800/40 to-stone-900/40 border border-stone-700/50 mb-8">
-                  <CardContent className="p-8">
-                    <h2 className="text-2xl font-bold mb-8 bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent">
-                      SHIPPING DETAILS
-                    </h2>
-
-                    {/* Name Fields */}
+              <Card className="bg-gradient-to-br from-stone-800/60 to-stone-900/60 border border-stone-600/60 mb-8">
+                <CardContent className="p-8">
+                  <h2 className="text-2xl font-bold mb-8 text-stone-100 uppercase tracking-wider">
+                    SHIPPING DETAILS
+                  </h2>                    {/* Name Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -187,7 +188,7 @@ export default function CheckoutPage() {
                           value={formData.firstName}
                           onChange={handleInputChange}
                           placeholder="Daniel"
-                          className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                           required
                         />
                       </motion.div>
@@ -207,7 +208,7 @@ export default function CheckoutPage() {
                           value={formData.lastName}
                           onChange={handleInputChange}
                           placeholder="Hacker"
-                          className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                           required
                         />
                       </motion.div>
@@ -230,7 +231,7 @@ export default function CheckoutPage() {
                           value={formData.email}
                           onChange={handleInputChange}
                           placeholder="daniel@sambora.com"
-                          className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                           required
                         />
                       </motion.div>
@@ -250,7 +251,7 @@ export default function CheckoutPage() {
                           value={formData.phone}
                           onChange={handleInputChange}
                           placeholder="+1 (555) 123-4567"
-                          className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                           required
                         />
                       </motion.div>
@@ -273,7 +274,7 @@ export default function CheckoutPage() {
                         value={formData.address}
                         onChange={handleInputChange}
                         placeholder="Vasagatan 16"
-                        className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                         required
                       />
                     </motion.div>
@@ -295,7 +296,7 @@ export default function CheckoutPage() {
                           value={formData.city}
                           onChange={handleInputChange}
                           placeholder="Stockholm"
-                          className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                           required
                         />
                       </motion.div>
@@ -315,7 +316,7 @@ export default function CheckoutPage() {
                           value={formData.state}
                           onChange={handleInputChange}
                           placeholder="Stockholm"
-                          className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                           required
                         />
                       </motion.div>
@@ -335,7 +336,7 @@ export default function CheckoutPage() {
                           value={formData.zipCode}
                           onChange={handleInputChange}
                           placeholder="111 20"
-                          className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                           required
                         />
                       </motion.div>
@@ -357,7 +358,7 @@ export default function CheckoutPage() {
                         value={formData.country}
                         onChange={handleInputChange}
                         placeholder="Sweden"
-                        className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                         required
                       />
                     </motion.div>
@@ -397,13 +398,11 @@ export default function CheckoutPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
               >
-                <Card className="bg-gradient-to-br from-stone-800/40 to-stone-900/40 border border-stone-700/50 mb-8">
-                  <CardContent className="p-8">
-                    <h2 className="text-2xl font-bold mb-8 bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent">
-                      PAYMENT DETAILS
-                    </h2>
-
-                    {/* Cardholder Name */}
+              <Card className="bg-gradient-to-br from-stone-800/60 to-stone-900/60 border border-stone-600/60 mb-8">
+                <CardContent className="p-8">
+                  <h2 className="text-2xl font-bold mb-8 text-stone-100 uppercase tracking-wider">
+                    PAYMENT DETAILS
+                  </h2>                    {/* Cardholder Name */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
@@ -420,7 +419,7 @@ export default function CheckoutPage() {
                         value={formData.cardName}
                         onChange={handleInputChange}
                         placeholder="Daniel Hacker"
-                        className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                         required
                       />
                     </motion.div>
@@ -443,11 +442,11 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
                         placeholder="4034 6666 6666 6666"
                         maxLength={19}
-                        className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                         required
                       />
                       <div className="flex justify-end mt-2">
-                        <span className="text-xs text-stone-500">VISA</span>
+                        <span className="text-xs text-stone-400">VISA</span>
                       </div>
                     </motion.div>
 
@@ -469,7 +468,7 @@ export default function CheckoutPage() {
                           onChange={handleInputChange}
                           placeholder="06/19"
                           maxLength={5}
-                          className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                           required
                         />
                       </motion.div>
@@ -490,7 +489,7 @@ export default function CheckoutPage() {
                           onChange={handleInputChange}
                           placeholder="●●●"
                           maxLength={4}
-                          className="bg-stone-950/50 border-stone-700/50 text-stone-100 placeholder:text-stone-600"
+                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                           required
                         />
                       </motion.div>
@@ -502,7 +501,7 @@ export default function CheckoutPage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: 0.3 }}
                       viewport={{ once: true }}
-                      className="flex items-center gap-2 text-sm text-stone-300 p-3 bg-stone-950/30 rounded-lg border border-stone-700/30"
+                      className="flex items-center gap-2 text-sm text-stone-200 p-3 bg-stone-950/40 rounded-lg border border-stone-600/40"
                     >
                       <input type="checkbox" defaultChecked className="w-4 h-4" />
                       <span>Billing address same as shipping</span>
@@ -631,13 +630,13 @@ export default function CheckoutPage() {
             className="lg:col-span-1"
           >
             <div className="sticky top-32">
-              <Card className="bg-gradient-to-br from-stone-800/40 to-stone-900/40 border border-stone-700/50">
+              <Card className="bg-stone-900/95 border border-stone-600/80">
                 <CardContent className="p-8">
-                  <h3 className="text-lg font-bold mb-6 text-stone-100">ORDER SUMMARY</h3>
+                  <h3 className="text-lg font-bold mb-6 text-stone-50 uppercase tracking-wider">Order Summary</h3>
 
                   {/* Order Items */}
                   <motion.div
-                    className="space-y-4 mb-6 pb-6 border-b border-stone-700/50"
+                    className="space-y-4 mb-6 pb-6 border-b border-stone-600/70"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3, delay: 0.3 }}
@@ -650,17 +649,17 @@ export default function CheckoutPage() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: 0.3 + index * 0.08 }}
-                          className="flex justify-between items-start text-sm"
+                          className="flex justify-between items-start text-sm gap-2"
                         >
-                          <div className="flex-1">
-                            <p className="text-stone-200 font-medium text-sm truncate">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-stone-100 font-medium text-sm break-words">
                               {item.product.name}
                             </p>
-                            <p className="text-stone-500 text-xs">
+                            <p className="text-stone-300 text-xs">
                               {item.selectedColor} • {item.selectedSize} • Qty: {item.quantity}
                             </p>
                           </div>
-                          <p className="text-stone-200 font-semibold ml-2">
+                          <p className="text-stone-100 font-semibold flex-shrink-0">
                             ${(discountedPrice * item.quantity).toFixed(2)}
                           </p>
                         </motion.div>
@@ -670,22 +669,22 @@ export default function CheckoutPage() {
 
                   {/* Price Breakdown */}
                   <motion.div
-                    className="space-y-3 text-sm"
+                    className="space-y-3 text-sm mb-6 pb-6 border-b border-stone-600/70"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3, delay: 0.4 }}
                   >
-                    <div className="flex justify-between text-stone-400">
+                    <div className="flex justify-between text-stone-100">
                       <span>Subtotal:</span>
-                      <span>${subtotal.toFixed(2)}</span>
+                      <span className="font-semibold">${subtotal.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-stone-400">
+                    <div className="flex justify-between text-stone-100">
                       <span>Shipping:</span>
-                      <span>${shipping.toFixed(2)}</span>
+                      <span className="font-semibold">${shipping.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-stone-400">
+                    <div className="flex justify-between text-stone-100">
                       <span>Tax (10%):</span>
-                      <span>${tax.toFixed(2)}</span>
+                      <span className="font-semibold">${tax.toFixed(2)}</span>
                     </div>
                   </motion.div>
 
@@ -694,10 +693,10 @@ export default function CheckoutPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.5 }}
-                    className="mt-6 pt-6 border-t border-stone-700/50 flex justify-between items-center"
+                    className="flex justify-between items-center p-4 bg-stone-950/80 rounded-lg border border-stone-500/60"
                   >
-                    <span className="text-lg font-bold text-stone-100">Total:</span>
-                    <span className="text-2xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent">
+                    <span className="font-bold text-stone-50 uppercase tracking-wide">Total:</span>
+                    <span className="text-2xl font-bold text-stone-50">
                       ${total.toFixed(2)}
                     </span>
                   </motion.div>
