@@ -12,7 +12,17 @@ import { createOrder } from '@/functions/createOrder'
 import { notifyNewOrderNonPayment } from '@/functions/notifyNewOrderNonPayment'
 
 export default function CheckoutPage() {
+
+
+
+
+
   const { items, subtotal, tax, shipping, total } = useCart()
+
+
+
+
+  
   const [formData, setFormData] = useState({
     // Shipping Details
     firstName: '',
