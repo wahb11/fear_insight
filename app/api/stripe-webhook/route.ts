@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       // Fetch order to get email
       const order = await getOrderById(orderId!)
       await sendOrderConfirmationEmail(order)
-      notifyNewOrderPayment(order)
+      await notifyNewOrderPayment(order)
 
     }
 
