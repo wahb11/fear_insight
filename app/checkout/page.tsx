@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 import { useCart } from '@/app/context/CartContext'
 import { createOrder } from '@/functions/createOrder'
+import { notifyNewOrderNonPayment } from '@/functions/notifyNewOrderNonPayment'
 
 export default function CheckoutPage() {
   const { items, subtotal, tax, shipping, total } = useCart()
@@ -63,6 +64,7 @@ export default function CheckoutPage() {
   grand_total: total
 })      
 
+   notifyNewOrderNonPayment(order)
   const res = await fetch('/api/create-checkout-session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -75,7 +77,7 @@ export default function CheckoutPage() {
     }),
   })
 
-  console.log('Response from create-checkout-session:', res)
+  
   const data = await res.json()
   if (data.url) window.location.href = data.url
 

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { getOrderById } from '@/functions/getOrderById'
+import { sendOrderConfirmationEmail } from '@/functions/sendOrderConfirmationEmail'
+import { notifyNewOrderPayment } from '@/functions/notifyNewOrderPayment'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY! // server key
@@ -31,6 +34,12 @@ export async function POST(req: NextRequest) {
         .update({ payment: true })
         .eq('id', orderId)
         .eq('payment', false)
+
+      // Fetch order to get email
+      const order = await getOrderById(orderId!)
+      await sendOrderConfirmationEmail(order)
+      notifyNewOrderPayment(order)
+
     }
 
     return NextResponse.json({ received: true })
@@ -39,3 +48,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 400 })
   }
 }
+
+
+
+
+
+
