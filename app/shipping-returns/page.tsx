@@ -1,5 +1,6 @@
 "use client"
 import { useRef } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,6 +16,34 @@ const navigation = [
 
 export default function ShippingReturnsPage() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const handleNavClick = (item: any) => {
+    if (item.href.startsWith('#')) {
+      const id = item.href.replace('#', '')
+      
+      // If we're on the home page, just scroll
+      if (pathname === '/') {
+        const element = document.getElementById(id)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+        }
+      } else {
+        // If we're on a different page, navigate to home with the anchor
+        router.push(`/#${id}`)
+        // Wait for page to load, then scroll
+        setTimeout(() => {
+          const element = document.getElementById(id)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' })
+          }
+        }, 500)
+      }
+    } else {
+      router.push(item.href)
+    }
+  }
   
   return (
     <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
@@ -47,13 +76,13 @@ export default function ShippingReturnsPage() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5 + index * 0.1 }}
               >
-                  <Link
-                  href={item.href}
-                  className="hover:text-stone-300 transition-colors relative group"
+                <motion.button
+                  onClick={() => handleNavClick(item)}
+                  className="hover:text-stone-300 transition-colors relative group text-left cursor-pointer"
                 >
                   {item.name}
                   <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-stone-100 to-stone-500 group-hover:w-full transition-all duration-300" />
-                </Link>
+                </motion.button>
               </motion.div>
             ))}
           </motion.div>
@@ -131,40 +160,40 @@ export default function ShippingReturnsPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-200">Shipping Options</h3>
-                    <div className="space-y-3 text-stone-400">
+                    <h3 className="text-lg font-semibold mb-2 text-stone-50">Shipping Options</h3>
+                    <div className="space-y-3 text-stone-200">
                       <div className="flex justify-between">
                         <span>Standard Shipping (5-7 business days)</span>
-                        <span className="text-stone-100 font-semibold">FREE on orders $75+</span>
+                        <span className="text-stone-50 font-semibold">FREE on orders $75+</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Express Shipping (2-3 business days)</span>
-                        <span className="text-stone-100 font-semibold">$12.99</span>
+                        <span className="text-stone-50 font-semibold">$12.99</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Overnight Shipping (1 business day)</span>
-                        <span className="text-stone-100 font-semibold">$24.99</span>
+                        <span className="text-stone-50 font-semibold">$24.99</span>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-200 flex items-center">
+                    <h3 className="text-lg font-semibold mb-2 text-stone-50 flex items-center">
                       <Clock className="w-5 h-5 mr-2" />
                       Processing Time
                     </h3>
-                    <p className="text-stone-400">
+                    <p className="text-stone-200">
                       Orders are processed within 1-2 business days. You'll receive a tracking number once your order
                       ships.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-200 flex items-center">
+                    <h3 className="text-lg font-semibold mb-2 text-stone-50 flex items-center">
                       <MapPin className="w-5 h-5 mr-2" />
                       Shipping Locations
                     </h3>
-                    <p className="text-stone-400">
+                    <p className="text-stone-200">
                       We currently ship within the United States. International shipping coming soon.
                     </p>
                   </div>
@@ -187,11 +216,11 @@ export default function ShippingReturnsPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-200">Return Policy</h3>
-                    <p className="text-stone-400 mb-3">
+                    <h3 className="text-lg font-semibold mb-2 text-stone-50">Return Policy</h3>
+                    <p className="text-stone-200 mb-3">
                       We offer a 30-day return policy for unworn items in original condition with tags attached.
                     </p>
-                    <ul className="space-y-2 text-stone-400 text-sm">
+                    <ul className="space-y-2 text-stone-200 text-sm">
                       <li>• Items must be unworn and unwashed</li>
                       <li>• Original tags must be attached</li>
                       <li>• Items must be in original packaging</li>
@@ -200,21 +229,21 @@ export default function ShippingReturnsPage() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-200">Exchange Process</h3>
-                    <p className="text-stone-400">
+                    <h3 className="text-lg font-semibold mb-2 text-stone-50">Exchange Process</h3>
+                    <p className="text-stone-200">
                       Need a different size? We offer free exchanges within 30 days. Contact us at{" "}
-                      <a href="mailto:wahbusman@fearinsight.com" className="text-stone-100 hover:text-stone-300 font-semibold">
+                      <a href="mailto:wahbusman@fearinsight.com" className="text-stone-50 hover:text-stone-100 font-semibold">
                         wahbusman@fearinsight.com
                       </a>
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-200 flex items-center">
+                    <h3 className="text-lg font-semibold mb-2 text-stone-50 flex items-center">
                       <CreditCard className="w-5 h-5 mr-2" />
                       Refund Timeline
                     </h3>
-                    <p className="text-stone-400">
+                    <p className="text-stone-200">
                       Refunds are processed within 5-7 business days after we receive your return.
                     </p>
                   </div>
@@ -255,11 +284,11 @@ export default function ShippingReturnsPage() {
                 transition={{ duration: 0.6, delay: index * 0.2 }}
                 viewport={{ once: true }}
               >
-                <Card className="bg-gradient-to-br from-stone-900/10 to-stone-700/10 border-stone-700/20 hover:border-stone-400/50 transition-all duration-300">
+                <Card className="bg-stone-900/60 backdrop-blur-sm border-stone-600 hover:border-stone-400 transition-all duration-300">
                   <CardContent className="p-6 text-center">
-                    <item.icon className="w-12 h-12 text-stone-100 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2 text-stone-200">{item.title}</h3>
-                    <p className="text-stone-400 text-sm">
+                    <item.icon className="w-12 h-12 text-stone-50 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2 text-stone-50">{item.title}</h3>
+                    <p className="text-stone-200 text-sm">
                       {item.description}
                     </p>
                   </CardContent>

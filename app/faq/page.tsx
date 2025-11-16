@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -119,9 +120,37 @@ const navigation = [
 export default function FAQPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [openItems, setOpenItems] = useState<string[]>([])
+  const router = useRouter()
+  const pathname = usePathname()
 
   const toggleItem = (id: string) => {
     setOpenItems((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
+  }
+
+  const handleNavClick = (item: any) => {
+    if (item.href.startsWith('#')) {
+      const id = item.href.replace('#', '')
+      
+      // If we're on the home page, just scroll
+      if (pathname === '/') {
+        const element = document.getElementById(id)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+        }
+      } else {
+        // If we're on a different page, navigate to home with the anchor
+        router.push(`/#${id}`)
+        // Wait for page to load, then scroll
+        setTimeout(() => {
+          const element = document.getElementById(id)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' })
+          }
+        }, 500)
+      }
+    } else {
+      router.push(item.href)
+    }
   }
 
   return (
@@ -155,13 +184,13 @@ export default function FAQPage() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5 + index * 0.1 }}
               >
-                <Link
-                  href={item.href}
-                  className="hover:text-stone-300 transition-colors relative group"
+                <motion.button
+                  onClick={() => handleNavClick(item)}
+                  className="hover:text-stone-300 transition-colors relative group text-left cursor-pointer"
                 >
                   {item.name}
                   <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-stone-100 to-stone-500 group-hover:w-full transition-all duration-300" />
-                </Link>
+                </motion.button>
               </motion.div>
             ))}
           </motion.div>
@@ -204,7 +233,7 @@ export default function FAQPage() {
             transition={{ duration: 1, delay: 0.8 }}
           />
           <motion.p
-            className="text-xl text-stone-300 max-w-2xl mx-auto"
+            className="text-xl text-stone-200 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 1 }}
@@ -246,7 +275,7 @@ export default function FAQPage() {
                         className="w-full text-left p-6 hover:bg-stone-800/30 transition-colors"
                       >
                         <div className="flex justify-between items-center">
-                          <h3 className="text-lg font-semibold text-stone-200 pr-4">{faq.question}</h3>
+                          <h3 className="text-lg font-semibold text-stone-50 pr-4">{faq.question}</h3>
                           {isOpen ? (
                             <ChevronUp className="w-5 h-5 text-stone-100 flex-shrink-0" />
                           ) : (
@@ -264,7 +293,7 @@ export default function FAQPage() {
                             transition={{ duration: 0.3 }}
                           >
                             <CardContent className="px-6 pb-6 pt-0">
-                              <p className="text-stone-400 leading-relaxed">{faq.answer}</p>
+                              <p className="text-stone-200 leading-relaxed">{faq.answer}</p>
                             </CardContent>
                           </motion.div>
                         )}
@@ -288,7 +317,7 @@ export default function FAQPage() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl font-bold mb-4 text-stone-100">Still Have Questions?</h2>
-            <p className="text-xl text-stone-300 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-stone-200 mb-8 max-w-2xl mx-auto">
               Can't find what you're looking for? Our customer service team is here to help you with any questions or
               concerns.
             </p>
@@ -296,12 +325,12 @@ export default function FAQPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
               <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
                 <CardContent className="p-6 text-center">
-                  <Mail className="w-8 h-8 text-stone-100 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-stone-200">Email Support</h3>
-                  <p className="text-stone-400 text-sm mb-3">Get help via email</p>
+                  <Mail className="w-8 h-8 text-stone-50 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-stone-50">Email Support</h3>
+                  <p className="text-stone-200 text-sm mb-3">Get help via email</p>
                   <a
                     href="mailto:wahbusman@fearinsight.com"
-                    className="text-stone-100 hover:text-stone-300 text-sm font-semibold"
+                    className="text-stone-50 hover:text-stone-100 text-sm font-semibold"
                   >
                     wahbusman@fearinsight.com
                   </a>
@@ -310,19 +339,19 @@ export default function FAQPage() {
 
               <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
                 <CardContent className="p-6 text-center">
-                  <MessageCircle className="w-8 h-8 text-stone-100 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-stone-200">Live Chat</h3>
-                  <p className="text-stone-400 text-sm mb-3">Chat with us in real-time</p>
-                  <span className="text-stone-500 text-sm">Coming Soon</span>
+                  <MessageCircle className="w-8 h-8 text-stone-50 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-stone-50">Live Chat</h3>
+                  <p className="text-stone-200 text-sm mb-3">Chat with us in real-time</p>
+                  <span className="text-stone-400 text-sm">Coming Soon</span>
                 </CardContent>
               </Card>
 
               <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
                 <CardContent className="p-6 text-center">
-                  <Phone className="w-8 h-8 text-stone-100 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-stone-200">Phone Support</h3>
-                  <p className="text-stone-400 text-sm mb-3">Speak with our team</p>
-                  <span className="text-stone-500 text-sm">Coming Soon</span>
+                  <Phone className="w-8 h-8 text-stone-50 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-stone-50">Phone Support</h3>
+                  <p className="text-stone-200 text-sm mb-3">Speak with our team</p>
+                  <span className="text-stone-400 text-sm">Coming Soon</span>
                 </CardContent>
               </Card>
             </div>

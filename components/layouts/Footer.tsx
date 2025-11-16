@@ -1,17 +1,43 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
+import { useRouter, usePathname } from 'next/navigation'
 import { motion } from "framer-motion"
-import { Instagram, Twitter, Mail} from "lucide-react"
+import { Instagram, Mail} from "lucide-react"
+
+// TikTok icon component since lucide-react may not have it
+const TikTokIcon = () => (
+  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.68v12.7a2.85 2.85 0 0 1-2.85 2.92 2.85 2.85 0 0 1-2.85-2.92 2.88 2.88 0 0 1 5.13-1.01v-3.7a6.47 6.47 0 0 0-6.85 6.67 6.56 6.56 0 0 0 6.61 6.61 6.52 6.52 0 0 0 6.56-6.4V9.5a8.25 8.25 0 0 0 3.77 1.04v-3.68a4.58 4.58 0 0 1-.96-.1z"></path>
+  </svg>
+)
 
 export default function Footer() {
+  const router = useRouter()
+  const pathname = usePathname()
+
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+    
     if (href.startsWith('#')) {
-      e.preventDefault()
       const id = href.replace('#', '')
-      const element = document.getElementById(id)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
+      
+      // If we're on the home page, just scroll
+      if (pathname === '/') {
+        const element = document.getElementById(id)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+        }
+      } else {
+        // If we're on a different page, navigate to home with the anchor
+        router.push(`/#${id}`)
+        // Wait for page to load, then scroll
+        setTimeout(() => {
+          const element = document.getElementById(id)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' })
+          }
+        }, 500)
       }
     }
   }
@@ -52,8 +78,8 @@ export default function Footer() {
                   </div>
                   <div className="flex space-x-4">
                     {[
-                      { Icon: Instagram, href: "#" },
-                      { Icon: Twitter, href: "#" },
+                      { Icon: Instagram, href: "https://www.instagram.com/fear_insight?igsh=MXV4dmtxMG0zbjJ3aQ==" },
+                      { Icon: TikTokIcon, href: "https://www.tiktok.com/@fear_insight?_r=1&_t=ZS-91JlnRVRF9p" },
                       { Icon: Mail, href: "mailto:wahbusman@fearinsight.com" },
                     ].map((item, index) => (
                       <motion.a
@@ -61,6 +87,8 @@ export default function Footer() {
                         whileHover={{ scale: 1.2, rotate: 5 }}
                         whileTap={{ scale: 0.9 }}
                         href={item.href}
+                        target={item.href.startsWith('http') ? "_blank" : undefined}
+                        rel={item.href.startsWith('http') ? "noopener noreferrer" : undefined}
                         className="text-stone-400 hover:text-stone-300 transition-colors"
                       >
                         <item.Icon className="w-6 h-6" />
