@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { PaymentStatus } from '@/components/ui/payment-status'
 import { useCart } from '@/app/context/CartContext'
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { clearCart } = useCart()
@@ -36,5 +36,13 @@ export default function CheckoutSuccessPage() {
         onClose={handleContinueShopping}
       />
     </div>
+  )
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-stone-950" />}>
+      <CheckoutSuccessContent />
+    </Suspense>
   )
 }

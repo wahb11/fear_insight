@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { PaymentStatus } from '@/components/ui/payment-status'
 
-export default function CheckoutCancelPage() {
+function CheckoutCancelContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [orderId, setOrderId] = useState<string | null>(null)
@@ -36,5 +36,13 @@ export default function CheckoutCancelPage() {
         onClose={handleClose}
       />
     </div>
+  )
+}
+
+export default function CheckoutCancelPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-stone-950" />}>
+      <CheckoutCancelContent />
+    </Suspense>
   )
 }
