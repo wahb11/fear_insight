@@ -232,8 +232,8 @@ export default function ShippingReturnsPage() {
                     <h3 className="text-lg font-semibold mb-2 text-stone-50">Exchange Process</h3>
                     <p className="text-stone-200">
                       Need a different size? We offer free exchanges within 30 days. Contact us at{" "}
-                      <a href="mailto:wahbusman@fearinsight.com" className="text-stone-50 hover:text-stone-100 font-semibold">
-                        wahbusman@fearinsight.com
+                      <a href="mailto:info@fearinsight.com" className="text-stone-50 hover:text-stone-100 font-semibold">
+                        info@fearinsight.com
                       </a>
                     </p>
                   </div>
@@ -317,7 +317,7 @@ export default function ShippingReturnsPage() {
                 size="lg"
                 className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
               >
-                <a href="mailto:wahbusman@fearinsight.com" className="flex items-center">
+                <a href="mailto:info@fearinsight.com" className="flex items-center">
                   Contact Support
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </a>

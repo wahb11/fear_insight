@@ -101,9 +101,6 @@ export default function FearInsightLanding() {
 
   return (
     <>
-      {/* Remove PageLoadingOverlay */}
-      {/* <PageLoadingOverlay isLoading={pageLoading} /> */}
-
       <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
         {/* Navigation */}
        
@@ -241,23 +238,8 @@ export default function FearInsightLanding() {
                   </Button>
                 </Link>
               </motion.div>
-
-              <motion.div 
-                whileHover={{ scale: 1.02 }} 
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-stone-300/60 text-stone-100 hover:bg-stone-100/90 hover:text-stone-950 text-lg px-8 py-3 bg-stone-950/30 group border-2 transition-all duration-300"
-                >
-                  <Play className="w-5 h-5 mr-2 group-hover:scale-105 transition-transform duration-200" />
-                  Watch Story
-                </Button>
-              </motion.div>
             </motion.div>
-          </motion.div>
+            </motion.div>
 
         </section>
 
@@ -270,26 +252,12 @@ export default function FearInsightLanding() {
           id="about"
           className="py-20 px-4 bg-gradient-to-b from-stone-950 to-stone-900 relative overflow-hidden"
         >
-          {/* Background Image */}
-          <div className="absolute inset-0 bg-gradient-to-br from-stone-700/20 to-stone-900/20 rounded-lg backdrop-blur-sm border border-stone-100/10 overflow-hidden">
-            {/* Background Image */}
-            <img
-              src="/premium-streetwear-hoodie-brand-lifestyle-spiritua.png"
-              alt="Fear Insight Brand Lifestyle"
-              className="w-full h-full object-cover opacity-60 mix-blend-overlay"
-            />
-
-            {/* Gradient Overlay for blending */}
-            <div className="absolute inset-0 bg-gradient-to-br from-stone-700/30 via-stone-900/40 to-stone-900/30 mix-blend-multiply" />
-
-            {/* Additional texture overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-stone-900/40" />
-
-            {/* 3D background removed; keeping visual overlays only */}
-          </div>
+          {/* Gradient background only - no image */}
+          <div className="absolute inset-0 bg-gradient-to-br from-stone-900/40 via-stone-950/50 to-stone-900/40" />
 
           <div className="container mx-auto relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left Column - Text Content */}
               <motion.div
                 initial={{ opacity: 0, x: -100 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -343,21 +311,77 @@ export default function FearInsightLanding() {
                     hope.
                   </p>
                 </motion.div>
+              </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.28 }}
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25 backdrop-blur-sm"
+              {/* Right Column - Values Cards */}
+              <motion.div
+                initial={{ opacity: 0, x: 100 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, type: "spring", stiffness: 50 }}
+                viewport={{ once: true }}
+                className="space-y-6"
+              >
+                {[
+                  {
+                    title: "FAITH DRIVEN",
+                    description: "Every piece is guided by spiritual values and divine purpose",
+                    icon: "✨"
+                  },
+                  {
+                    title: "PREMIUM QUALITY",
+                    description: "465gsm heavyweight fabric with meticulous attention to detail",
+                    icon: "👑"
+                  },
+                  {
+                    title: "FEARLESS EXPRESSION",
+                    description: "Wear your beliefs boldly and inspire those around you",
+                    icon: "💪"
+                  }
+                ].map((item, index) => (
+                  <motion.div
+                    key={item.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.1 + index * 0.1 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.02, x: 10 }}
+                    className="p-6 bg-gradient-to-br from-stone-800/40 to-stone-900/40 border border-stone-700/50 rounded-xl backdrop-blur-md hover:border-stone-600/80 transition-all duration-300"
                   >
-                    Learn More
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+                    <div className="flex items-start gap-4">
+                      <div className="text-3xl">{item.icon}</div>
+                      <div>
+                        <h3 className="text-lg font-bold text-stone-50 mb-2">{item.title}</h3>
+                        <p className="text-stone-300 text-sm">{item.description}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+
+                {/* Statistics Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                  viewport={{ once: true }}
+                  className="p-6 bg-gradient-to-br from-stone-700/30 to-stone-900/40 border border-stone-600/60 rounded-xl backdrop-blur-md mt-8"
+                >
+                  <p className="text-stone-100 text-center text-sm font-semibold mb-4">
+                    Trusted by believers worldwide
+                  </p>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-2xl font-bold text-stone-50">10K+</p>
+                      <p className="text-xs text-stone-400">Community Members</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-stone-50">100%</p>
+                      <p className="text-xs text-stone-400">Quality Assured</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-stone-50">∞</p>
+                      <p className="text-xs text-stone-400">Divine Purpose</p>
+                    </div>
+                  </div>
                 </motion.div>
               </motion.div>
             </div>
@@ -589,9 +613,7 @@ export default function FearInsightLanding() {
         </section>
 
         {/* Footer */}
-    
       </div>
-
     </>
   )
 }

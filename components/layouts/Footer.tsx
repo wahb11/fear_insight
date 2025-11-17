@@ -69,18 +69,18 @@ export default function Footer() {
                   <div className="mb-4">
                     <p className="text-stone-300 mb-2">Get in touch:</p>
                     <a
-                      href="mailto:wahbusman@fearinsight.com"
+                      href="mailto:info@fearinsight.com"
                       className="text-stone-100 hover:text-stone-300 transition-colors flex items-center gap-2"
                     >
                       <Mail className="w-4 h-4" />
-                      wahbusman@fearinsight.com
+                      info@fearinsight.com
                     </a>
                   </div>
                   <div className="flex space-x-4">
                     {[
                       { Icon: Instagram, href: "https://www.instagram.com/fear_insight?igsh=MXV4dmtxMG0zbjJ3aQ==" },
                       { Icon: TikTokIcon, href: "https://www.tiktok.com/@fear_insight?_r=1&_t=ZS-91JlnRVRF9p" },
-                      { Icon: Mail, href: "mailto:wahbusman@fearinsight.com" },
+                      { Icon: Mail, href: "mailto:info@fearinsight.com" },
                     ].map((item, index) => (
                       <motion.a
                         key={index}
@@ -164,7 +164,7 @@ export default function Footer() {
                 viewport={{ once: true }}
               >
                 <p>&copy; {new Date().getFullYear()} FEAR INSIGHT. All rights reserved. DIRECTED BY GOD.</p>
-                <p className="mt-2 text-sm">Contact us: wahbusman@fearinsight.com</p>
+                <p className="mt-2 text-sm">Contact us: info@fearinsight.com</p>
               </motion.div>
             </div>
           </footer>

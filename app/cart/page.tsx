@@ -239,21 +239,52 @@ export default function CartPage() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="mt-12 space-y-6"
               >
-                <div>
-                  <h3 className="font-semibold text-stone-100 mb-2">Delivery Info</h3>
-                  <p className="text-sm text-stone-400">See our delivery & returns info here</p>
-                </div>
+                {/* Delivery Info Card */}
+                <Card className="bg-stone-900/50 border-stone-700">
+                  <CardContent className="p-6">
+                    <h3 className="font-bold text-lg text-stone-50 mb-4">📦 Delivery Info</h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-stone-300">Standard Shipping (5-7 business days)</span>
+                        <span className="text-stone-100 font-semibold">FREE on orders $75+</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-stone-300">Express Shipping (2-3 business days)</span>
+                        <span className="text-stone-100 font-semibold">$12.99</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-stone-300">Overnight (1 business day)</span>
+                        <span className="text-stone-100 font-semibold">$24.99</span>
+                      </div>
+                      <Link href="/shipping-returns" className="mt-3 inline-block">
+                        <p className="text-stone-400 hover:text-stone-200 transition-colors text-xs underline">
+                          View full shipping & returns policy →
+                        </p>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
 
-                <div>
-                  <h3 className="font-semibold text-stone-100 mb-2">Payment Info</h3>
-                  <p className="text-sm text-stone-400 mb-3">We accept the following methods of payment</p>
-                  <div className="flex gap-3 text-xs font-semibold text-stone-300">
-                    <span className="px-2 py-1 bg-stone-800/50 rounded">VISA</span>
-                    <span className="px-2 py-1 bg-stone-800/50 rounded">MASTERCARD</span>
-                    <span className="px-2 py-1 bg-stone-800/50 rounded">AMEX</span>
-                    <span className="px-2 py-1 bg-stone-800/50 rounded">PAYPAL</span>
-                  </div>
-                </div>
+                {/* Payment Info Card */}
+                <Card className="bg-stone-900/50 border-stone-700">
+                  <CardContent className="p-6">
+                    <h3 className="font-bold text-lg text-stone-50 mb-4">💳 Payment Methods</h3>
+                    <p className="text-sm text-stone-300 mb-4">We accept the following secure payment methods:</p>
+                    <div className="grid grid-cols-4 gap-3">
+                      {['VISA', 'MASTERCARD', 'AMEX', 'PAYPAL'].map((method) => (
+                        <div
+                          key={method}
+                          className="px-4 py-3 bg-stone-800/50 border border-stone-700/50 rounded-lg text-center text-xs font-semibold text-stone-200 hover:border-stone-600 transition-colors"
+                        >
+                          {method}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-stone-400 mt-4">
+                      ✓ All transactions are encrypted and secure
+                    </p>
+                  </CardContent>
+                </Card>
               </motion.div>
             </motion.div>
 

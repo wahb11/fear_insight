@@ -21,26 +21,28 @@ export default function Header() {
       router.push("/products")
     } else if (item === "Home") {
       router.push("/")
-    } else {
+    } else if (item === "About" || item === "Contact") {
       // For anchor links (About, Contact)
       const id = item.toLowerCase()
       
-      // If we're on the home page, just scroll
-      if (pathname === '/') {
+      // Function to scroll to element
+      const scrollToElement = () => {
         const element = document.getElementById(id)
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
+          // Add a small delay and ensure scrolling happens
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
+      }
+      
+      // If we're on the home page, just scroll
+      if (pathname === '/') {
+        // Small delay to ensure DOM is ready
+        setTimeout(scrollToElement, 100)
       } else {
         // If we're on a different page, navigate to home with the anchor
         router.push(`/#${id}`)
-        // Wait for page to load, then scroll
-        setTimeout(() => {
-          const element = document.getElementById(id)
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' })
-          }
-        }, 500)
+        // Wait longer for page to fully load, then scroll
+        setTimeout(scrollToElement, 1000)
       }
     }
   }

@@ -69,7 +69,7 @@ const faqData = [
 			{
 				question: "How do I return an item?",
 				answer:
-					"Contact us at wahbusman@fearinsight.com with your order number and reason for return. We'll provide you with a prepaid return label and instructions.",
+					"Contact us at info@fearinsight.com with your order number and reason for return. We'll provide you with a prepaid return label and instructions.",
 			},
 			{
 				question: "Can I exchange for a different size?",
@@ -329,10 +329,10 @@ export default function FAQPage() {
                   <h3 className="font-semibold mb-2 text-stone-50">Email Support</h3>
                   <p className="text-stone-200 text-sm mb-3">Get help via email</p>
                   <a
-                    href="mailto:wahbusman@fearinsight.com"
+                    href="mailto:info@fearinsight.com"
                     className="text-stone-50 hover:text-stone-100 text-sm font-semibold"
                   >
-                    wahbusman@fearinsight.com
+                    info@fearinsight.com
                   </a>
                 </CardContent>
               </Card>
@@ -361,7 +361,7 @@ export default function FAQPage() {
                 size="lg"
                 className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
               >
-                <a href="mailto:wahbusman@fearinsight.com" className="flex items-center">
+                <a href="mailto:info@fearinsight.com" className="flex items-center">
                   Contact Support
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </a>
