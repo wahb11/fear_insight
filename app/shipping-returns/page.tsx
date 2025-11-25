@@ -6,95 +6,21 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Truck, RotateCcw, Shield, Clock, MapPin, CreditCard, ArrowRight, Mail, Instagram, Twitter } from "lucide-react"
 import Link from "next/link"
-
-const navigation = [
-  { name: "Home", href: "/" },
-  { name: "Products", href: "/products" },
-  { name: "About", href: "/#about" },
-  { name: "Contact", href: "/#contact" },
-]
-
 export default function ShippingReturnsPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
 
-  const handleNavClick = (item: any) => {
-    if (item.href.startsWith('#')) {
-      const id = item.href.replace('#', '')
-      
-      // If we're on the home page, just scroll
-      if (pathname === '/') {
-        const element = document.getElementById(id)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
-        }
-      } else {
-        // If we're on a different page, navigate to home with the anchor
-        router.push(`/#${id}`)
-        // Wait for page to load, then scroll
-        setTimeout(() => {
-          const element = document.getElementById(id)
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' })
-          }
-        }, 500)
-      }
-    } else {
-      router.push(item.href)
-    }
-  }
-  
   return (
     <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
-      {/* Navigation */}
-      <motion.nav
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1, type: "spring", stiffness: 100 }}
-        className="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-stone-800"
-      >
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-2xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
-          >
-            <Link href="/">FEAR INSIGHT</Link>
-          </motion.div>
 
-          <motion.div
-            className="hidden md:flex space-x-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, staggerChildren: 0.1 }}
-          >
-            {navigation.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
-              >
-                <motion.button
-                  onClick={() => handleNavClick(item)}
-                  className="hover:text-stone-300 transition-colors relative group text-left cursor-pointer"
-                >
-                  {item.name}
-                  <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-stone-100 to-stone-500 group-hover:w-full transition-all duration-300" />
-                </motion.button>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </motion.nav>
 
       {/* Hero Section */}
       <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
-  <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
-        
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
+
         <motion.div
           className="relative z-10 text-center px-4"
           initial={{ opacity: 0, y: 50 }}
@@ -268,7 +194,7 @@ export default function ShippingReturnsPage() {
               },
               {
                 icon: Truck,
-                title: "Order Tracking", 
+                title: "Order Tracking",
                 description: "Track your order every step of the way with real-time updates and notifications."
               },
               {
@@ -300,7 +226,7 @@ export default function ShippingReturnsPage() {
       </section>
 
       {/* Contact Section */}
-  <section className="py-16 px-4 bg-gradient-to-r from-stone-900/50 to-stone-900/40">
+      <section className="py-16 px-4 bg-gradient-to-r from-stone-900/50 to-stone-900/40">
         <div className="container mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 50 }}

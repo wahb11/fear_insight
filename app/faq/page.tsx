@@ -9,112 +9,105 @@ import { ArrowLeft, ChevronDown, ChevronUp, HelpCircle, Mail, Phone, MessageCirc
 import Link from "next/link"
 
 const faqData = [
-	{
-		category: "Orders & Shipping",
-		questions: [
-			{
-				question: "How long does shipping take?",
-				answer:
-					"Standard shipping takes 5-7 business days, Express shipping takes 2-3 business days, and Overnight shipping takes 1 business day. All orders are processed within 1-2 business days.",
-			},
-			{
-				question: "Do you offer free shipping?",
-				answer:
-					"Yes! We offer free standard shipping on all orders over $75. For orders under $75, standard shipping is $6.99.",
-			},
-			{
-				question: "Can I track my order?",
-				answer:
-					"Once your order ships, you'll receive a tracking number via email. You can use this to track your package in real-time.",
-			},
-			{
-				question: "Do you ship internationally?",
-				answer: "Currently, we only ship within the United States. International shipping is coming soon - stay tuned!",
-			},
-		],
-	},
-	{
-		category: "Products & Sizing",
-		questions: [
-			{
-				question: "How do I choose the right size?",
-				answer:
-					"We recommend checking our size guide on each product page. Our hoodies run true to size, but if you prefer a looser fit, consider sizing up. If you're between sizes, we suggest going with the larger size.",
-			},
-			{
-				question: "What materials are your hoodies made from?",
-				answer:
-					"Our premium hoodies are made from a high-quality cotton blend (80% cotton, 20% polyester) for comfort, durability, and the perfect fit. All materials are ethically sourced.",
-			},
-			{
-				question: "Are your designs printed or embroidered?",
-				answer:
-					"Our designs feature a combination of high-quality screen printing and embroidered details, depending on the specific design. This ensures longevity and maintains the premium feel of each piece.",
-			},
-			{
-				question: "How should I care for my Fear Insight hoodie?",
-				answer:
-					"Machine wash cold with like colors, tumble dry low, and avoid bleach. Turn inside out before washing to preserve the design. Iron on low heat if needed, avoiding direct contact with printed areas.",
-			},
-		],
-	},
-	{
-		category: "Returns & Exchanges",
-		questions: [
-			{
-				question: "What is your return policy?",
-				answer:
-					"We offer a 30-day return policy for unworn items in original condition with tags attached. Items must be unwashed and in original packaging.",
-			},
-			{
-				question: "How do I return an item?",
-				answer:
-					"Contact us at info@fearinsight.com with your order number and reason for return. We'll provide you with a prepaid return label and instructions.",
-			},
-			{
-				question: "Can I exchange for a different size?",
-				answer:
-					"Yes! We offer free exchanges within 30 days. Contact our customer service team, and we'll help you get the perfect fit.",
-			},
-			{
-				question: "How long do refunds take?",
-				answer:
-					"Refunds are processed within 5-7 business days after we receive your return. You'll receive an email confirmation once the refund is processed.",
-			},
-		],
-	},
-	{
-		category: "Brand & Mission",
-		questions: [
-			{
-				question: "What does 'DIRECTED BY GOD' mean?",
-				answer:
-					"Our tagline represents our core belief that we are guided by divine purpose in everything we do. It reflects our commitment to creating meaningful, purpose-driven streetwear that inspires faith and confidence.",
-			},
-			{
-				question: "What is Fear Insight's mission?",
-				answer:
-					"Our mission is to inspire confidence and faith through premium streetwear that speaks to your soul. We believe fashion can be a powerful expression of one's spiritual journey and divine calling.",
-			},
-			{
-				question: "Are you a faith-based company?",
-				answer:
-					"Yes, Fear Insight is founded on principles of faith, quality, and authenticity. While our designs appeal to everyone, our brand is rooted in spiritual values and divine inspiration.",
-			},
-			{
-				question: "Do you give back to the community?",
-				answer:
-					"We regularly partner with local churches and community organizations to give back. A portion of our proceeds goes toward supporting youth programs and community outreach initiatives.",
-			},
-		],
-	},
-]
-
-const navigation = [
-  { name: "Home", href: "/" },
-  { name: "Products", href: "/products" },
-  { name: "About", href: "/#about" },
-  { name: "Contact", href: "/#contact" },
+  {
+    category: "Orders & Shipping",
+    questions: [
+      {
+        question: "How long does shipping take?",
+        answer:
+          "Standard shipping takes 5-7 business days, Express shipping takes 2-3 business days, and Overnight shipping takes 1 business day. All orders are processed within 1-2 business days.",
+      },
+      {
+        question: "Do you offer free shipping?",
+        answer:
+          "Yes! We offer free standard shipping on all orders over $75. For orders under $75, standard shipping is $6.99.",
+      },
+      {
+        question: "Can I track my order?",
+        answer:
+          "Once your order ships, you'll receive a tracking number via email. You can use this to track your package in real-time.",
+      },
+      {
+        question: "Do you ship internationally?",
+        answer: "Currently, we only ship within the United States. International shipping is coming soon - stay tuned!",
+      },
+    ],
+  },
+  {
+    category: "Products & Sizing",
+    questions: [
+      {
+        question: "How do I choose the right size?",
+        answer:
+          "We recommend checking our size guide on each product page. Our hoodies run true to size, but if you prefer a looser fit, consider sizing up. If you're between sizes, we suggest going with the larger size.",
+      },
+      {
+        question: "What materials are your hoodies made from?",
+        answer:
+          "Our premium hoodies are made from a high-quality cotton blend (80% cotton, 20% polyester) for comfort, durability, and the perfect fit. All materials are ethically sourced.",
+      },
+      {
+        question: "Are your designs printed or embroidered?",
+        answer:
+          "Our designs feature a combination of high-quality screen printing and embroidered details, depending on the specific design. This ensures longevity and maintains the premium feel of each piece.",
+      },
+      {
+        question: "How should I care for my Fear Insight hoodie?",
+        answer:
+          "Machine wash cold with like colors, tumble dry low, and avoid bleach. Turn inside out before washing to preserve the design. Iron on low heat if needed, avoiding direct contact with printed areas.",
+      },
+    ],
+  },
+  {
+    category: "Returns & Exchanges",
+    questions: [
+      {
+        question: "What is your return policy?",
+        answer:
+          "We offer a 30-day return policy for unworn items in original condition with tags attached. Items must be unwashed and in original packaging.",
+      },
+      {
+        question: "How do I return an item?",
+        answer:
+          "Contact us at info@fearinsight.com with your order number and reason for return. We'll provide you with a prepaid return label and instructions.",
+      },
+      {
+        question: "Can I exchange for a different size?",
+        answer:
+          "Yes! We offer free exchanges within 30 days. Contact our customer service team, and we'll help you get the perfect fit.",
+      },
+      {
+        question: "How long do refunds take?",
+        answer:
+          "Refunds are processed within 5-7 business days after we receive your return. You'll receive an email confirmation once the refund is processed.",
+      },
+    ],
+  },
+  {
+    category: "Brand & Mission",
+    questions: [
+      {
+        question: "What does 'DIRECTED BY GOD' mean?",
+        answer:
+          "Our tagline represents our core belief that we are guided by divine purpose in everything we do. It reflects our commitment to creating meaningful, purpose-driven streetwear that inspires faith and confidence.",
+      },
+      {
+        question: "What is Fear Insight's mission?",
+        answer:
+          "Our mission is to inspire confidence and faith through premium streetwear that speaks to your soul. We believe fashion can be a powerful expression of one's spiritual journey and divine calling.",
+      },
+      {
+        question: "Are you a faith-based company?",
+        answer:
+          "Yes, Fear Insight is founded on principles of faith, quality, and authenticity. While our designs appeal to everyone, our brand is rooted in spiritual values and divine inspiration.",
+      },
+      {
+        question: "Do you give back to the community?",
+        answer:
+          "We regularly partner with local churches and community organizations to give back. A portion of our proceeds goes toward supporting youth programs and community outreach initiatives.",
+      },
+    ],
+  },
 ]
 
 export default function FAQPage() {
@@ -127,82 +120,14 @@ export default function FAQPage() {
     setOpenItems((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
   }
 
-  const handleNavClick = (item: any) => {
-    if (item.href.startsWith('#')) {
-      const id = item.href.replace('#', '')
-      
-      // If we're on the home page, just scroll
-      if (pathname === '/') {
-        const element = document.getElementById(id)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
-        }
-      } else {
-        // If we're on a different page, navigate to home with the anchor
-        router.push(`/#${id}`)
-        // Wait for page to load, then scroll
-        setTimeout(() => {
-          const element = document.getElementById(id)
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' })
-          }
-        }, 500)
-      }
-    } else {
-      router.push(item.href)
-    }
-  }
-
   return (
     <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
-      {/* Navigation */}
-      <motion.nav
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1, type: "spring", stiffness: 100 }}
-        className="fixed top-0 w-full z-50 bg-stone-950/80 backdrop-blur-md border-b border-stone-800"
-      >
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-2xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent"
-          >
-            <Link href="/">FEAR INSIGHT</Link>
-          </motion.div>
-
-          <motion.div
-            className="hidden md:flex space-x-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, staggerChildren: 0.1 }}
-          >
-            {navigation.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
-              >
-                <motion.button
-                  onClick={() => handleNavClick(item)}
-                  className="hover:text-stone-300 transition-colors relative group text-left cursor-pointer"
-                >
-                  {item.name}
-                  <motion.div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-stone-100 to-stone-500 group-hover:w-full transition-all duration-300" />
-                </motion.button>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </motion.nav>
-
       {/* Hero Section */}
       <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
-                <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
-        
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
+
         <motion.div
           className="relative z-10 text-center px-4"
           initial={{ opacity: 0, y: 50 }}
@@ -308,7 +233,7 @@ export default function FAQPage() {
       </section>
 
       {/* Contact Section */}
-  <section className="py-16 px-4 bg-gradient-to-r from-stone-900/50 to-stone-900/40 relative overflow-hidden">
+      <section className="py-16 px-4 bg-gradient-to-r from-stone-900/50 to-stone-900/40 relative overflow-hidden">
         <div className="container mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -379,6 +304,6 @@ export default function FAQPage() {
           </motion.div>
         </div>
       </section>
-		</div>
-	)
+    </div>
+  )
 }

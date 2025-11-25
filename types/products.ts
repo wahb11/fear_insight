@@ -8,8 +8,11 @@ export interface Product {
   images: string[]
   ratings: number
   price: number
-  discount:number
+  discount: number
   featured: boolean
   best_seller: boolean
-
+  material?: string
+  care?: string
+  fullDescription?: string
+  shipping?: string
 }
