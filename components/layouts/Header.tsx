@@ -55,7 +55,7 @@ export default function Header() {
       className="fixed top-0 w-full z-50 bg-stone-950/90 border-b border-stone-800 backdrop-blur-md"
       style={{ willChange: "opacity" }}
     >
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center relative">
         {/* Hamburger Menu Button */}
         <motion.button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -93,7 +93,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
           {["Home", "Products", "About", "Contact"].map((item) => (
             <a
               key={item}
