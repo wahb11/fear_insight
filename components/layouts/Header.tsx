@@ -16,7 +16,7 @@ export default function Header() {
   const handleNavClick = (item: string, e: React.MouseEvent) => {
     e.preventDefault()
     setIsMenuOpen(false)
-    
+
     if (item === "Products") {
       router.push("/products")
     } else if (item === "Home") {
@@ -24,7 +24,7 @@ export default function Header() {
     } else if (item === "About" || item === "Contact") {
       // For anchor links (About, Contact)
       const id = item.toLowerCase()
-      
+
       // Function to scroll to element
       const scrollToElement = () => {
         const element = document.getElementById(id)
@@ -33,7 +33,7 @@ export default function Header() {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
       }
-      
+
       // If we're on the home page, just scroll
       if (pathname === '/') {
         // Small delay to ensure DOM is ready
@@ -59,7 +59,7 @@ export default function Header() {
         {/* Hamburger Menu Button */}
         <motion.button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 group"
+          className="flex md:hidden items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 group"
         >
           <div className="w-6 h-5 flex flex-col justify-between items-center cursor-pointer">
             <motion.div
@@ -91,6 +91,20 @@ export default function Header() {
             FEAR INSIGHT
           </motion.div>
         </Link>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-8">
+          {["Home", "Products", "About", "Contact"].map((item) => (
+            <a
+              key={item}
+              href={item === "Home" ? "/" : item === "Products" ? "/products" : `#${item.toLowerCase()}`}
+              onClick={(e) => handleNavClick(item, e)}
+              className="text-stone-300 hover:text-stone-100 transition-colors duration-200 text-sm font-medium uppercase tracking-wider cursor-pointer"
+            >
+              {item}
+            </a>
+          ))}
+        </div>
 
         {/* Cart Button */}
         <Link href="/cart">
