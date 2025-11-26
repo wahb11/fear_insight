@@ -22,7 +22,7 @@ export default function CheckoutPage() {
 
 
 
-  
+
   const [formData, setFormData] = useState({
     // Shipping Details
     firstName: '',
@@ -44,59 +44,59 @@ export default function CheckoutPage() {
     }))
   }
 
-  const handleShippingSubmit = async(e: React.FormEvent) => {
+  const handleShippingSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (formData.firstName && formData.lastName && formData.address && formData.city && formData.state && formData.zipCode) {
-      try{
-         const order = await createOrder({
-  first_name: formData.firstName,
-  last_name: formData.lastName,
-  email: formData.email,
-  phone: formData.phone,
-  address: formData.address,
-  city: formData.city,
-  state: formData.state,
-  zip_code: formData.zipCode,
-  country: formData.country,
+      try {
+        const order = await createOrder({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zip_code: formData.zipCode,
+          country: formData.country,
 
-  products: [
-    ...items.map(item => ({
-      product_id: item.product.id,
-      size: item.selectedSize,
-      color: item.selectedColor,
-      quantity: item.quantity
-    }))
-  ],
+          products: [
+            ...items.map(item => ({
+              product_id: item.product.id,
+              size: item.selectedSize,
+              color: item.selectedColor,
+              quantity: item.quantity
+            }))
+          ],
 
-  payment: false,
-  tax: tax,
-  shipping: shipping,
-  grand_total: total
-})      
+          payment: false,
+          tax: tax,
+          shipping: shipping,
+          grand_total: total
+        })
 
-   notifyNewOrderNonPayment(order)
-  const res = await fetch('/api/create-checkout-session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      orderId: order.id,
-      items: items,
-      customer: { email: formData.email },
-      tax,
-      shipping,
-    }),
-  })
+        notifyNewOrderNonPayment(order)
+        const res = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: order.id,
+            items: items,
+            customer: { email: formData.email },
+            tax,
+            shipping,
+          }),
+        })
 
-  
-  const data = await res.json()
-  if (data.url) window.location.href = data.url
 
-      //   alert(`Order placed successfully! Thank you ${formData.firstName} ${formData.lastName}. We'll send confirmation to ${formData.email}`)
-  
-      }catch{
+        const data = await res.json()
+        if (data.url) window.location.href = data.url
+
+        //   alert(`Order placed successfully! Thank you ${formData.firstName} ${formData.lastName}. We'll send confirmation to ${formData.email}`)
+
+      } catch {
         alert('There was an error placing your order. Please try again.')
       }
-    
+
     } else {
       alert('Please fill in all shipping details')
     }
@@ -164,235 +164,235 @@ export default function CheckoutPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.15 }}
-            className="lg:col-span-3"
+            className="lg:col-span-3 order-2 lg:order-1"
           >
             <motion.form
-                onSubmit={handleShippingSubmit}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-              >
+              onSubmit={handleShippingSubmit}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
               <Card className="bg-gradient-to-br from-stone-800/60 to-stone-900/60 border border-stone-600/60 mb-8">
                 <CardContent className="p-8">
                   <h2 className="text-2xl font-bold mb-8 text-stone-100 uppercase tracking-wider">
                     SHIPPING DETAILS
                   </h2>                    {/* Name Fields */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.1 }}
-                        viewport={{ once: true }}
-                      >
-                        <label className="block text-sm font-semibold text-stone-200 mb-2">
-                          First Name
-                        </label>
-                        <Input
-                          type="text"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleInputChange}
-                          placeholder="Daniel"
-                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                          required
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.15 }}
-                        viewport={{ once: true }}
-                      >
-                        <label className="block text-sm font-semibold text-stone-200 mb-2">
-                          Last Name
-                        </label>
-                        <Input
-                          type="text"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleInputChange}
-                          placeholder="Hacker"
-                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                          required
-                        />
-                      </motion.div>
-                    </div>
-
-                    {/* Email and Phone */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.2 }}
-                        viewport={{ once: true }}
-                      >
-                        <label className="block text-sm font-semibold text-stone-200 mb-2">
-                          Email
-                        </label>
-                        <Input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="daniel@sambora.com"
-                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                          required
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.25 }}
-                        viewport={{ once: true }}
-                      >
-                        <label className="block text-sm font-semibold text-stone-200 mb-2">
-                          Phone Number
-                        </label>
-                        <Input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          placeholder="+1 (555) 123-4567"
-                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                          required
-                        />
-                      </motion.div>
-                    </div>
-
-                    {/* Address */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.3 }}
+                      transition={{ duration: 0.3, delay: 0.1 }}
                       viewport={{ once: true }}
-                      className="mb-6"
                     >
                       <label className="block text-sm font-semibold text-stone-200 mb-2">
-                        Street Address
+                        First Name
                       </label>
                       <Input
                         type="text"
-                        name="address"
-                        value={formData.address}
+                        name="firstName"
+                        value={formData.firstName}
                         onChange={handleInputChange}
-                        placeholder="Vasagatan 16"
+                        placeholder="Daniel"
                         className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                         required
                       />
                     </motion.div>
 
-                    {/* City, State, Zip */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.35 }}
-                        viewport={{ once: true }}
-                      >
-                        <label className="block text-sm font-semibold text-stone-200 mb-2">
-                          City
-                        </label>
-                        <Input
-                          type="text"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleInputChange}
-                          placeholder="Stockholm"
-                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                          required
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.4 }}
-                        viewport={{ once: true }}
-                      >
-                        <label className="block text-sm font-semibold text-stone-200 mb-2">
-                          State/Province
-                        </label>
-                        <Input
-                          type="text"
-                          name="state"
-                          value={formData.state}
-                          onChange={handleInputChange}
-                          placeholder="Stockholm"
-                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                          required
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.45 }}
-                        viewport={{ once: true }}
-                      >
-                        <label className="block text-sm font-semibold text-stone-200 mb-2">
-                          Zip Code
-                        </label>
-                        <Input
-                          type="text"
-                          name="zipCode"
-                          value={formData.zipCode}
-                          onChange={handleInputChange}
-                          placeholder="111 20"
-                          className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
-                          required
-                        />
-                      </motion.div>
-                    </div>
-
-                    {/* Country */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.5 }}
+                      transition={{ duration: 0.3, delay: 0.15 }}
                       viewport={{ once: true }}
                     >
                       <label className="block text-sm font-semibold text-stone-200 mb-2">
-                        Country
+                        Last Name
                       </label>
                       <Input
                         type="text"
-                        name="country"
-                        value={formData.country}
+                        name="lastName"
+                        value={formData.lastName}
                         onChange={handleInputChange}
-                        placeholder="Sweden"
+                        placeholder="Hacker"
                         className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
                         required
                       />
                     </motion.div>
-                  </CardContent>
-                </Card>
+                  </div>
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3, delay: 0.55 }}
-                  className="flex justify-between gap-4"
-                >
-                  <Link href="/cart">
-                    <Button
-                      variant="outline"
-                      className="border-stone-600/60 text-stone-100 hover:bg-stone-100/90 hover:text-stone-950 bg-stone-950/30 border-2"
+                  {/* Email and Phone */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.2 }}
+                      viewport={{ once: true }}
                     >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to Cart
-                    </Button>
-                  </Link>
-                  <Button
-                    onClick={handleShippingSubmit}
-                    className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50"
+                      <label className="block text-sm font-semibold text-stone-200 mb-2">
+                        Email
+                      </label>
+                      <Input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="daniel@sambora.com"
+                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
+                        required
+                      />
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.25 }}
+                      viewport={{ once: true }}
+                    >
+                      <label className="block text-sm font-semibold text-stone-200 mb-2">
+                        Phone Number
+                      </label>
+                      <Input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="+1 (555) 123-4567"
+                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
+                        required
+                      />
+                    </motion.div>
+                  </div>
+
+                  {/* Address */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.3 }}
+                    viewport={{ once: true }}
+                    className="mb-6"
                   >
-                    Place Order
+                    <label className="block text-sm font-semibold text-stone-200 mb-2">
+                      Street Address
+                    </label>
+                    <Input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      placeholder="Vasagatan 16"
+                      className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
+                      required
+                    />
+                  </motion.div>
+
+                  {/* City, State, Zip */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.35 }}
+                      viewport={{ once: true }}
+                    >
+                      <label className="block text-sm font-semibold text-stone-200 mb-2">
+                        City
+                      </label>
+                      <Input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        placeholder="Stockholm"
+                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
+                        required
+                      />
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.4 }}
+                      viewport={{ once: true }}
+                    >
+                      <label className="block text-sm font-semibold text-stone-200 mb-2">
+                        State/Province
+                      </label>
+                      <Input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                        placeholder="Stockholm"
+                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
+                        required
+                      />
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.45 }}
+                      viewport={{ once: true }}
+                    >
+                      <label className="block text-sm font-semibold text-stone-200 mb-2">
+                        Zip Code
+                      </label>
+                      <Input
+                        type="text"
+                        name="zipCode"
+                        value={formData.zipCode}
+                        onChange={handleInputChange}
+                        placeholder="111 20"
+                        className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
+                        required
+                      />
+                    </motion.div>
+                  </div>
+
+                  {/* Country */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.5 }}
+                    viewport={{ once: true }}
+                  >
+                    <label className="block text-sm font-semibold text-stone-200 mb-2">
+                      Country
+                    </label>
+                    <Input
+                      type="text"
+                      name="country"
+                      value={formData.country}
+                      onChange={handleInputChange}
+                      placeholder="Sweden"
+                      className="bg-stone-950/70 border-stone-600/60 text-stone-100 placeholder:text-stone-500 focus:border-stone-400"
+                      required
+                    />
+                  </motion.div>
+                </CardContent>
+              </Card>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.55 }}
+                className="flex justify-between gap-4"
+              >
+                <Link href="/cart">
+                  <Button
+                    variant="outline"
+                    className="border-stone-600/60 text-stone-100 hover:bg-stone-100/90 hover:text-stone-950 bg-stone-950/30 border-2"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Cart
                   </Button>
-                </motion.div>
-              </motion.form>
+                </Link>
+                <Button
+                  onClick={handleShippingSubmit}
+                  className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50"
+                >
+                  Place Order
+                </Button>
+              </motion.div>
+            </motion.form>
           </motion.div>
 
           {/* Order Summary Sidebar */}
@@ -400,7 +400,7 @@ export default function CheckoutPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="lg:col-span-1"
+            className="lg:col-span-1 order-1 lg:order-2"
           >
             <div className="sticky top-32">
               <Card className="bg-stone-900/95 border border-stone-600/80">
@@ -409,7 +409,7 @@ export default function CheckoutPage() {
 
                   {/* Order Items */}
                   <motion.div
-                    className="space-y-4 mb-6 pb-6 border-b border-stone-600/70"
+                    className="space-y-4 mb-6 pb-6 border-b border-stone-600/70 max-h-60 overflow-y-auto pr-2 custom-scrollbar"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3, delay: 0.3 }}

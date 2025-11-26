@@ -47,7 +47,7 @@ export default function ProductsPage() {
   const { data: products, isLoading, error } = useAllProducts()
   const containerRef = useRef<HTMLDivElement>(null)
   const { addToCart } = useCart()
-  
+
   const [selectedColor, setSelectedColor] = useState("All")
   const [selectedSize, setSelectedSize] = useState("All")
   const [selectedPrice, setSelectedPrice] = useState("All")
@@ -58,7 +58,7 @@ export default function ProductsPage() {
 
   // Generate dynamic filters from products
   const dynamicFilters = useMemo(() => {
-    if (!products) return { colors: ["All"], sizes: ["All"], priceRanges: ["All"] }
+    if (!products || !Array.isArray(products)) return { colors: ["All"], sizes: ["All"], priceRanges: ["All"] }
 
     const colorsSet = new Set<string>()
     const sizesSet = new Set<string>()
@@ -67,14 +67,22 @@ export default function ProductsPage() {
 
     products.forEach((product: Product) => {
       // Extract colors from colors array
-      product.colors?.forEach((colorObj) => {
-        Object.keys(colorObj).forEach((color) => colorsSet.add(color))
-      })
+      if (Array.isArray(product.colors)) {
+        product.colors.forEach((colorObj) => {
+          if (colorObj && typeof colorObj === 'object') {
+            Object.keys(colorObj).forEach((color) => colorsSet.add(color))
+          }
+        })
+      }
 
       // Extract sizes from sizes array
-      product.sizes?.forEach((sizeObj) => {
-        Object.keys(sizeObj).forEach((size) => sizesSet.add(size.toUpperCase()))
-      })
+      if (Array.isArray(product.sizes)) {
+        product.sizes.forEach((sizeObj) => {
+          if (sizeObj && typeof sizeObj === 'object') {
+            Object.keys(sizeObj).forEach((size) => sizesSet.add(size.toUpperCase()))
+          }
+        })
+      }
 
       // Track price range
       const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
@@ -133,7 +141,7 @@ export default function ProductsPage() {
         const minPrice = dynamicFilters.minPrice
 
         if (selectedPrice.startsWith("Under")) {
-          const maxPriceInRange = (minPrice || 0)+ (priceStep || 0)
+          const maxPriceInRange = (minPrice || 0) + (priceStep || 0)
           if (finalPrice >= maxPriceInRange) return false
         } else if (selectedPrice.includes("-")) {
           const [min, max] = selectedPrice.replace(/\$/g, "").split("-").map(Number)
@@ -173,20 +181,20 @@ export default function ProductsPage() {
     })
   }, [filteredProducts, sortBy])
 
-  
-    if (isLoading) return <p>Loading...</p>
-    if (error) return <p className="bg-stone-950 text-stone-100 min-h-screen flex items-center justify-center">Error fetching products</p>
+
+  if (isLoading) return <p>Loading...</p>
+  if (error) return <p className="bg-stone-950 text-stone-100 min-h-screen flex items-center justify-center">Error fetching products</p>
 
   return (
     <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
-    
+
 
       {/* Hero Section */}
       <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
-  <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
-        
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
+
         <motion.div
           className="relative z-10 text-center px-4"
           initial={{ opacity: 0, y: 50 }}
@@ -231,7 +239,7 @@ export default function ProductsPage() {
             {/* Search */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400 w-4 h-4" />
-                <Input
+              <Input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
@@ -330,9 +338,9 @@ export default function ProductsPage() {
                   whileHover={{ scale: 1.02 }}
                   className="group cursor-pointer"
                 >
-                  <Card 
-                  onClick={() => router.push(`/product/${product.id}`)}
-                  className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300">
+                  <Card
+                    onClick={() => router.push(`/product/${product.id}`)}
+                    className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300">
                     {/* Product Image */}
                     <div className="relative h-80 overflow-hidden">
                       {firstImage ? (
@@ -436,11 +444,10 @@ export default function ProductsPage() {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`w-4 h-4 ${
-                                i < Math.floor(product.ratings)
-                                  ? "fill-stone-400 text-stone-400"
-                                  : "text-stone-600"
-                              }`}
+                              className={`w-4 h-4 ${i < Math.floor(product.ratings)
+                                ? "fill-stone-400 text-stone-400"
+                                : "text-stone-600"
+                                }`}
                             />
                           ))}
                         </div>
@@ -464,7 +471,7 @@ export default function ProductsPage() {
                       {/* Add to Cart Button */}
                       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
-                        
+
                           className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
                         >
                           Add to Cart
@@ -480,7 +487,7 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      
+
     </div>
   )
 }
