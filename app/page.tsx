@@ -233,6 +233,10 @@ export default function FearInsightLanding() {
                     size="lg"
                     className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 text-lg px-8 py-3 group transition-all duration-300"
                   >
+
+
+
+                    
                     Explore Collection
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>
