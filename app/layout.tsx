@@ -12,13 +12,17 @@ import Header from '@/components/layouts/Header'
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800', '900'] })
 
 export const metadata: Metadata = {
-
   title: 'Fear Insight',
   description: 'Fear Insight is a premium streetwear brand that creates pieces that embody spiritual strength, divine inspiration, and fearless self-expression. Each design is carefully crafted to remind you that you are guided by a higher purpose.',
   keywords: ['Fear Insight', 'Fear Insight Clothing', 'Fear Insight Hoodies', 'Fear Insight T-Shirts', 'Fear Insight Accessories', 'Fear Insight Merchandise'],
   authors: [{ name: 'Fear Insight', url: 'https://fearinsight.com' }],
   creator: 'Fear Insight',
   publisher: 'Fear Insight',
+  icons: {
+    icon: '/fear-insight-logo.svg',
+    shortcut: '/fear-insight-logo.svg',
+    apple: '/fear-insight-logo.svg',
+  },
   openGraph: {
     title: 'Fear Insight',
     description: 'Fear Insight is a premium streetwear brand that creates pieces that embody spiritual strength, divine inspiration, and fearless self-expression. Each design is carefully crafted to remind you that you are guided by a higher purpose.',

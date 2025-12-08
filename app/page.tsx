@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
 
 import { Card, CardContent } from "@/components/ui/card"
-import { ShoppingBag,  ArrowRight, Play} from "lucide-react"
+import { ShoppingBag, ArrowRight, Play, Sparkles, Crown, Shield, Target, CheckCircle, Palette, Scissors, Star } from "lucide-react"
 import { useRef, useState, useEffect } from "react"
 import Collections from "@/components/landing-page/Collections"
 import BestSellers from "@/components/landing-page/BestSellers"
@@ -110,11 +110,6 @@ export default function FearInsightLanding() {
           <div className="absolute inset-0 z-0">
             {/* Fallback background */}
             <div className="w-full h-full bg-gradient-to-br from-stone-900 via-stone-950 to-stone-800" />
-            
-            {/* Debug indicator - remove this later */}
-            <div className="absolute top-4 left-4 z-50 bg-red-500 text-white px-2 py-1 text-xs rounded opacity-75">
-              VIDEO SECTION
-            </div>
             
             {/* Clothing/fashion video background */}
             <video
@@ -329,17 +324,17 @@ export default function FearInsightLanding() {
                   {
                     title: "FAITH DRIVEN",
                     description: "Every piece is guided by spiritual values and divine purpose",
-                    icon: "✨"
+                    icon: Sparkles
                   },
                   {
                     title: "PREMIUM QUALITY",
                     description: "465gsm heavyweight fabric with meticulous attention to detail",
-                    icon: "👑"
+                    icon: Crown
                   },
                   {
                     title: "FEARLESS EXPRESSION",
                     description: "Wear your beliefs boldly and inspire those around you",
-                    icon: "💪"
+                    icon: Shield
                   }
                 ].map((item, index) => (
                   <motion.div
@@ -352,7 +347,9 @@ export default function FearInsightLanding() {
                     className="p-6 bg-gradient-to-br from-stone-800/40 to-stone-900/40 border border-stone-700/50 rounded-xl backdrop-blur-md hover:border-stone-600/80 transition-all duration-300"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="text-3xl">{item.icon}</div>
+                      <div className="p-3 bg-stone-700/30 rounded-lg">
+                        <item.icon className="w-6 h-6 text-stone-200" />
+                      </div>
                       <div>
                         <h3 className="text-lg font-bold text-stone-50 mb-2">{item.title}</h3>
                         <p className="text-stone-300 text-sm">{item.description}</p>
@@ -428,31 +425,31 @@ export default function FearInsightLanding() {
                   number: "01",
                   title: "Source Selection",
                   description: "We carefully source premium fabrics from certified suppliers worldwide, ensuring ethical production and superior quality in every material we choose.",
-                  icon: "🎯",
+                  icon: Target,
                 },
                 {
                   number: "02",
                   title: "Quality Testing",
                   description: "Each fabric undergoes rigorous testing for durability, comfort, and sustainability standards. We only approve materials that meet our exacting requirements.",
-                  icon: "✓",
+                  icon: CheckCircle,
                 },
                 {
                   number: "03",
                   title: "Design & Crafting",
                   description: "Our master craftsmen transform selected fabrics into unique pieces through meticulous design and careful construction, ensuring perfect fit and finish.",
-                  icon: "✨",
+                  icon: Palette,
                 },
                 {
                   number: "04",
                   title: "Stitching",
                   description: "Expert stitching with precision techniques ensures every seam is perfect. We use premium threads and meticulous attention to detail for durability and comfort.",
-                  icon: "🧵",
+                  icon: Scissors,
                 },
                 {
                   number: "05",
                   title: "Final Inspection",
                   description: "Before delivery, every garment undergoes a comprehensive final inspection to guarantee it meets our premium standards and your expectations.",
-                  icon: "⭐",
+                  icon: Star,
                 },
               ].map((step, index) => (
                 <motion.div
@@ -473,14 +470,14 @@ export default function FearInsightLanding() {
 
                       {/* Icon */}
                       <motion.div
-                        className="text-5xl mb-4 relative z-10"
+                        className="mb-4 relative z-10 p-3 bg-stone-700/30 rounded-lg w-fit"
                         initial={{ scale: 0.5, opacity: 0 }}
                         whileInView={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.3, delay: index * 0.08 + 0.1 }}
                         viewport={{ once: true }}
                         whileHover={{ scale: 1.1, rotate: 5 }}
                       >
-                        {step.icon}
+                        <step.icon className="w-8 h-8 text-stone-200" />
                       </motion.div>
 
                       {/* Title */}

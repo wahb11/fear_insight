@@ -340,7 +340,7 @@ export default function ProductsPage() {
                 >
                   <Card
                     onClick={() => router.push(`/product/${product.id}`)}
-                    className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300">
+                    className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300 flex flex-col">
                     {/* Product Image */}
                     <div className="relative h-80 overflow-hidden">
                       {firstImage ? (
@@ -368,13 +368,15 @@ export default function ProductsPage() {
                         </div>
                       )}
 
-                      {/* Badges */}
-                      <div className="absolute top-4 right-4 flex flex-col gap-2">
-                        {product.featured && <Pill color="green">FEATURED</Pill>}
-                        {product.best_seller && <Pill color="yellow">BESTSELLER</Pill>}
-                        {product.discount > 0 && (
-                          <Pill color="green">-${product.discount}</Pill>
-                        )}
+                      {/* Single Badge - Priority: discount > bestseller > featured */}
+                      <div className="absolute top-4 right-4">
+                        {product.discount > 0 ? (
+                          <Pill color="green">SALE</Pill>
+                        ) : product.best_seller ? (
+                          <Pill color="yellow">BESTSELLER</Pill>
+                        ) : product.featured ? (
+                          <Pill color="green">FEATURED</Pill>
+                        ) : null}
                       </div>
 
                       {/* Hover Actions */}
@@ -399,79 +401,71 @@ export default function ProductsPage() {
                       </div>
                     </div>
 
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-lg font-bold text-stone-100 group-hover:text-stone-300 transition-colors">
+                    <CardContent className="p-6 flex flex-col flex-grow">
+                      {/* Product Info - grows to fill space */}
+                      <div className="flex-grow">
+                        <h3 className="text-lg font-bold text-stone-100 group-hover:text-stone-300 transition-colors mb-3">
                           {product.name}
                         </h3>
-                      </div>
 
-                      {product.description && (
-                        <p className="text-stone-400 text-sm mb-4 leading-relaxed line-clamp-2">
-                          {product.description}
-                        </p>
-                      )}
-
-                      {/* Colors */}
-                      {product.colors && product.colors.length > 0 && (
-                        <div className="flex items-center mb-3 flex-wrap gap-2">
-                          {product.colors.map((colorObj, idx) =>
-                            Object.entries(colorObj).map(([colorName, stock]) => (
-                              <div key={`${colorName}-${idx}`} className="flex items-center">
+                        {/* Colors - clean swatches only */}
+                        {product.colors && product.colors.length > 0 && (
+                          <div className="flex items-center gap-1.5 mb-3">
+                            {product.colors.map((colorObj, idx) =>
+                              Object.keys(colorObj).map((colorName) => (
                                 <span
-                                  className="w-4 h-4 rounded-full mr-1 border border-stone-600"
+                                  key={`${colorName}-${idx}`}
+                                  className="w-5 h-5 rounded-full border-2 border-stone-600 hover:border-stone-400 transition-colors"
                                   style={{ backgroundColor: colorName }}
-                                  title={`${colorName} (${stock} in stock)`}
+                                  title={colorName}
                                 />
-                                <span className="text-xs text-stone-400">{stock}</span>
-                              </div>
-                            ))
+                              ))
+                            )}
+                          </div>
+                        )}
+
+                        {/* Price */}
+                        <div className="flex items-center mb-3">
+                          <span className="text-2xl font-bold text-stone-100">${finalPrice.toFixed(2)}</span>
+                          {product.discount > 0 && (
+                            <span className="text-stone-500 line-through ml-2">${product.price.toFixed(2)}</span>
                           )}
                         </div>
-                      )}
 
-                      {/* Price */}
-                      <div className="flex items-center mb-3">
-                        <span className="text-2xl font-bold text-stone-100">${finalPrice.toFixed(2)}</span>
-                        {product.discount > 0 && (
-                          <span className="text-stone-500 line-through ml-2">${product.price.toFixed(2)}</span>
+                        {/* Rating */}
+                        <div className="flex items-center mb-4">
+                          <div className="flex items-center space-x-1 mr-2">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${i < Math.floor(product.ratings)
+                                  ? "fill-stone-400 text-stone-400"
+                                  : "text-stone-600"
+                                  }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm text-stone-400">({product.ratings.toFixed(1)})</span>
+                        </div>
+
+                        {/* Sizes */}
+                        {availableSizes.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-4">
+                            {availableSizes.map((size, idx) => (
+                              <span
+                                key={`${size}-${idx}`}
+                                className="px-2 py-1 bg-stone-800 text-stone-200 rounded text-xs border border-stone-700"
+                              >
+                                {size.toUpperCase()}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
 
-                      {/* Rating */}
-                      <div className="flex items-center mb-4">
-                        <div className="flex items-center space-x-1 mr-2">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-4 h-4 ${i < Math.floor(product.ratings)
-                                ? "fill-stone-400 text-stone-400"
-                                : "text-stone-600"
-                                }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-sm text-stone-400">({product.ratings.toFixed(1)})</span>
-                      </div>
-
-                      {/* Sizes */}
-                      {availableSizes.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-6">
-                          {availableSizes.map((size, idx) => (
-                            <span
-                              key={`${size}-${idx}`}
-                              className="px-2 py-1 bg-stone-800 text-stone-200 rounded text-xs border border-stone-700 hover:border-stone-400 transition-colors"
-                            >
-                              {size.toUpperCase()}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Add to Cart Button */}
-                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      {/* Add to Cart Button - always at bottom */}
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mt-auto">
                         <Button
-
                           className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
                         >
                           Add to Cart

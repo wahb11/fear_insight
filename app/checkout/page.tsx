@@ -127,13 +127,13 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
       {/* Navigation */}
-      <div className="pt-20 container mx-auto px-4">
+      <div className="pt-24 md:pt-28 container mx-auto px-4 sm:px-6">
         {/* Breadcrumb */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.05 }}
-          className="mb-8 flex items-center gap-2 text-stone-400"
+          className="mb-4 md:mb-6 flex items-center gap-2 text-stone-400 text-sm"
         >
           <Link href="/" className="hover:text-stone-200 transition-colors">
             Home
@@ -151,14 +151,14 @@ export default function CheckoutPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="text-4xl md:text-5xl font-bold mb-12 text-center bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent italic"
+          className="text-3xl md:text-5xl font-bold mb-6 md:mb-10 text-center bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent italic"
         >
           Checkout
         </motion.h1>
       </div>
 
-      <div className="container mx-auto px-4 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-12">
+      <div className="container mx-auto px-4 sm:px-6 pb-12 md:pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
           {/* Main Checkout Form */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -172,11 +172,12 @@ export default function CheckoutPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
             >
-              <Card className="bg-gradient-to-br from-stone-800/60 to-stone-900/60 border border-stone-600/60 mb-8">
-                <CardContent className="p-8">
-                  <h2 className="text-2xl font-bold mb-8 text-stone-100 uppercase tracking-wider">
+              <Card className="bg-gradient-to-br from-stone-800/60 to-stone-900/60 border border-stone-600/60 mb-6 md:mb-8">
+                <CardContent className="p-4 sm:p-6 md:p-8">
+                  <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8 text-stone-100 uppercase tracking-wider">
                     SHIPPING DETAILS
-                  </h2>                    {/* Name Fields */}
+                  </h2>
+                  {/* Name Fields */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
@@ -374,12 +375,12 @@ export default function CheckoutPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3, delay: 0.55 }}
-                className="flex justify-between gap-4"
+                className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-4"
               >
                 <Link href="/cart">
                   <Button
                     variant="outline"
-                    className="border-stone-600/60 text-stone-100 hover:bg-stone-100/90 hover:text-stone-950 bg-stone-950/30 border-2"
+                    className="w-full sm:w-auto border-stone-600/60 text-stone-100 hover:bg-stone-100/90 hover:text-stone-950 bg-stone-950/30 border-2"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Cart
@@ -387,7 +388,7 @@ export default function CheckoutPage() {
                 </Link>
                 <Button
                   onClick={handleShippingSubmit}
-                  className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50"
+                  className="w-full sm:w-auto bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50"
                 >
                   Place Order
                 </Button>
@@ -402,10 +403,10 @@ export default function CheckoutPage() {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="lg:col-span-1 order-1 lg:order-2"
           >
-            <div className="sticky top-32">
+            <div className="lg:sticky lg:top-28">
               <Card className="bg-stone-900/95 border border-stone-600/80">
-                <CardContent className="p-8">
-                  <h3 className="text-lg font-bold mb-6 text-stone-50 uppercase tracking-wider">Order Summary</h3>
+                <CardContent className="p-4 sm:p-6 md:p-8">
+                  <h3 className="text-lg font-bold mb-4 md:mb-6 text-stone-50 uppercase tracking-wider">Order Summary</h3>
 
                   {/* Order Items */}
                   <motion.div
@@ -466,10 +467,10 @@ export default function CheckoutPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.5 }}
-                    className="flex justify-between items-center p-4 bg-stone-950/80 rounded-lg border border-stone-500/60"
+                    className="flex justify-between items-center p-3 sm:p-4 bg-stone-950/80 rounded-lg border border-stone-500/60"
                   >
-                    <span className="font-bold text-stone-50 uppercase tracking-wide">Total:</span>
-                    <span className="text-2xl font-bold text-stone-50">
+                    <span className="font-bold text-stone-50 uppercase tracking-wide text-sm sm:text-base">Total:</span>
+                    <span className="text-xl sm:text-2xl font-bold text-stone-50">
                       ${total.toFixed(2)}
                     </span>
                   </motion.div>

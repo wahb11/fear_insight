@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft, Trash2, Plus, Minus } from 'lucide-react'
+import { ArrowLeft, Trash2, Plus, Minus, Package, CreditCard, ShieldCheck } from 'lucide-react'
 import { useCart } from '@/app/context/CartContext'
 
 export default function CartPage() {
@@ -29,13 +29,13 @@ export default function CartPage() {
     <div className="min-h-screen bg-stone-950 text-stone-100">
     
 
-      <div className="pt-20 container mx-auto px-4 py-12">
+      <div className="pt-24 md:pt-28 container mx-auto px-4 sm:px-6 pb-12">
         {/* Breadcrumb */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="mb-8 flex items-center gap-2 text-stone-400"
+          className="mb-4 md:mb-6 flex items-center gap-2 text-stone-400 text-sm"
         >
           <Link href="/" className="hover:text-stone-200 transition-colors">
             Home
@@ -49,7 +49,7 @@ export default function CartPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-bold mb-12 text-center bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent italic"
+          className="text-3xl md:text-5xl font-bold mb-6 md:mb-10 text-center bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent italic"
         >
           Your Bag
         </motion.h1>
@@ -69,13 +69,13 @@ export default function CartPage() {
             </Link>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
             {/* Cart Items */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="lg:col-span-3"
+              className="lg:col-span-3 order-2 lg:order-1"
             >
               <div className="space-y-4">
                 {/* Table Header - Hidden on mobile */}
@@ -241,19 +241,21 @@ export default function CartPage() {
               >
                 {/* Delivery Info Card */}
                 <Card className="bg-stone-900/50 border-stone-700">
-                  <CardContent className="p-6">
-                    <h3 className="font-bold text-lg text-stone-50 mb-4">📦 Delivery Info</h3>
+                  <CardContent className="p-4 sm:p-6">
+                    <h3 className="font-bold text-lg text-stone-50 mb-4 flex items-center gap-2">
+                      <Package className="w-5 h-5" /> Delivery Info
+                    </h3>
                     <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-stone-300">Standard Shipping (5-7 business days)</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <span className="text-stone-300">Standard Shipping (5-7 days)</span>
                         <span className="text-stone-100 font-semibold">FREE on orders $75+</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-stone-300">Express Shipping (2-3 business days)</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <span className="text-stone-300">Express Shipping (2-3 days)</span>
                         <span className="text-stone-100 font-semibold">$12.99</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-stone-300">Overnight (1 business day)</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <span className="text-stone-300">Overnight (1 day)</span>
                         <span className="text-stone-100 font-semibold">$24.99</span>
                       </div>
                       <Link href="/shipping-returns" className="mt-3 inline-block">
@@ -267,21 +269,23 @@ export default function CartPage() {
 
                 {/* Payment Info Card */}
                 <Card className="bg-stone-900/50 border-stone-700">
-                  <CardContent className="p-6">
-                    <h3 className="font-bold text-lg text-stone-50 mb-4">💳 Payment Methods</h3>
+                  <CardContent className="p-4 sm:p-6">
+                    <h3 className="font-bold text-lg text-stone-50 mb-4 flex items-center gap-2">
+                      <CreditCard className="w-5 h-5" /> Payment Methods
+                    </h3>
                     <p className="text-sm text-stone-300 mb-4">We accept the following secure payment methods:</p>
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                       {['VISA', 'MASTERCARD', 'AMEX', 'PAYPAL'].map((method) => (
                         <div
                           key={method}
-                          className="px-4 py-3 bg-stone-800/50 border border-stone-700/50 rounded-lg text-center text-xs font-semibold text-stone-200 hover:border-stone-600 transition-colors"
+                          className="px-3 py-2 sm:px-4 sm:py-3 bg-stone-800/50 border border-stone-700/50 rounded-lg text-center text-xs font-semibold text-stone-200 hover:border-stone-600 transition-colors"
                         >
                           {method}
                         </div>
                       ))}
                     </div>
-                    <p className="text-xs text-stone-400 mt-4">
-                      ✓ All transactions are encrypted and secure
+                    <p className="text-xs text-stone-400 mt-4 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-stone-500" /> All transactions are encrypted and secure
                     </p>
                   </CardContent>
                 </Card>
@@ -293,10 +297,10 @@ export default function CartPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="lg:col-span-1"
+              className="lg:col-span-1 order-1 lg:order-2"
             >
-              <Card className="bg-stone-900/95 border border-stone-600/80 sticky top-24">
-                <CardContent className="p-6">
+              <Card className="bg-stone-900/95 border border-stone-600/80 lg:sticky lg:top-24">
+                <CardContent className="p-4 sm:p-6">
                   <h2 className="text-lg font-bold text-stone-50 mb-6 uppercase tracking-wider">Order Summary</h2>
 
                   <div className="space-y-3 mb-6 pb-6 border-b border-stone-600/70">
