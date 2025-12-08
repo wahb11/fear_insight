@@ -76,23 +76,15 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
 
         <CardContent className="p-6">
           <motion.h3
-            className="text-xl font-bold mb-2 text-stone-100"
+            className="text-xl font-bold mb-3 text-stone-100"
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: index * 0.08 + 0.1 }}
           >
             {product.name}
           </motion.h3>
-          <motion.p
-            className="text-stone-400 mb-4"
-            initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: index * 0.08 + 0.12 }}
-          >
-            {product.description || "Premium cotton blend with embroidered details"}
-          </motion.p>
           <motion.div
-            className="flex justify-between items-center mb-4"
+            className="flex justify-between items-center"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: index * 0.08 + 0.13 }}
@@ -108,7 +100,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
                   animate={isInView ? { opacity: 1, scale: 1 } : {}}
                   transition={{ delay: index * 0.08 + 0.15 + i * 0.05 }}
                 >
-                  <Star className="w-4 h-4 fill-stone-400 text-stone-400" />
+                  <Star className={`w-4 h-4 ${i < Math.floor(product.ratings) ? "fill-stone-400 text-stone-400" : "text-stone-600"}`} />
                 </motion.div>
               ))}
             </div>

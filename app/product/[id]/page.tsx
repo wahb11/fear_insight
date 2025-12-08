@@ -24,25 +24,25 @@ export default function ProductDetailPage() {
 
 	const product = products ? products.find((p) => p.id === params.id as string) : null
 
-	// Extract available colors and sizes dynamically from the product data
+	// Extract available colors and sizes from the product data (handles string arrays)
 	const availableColors = React.useMemo(() => {
 		if (!product?.colors?.length) return []
-		return product.colors.flatMap((colorObj: Record<string, number>) => 
-			Object.entries(colorObj).map(([colorName, stock]) => ({
-				name: colorName,
-				stock: stock
+		return product.colors
+			.filter((color): color is string => typeof color === 'string' && color.trim().length > 0)
+			.map((colorName) => ({
+				name: colorName.trim(),
+				inStock: true // Since we don't have stock data, assume in stock
 			}))
-		)
 	}, [product])
 
 	const availableSizes = React.useMemo(() => {
 		if (!product?.sizes?.length) return []
-		return product.sizes.flatMap((sizeObj: Record<string, number>) => 
-			Object.entries(sizeObj).map(([sizeName, stock]) => ({
-				name: sizeName.toUpperCase(),
-				stock: stock
+		return product.sizes
+			.filter((size): size is string => typeof size === 'string' && size.trim().length > 0)
+			.map((sizeName) => ({
+				name: sizeName.trim().toUpperCase(),
+				inStock: true // Since we don't have stock data, assume in stock
 			}))
-		)
 	}, [product])
 
 	// States
@@ -57,28 +57,27 @@ export default function ProductDetailPage() {
 	// Set initial color and size when product loads
 	React.useEffect(() => {
 		if (availableColors.length > 0 && !selectedColor) {
-			const firstAvailableColor = availableColors.find((c: { name: string; stock: number }) => c.stock > 0)
+			const firstAvailableColor = availableColors.find((c) => c.inStock)
 			if (firstAvailableColor) setSelectedColor(firstAvailableColor.name)
 		}
 	}, [availableColors, selectedColor])
 
 	React.useEffect(() => {
 		if (availableSizes.length > 0 && !selectedSize) {
-			const firstAvailableSize = availableSizes.find((s: { name: string; stock: number }) => s.stock > 0)
+			const firstAvailableSize = availableSizes.find((s) => s.inStock)
 			if (firstAvailableSize) setSelectedSize(firstAvailableSize.name)
 		}
 	}, [availableSizes, selectedSize])
 	
-	// Get current color stock
-	const getColorStock = useCallback(() => {
-		const colorData = availableColors.find((c: { name: string; stock: number }) => c.name === selectedColor)
-		return colorData?.stock ?? 0
+	// Check if current selection is in stock
+	const isColorInStock = useCallback(() => {
+		const colorData = availableColors.find((c) => c.name === selectedColor)
+		return colorData?.inStock ?? false
 	}, [availableColors, selectedColor])
 	
-	// Get current size stock
-	const getSizeStock = useCallback(() => {
-		const sizeData = availableSizes.find((s: { name: string; stock: number }) => s.name === selectedSize)
-		return sizeData?.stock ?? 0
+	const isSizeInStock = useCallback(() => {
+		const sizeData = availableSizes.find((s) => s.name === selectedSize)
+		return sizeData?.inStock ?? false
 	}, [availableSizes, selectedSize])
 	
 	// Scroll carousel
@@ -128,9 +127,9 @@ export default function ProductDetailPage() {
 	}
 	
 	const discountedPrice = product.price * (1 - product.discount / 100)
-	const colorStock = getColorStock()
-	const sizeStock = getSizeStock()
-	const isOutOfStock = colorStock === 0 || sizeStock === 0
+	const colorInStock = isColorInStock()
+	const sizeInStock = isSizeInStock()
+	const isOutOfStock = !colorInStock || !sizeInStock
 	
 	return (
 		<div className="bg-stone-950 text-stone-100 overflow-hidden">
@@ -322,30 +321,24 @@ export default function ProductDetailPage() {
 			{availableColors.length > 0 && (
 				<div>
 					<label className="block text-sm font-semibold text-stone-200 mb-3">
-						COLOR {selectedColor && `(${colorStock} in stock)`}
+						COLOR
 					</label>
 					<div className="flex flex-wrap gap-3">
-						{availableColors.map((color: { name: string; stock: number }) => {
-							const hasStock = color.stock > 0
-							if (!hasStock) return null
-							
-							return (
-								<motion.button
-									key={color.name}
-									onClick={() => setSelectedColor(color.name)}
-									whileHover={{ scale: 1.05 }}
-									whileTap={{ scale: 0.95 }}
-									className={`px-4 py-2 rounded-lg border-2 transition-all capitalize ${
-										selectedColor === color.name
-											? "border-stone-100 bg-stone-800/50"
-											: "border-stone-700 hover:border-stone-500"
-									}`}
-								>
-									<span className="text-sm font-medium">{color.name}</span>
-									<span className="text-xs text-stone-400 ml-2">({color.stock})</span>
-								</motion.button>
-							)
-						})}
+						{availableColors.map((color) => (
+							<motion.button
+								key={color.name}
+								onClick={() => setSelectedColor(color.name)}
+								whileHover={{ scale: 1.05 }}
+								whileTap={{ scale: 0.95 }}
+								className={`px-4 py-2 rounded-lg border-2 transition-all capitalize ${
+									selectedColor === color.name
+										? "border-stone-100 bg-stone-800/50"
+										: "border-stone-700 hover:border-stone-500"
+								}`}
+							>
+								<span className="text-sm font-medium">{color.name}</span>
+							</motion.button>
+						))}
 					</div>
 				</div>
 			)}
@@ -354,32 +347,24 @@ export default function ProductDetailPage() {
 			{availableSizes.length > 0 && (
 				<div>
 					<label className="block text-sm font-semibold text-stone-200 mb-3">
-						SIZE {selectedSize && `(${sizeStock} in stock)`}
+						SIZE
 					</label>
 					<div className="grid grid-cols-5 gap-2">
-						{availableSizes.map((size: { name: string; stock: number }) => {
-							const hasStock = size.stock > 0
-							if (!hasStock) return null
-							
-							return (
-								<motion.button
-									key={size.name}
-									onClick={() => setSelectedSize(size.name)}
-									whileHover={hasStock ? { scale: 1.05 } : {}}
-									whileTap={hasStock ? { scale: 0.95 } : {}}
-									disabled={!hasStock}
-									className={`py-3 rounded-lg font-semibold transition-all ${
-										selectedSize === size.name
-											? "bg-stone-100 text-stone-950"
-											: hasStock
-											? "bg-stone-800 text-stone-100 hover:bg-stone-700"
-											: "bg-stone-900 text-stone-600 cursor-not-allowed opacity-50"
-									}`}
-								>
-									{size.name}
-								</motion.button>
-							)
-						})}
+						{availableSizes.map((size) => (
+							<motion.button
+								key={size.name}
+								onClick={() => setSelectedSize(size.name)}
+								whileHover={{ scale: 1.05 }}
+								whileTap={{ scale: 0.95 }}
+								className={`py-3 rounded-lg font-semibold transition-all ${
+									selectedSize === size.name
+										? "bg-stone-100 text-stone-950"
+										: "bg-stone-800 text-stone-100 hover:bg-stone-700"
+								}`}
+							>
+								{size.name}
+							</motion.button>
+						))}
 					</div>
 				</div>
 			)}

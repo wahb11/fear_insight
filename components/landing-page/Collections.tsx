@@ -27,15 +27,15 @@ export default function Collections() {
                  viewport={{ once: true }}
                  className="text-center mb-16"
                >
-                 <motion.h2
-                   className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent"
-                   initial={{ opacity: 0, scale: 0.5 }}
-                   whileInView={{ opacity: 1, scale: 1 }}
-                   transition={{ duration: 0.4 }}
-                   viewport={{ once: true }}
-                 >
-                   Featured products (description to be changed)
-                 </motion.h2>
+                <motion.h2
+                  className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  viewport={{ once: true }}
+                >
+                  FEATURED COLLECTION
+                </motion.h2>
    
                  <motion.div
                    className="w-24 h-1 bg-gradient-to-r from-stone-700 to-stone-900 mx-auto mb-6"

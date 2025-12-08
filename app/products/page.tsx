@@ -56,6 +56,22 @@ export default function ProductsPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
 
+  // Helper to extract values from size/color data (handles both string arrays and object arrays)
+  const extractValues = (items: any[] | undefined): string[] => {
+    if (!items || !Array.isArray(items)) return []
+    return items.flatMap((item) => {
+      // If it's a string (like "S", "M", "L", "Black"), use it directly
+      if (typeof item === 'string' && item.trim().length > 0) {
+        return [item.trim()]
+      }
+      // If it's an object (like { "S": 5 }), extract the keys
+      if (typeof item === 'object' && item !== null) {
+        return Object.keys(item).filter(key => key.trim().length > 0)
+      }
+      return []
+    })
+  }
+
   // Generate dynamic filters from products
   const dynamicFilters = useMemo(() => {
     if (!products || !Array.isArray(products)) return { colors: ["All"], sizes: ["All"], priceRanges: ["All"] }
@@ -66,23 +82,11 @@ export default function ProductsPage() {
     let maxPrice = 0
 
     products.forEach((product: Product) => {
-      // Extract colors from colors array
-      if (Array.isArray(product.colors)) {
-        product.colors.forEach((colorObj) => {
-          if (colorObj && typeof colorObj === 'object') {
-            Object.keys(colorObj).forEach((color) => colorsSet.add(color))
-          }
-        })
-      }
+      // Extract colors from colors array (handles both string[] and object[])
+      extractValues(product.colors).forEach((color) => colorsSet.add(color))
 
-      // Extract sizes from sizes array
-      if (Array.isArray(product.sizes)) {
-        product.sizes.forEach((sizeObj) => {
-          if (sizeObj && typeof sizeObj === 'object') {
-            Object.keys(sizeObj).forEach((size) => sizesSet.add(size.toUpperCase()))
-          }
-        })
-      }
+      // Extract sizes from sizes array (handles both string[] and object[])
+      extractValues(product.sizes).forEach((size) => sizesSet.add(size.toUpperCase()))
 
       // Track price range
       const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
@@ -323,9 +327,12 @@ export default function ProductsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {sortedProducts.map((product: Product, index: number) => {
               const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
-              const firstColor = product.colors?.[0] ? Object.keys(product.colors[0])[0] : "gray"
-              const availableSizes = product.sizes?.flatMap((sizeObj) => Object.keys(sizeObj)) || []
               const firstImage = product.images?.[0] || ""
+              
+              // Extract colors and sizes using the helper function
+              const colorList = extractValues(product.colors)
+              const firstColor = colorList[0] || "gray"
+              const availableSizes = extractValues(product.sizes)
 
               return (
                 <motion.div
@@ -409,18 +416,16 @@ export default function ProductsPage() {
                         </h3>
 
                         {/* Colors - clean swatches only */}
-                        {product.colors && product.colors.length > 0 && (
+                        {colorList.length > 0 && (
                           <div className="flex items-center gap-1.5 mb-3">
-                            {product.colors.map((colorObj, idx) =>
-                              Object.keys(colorObj).map((colorName) => (
-                                <span
-                                  key={`${colorName}-${idx}`}
-                                  className="w-5 h-5 rounded-full border-2 border-stone-600 hover:border-stone-400 transition-colors"
-                                  style={{ backgroundColor: colorName }}
-                                  title={colorName}
-                                />
-                              ))
-                            )}
+                            {colorList.map((colorName, idx) => (
+                              <span
+                                key={`${colorName}-${idx}`}
+                                className="w-5 h-5 rounded-full border-2 border-stone-600 hover:border-stone-400 transition-colors"
+                                style={{ backgroundColor: colorName }}
+                                title={colorName}
+                              />
+                            ))}
                           </div>
                         )}
 
