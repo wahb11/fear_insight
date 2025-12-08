@@ -14,6 +14,35 @@ import { useAllProducts } from "@/hooks/useAllProducts"
 
 
 
+// Map color names to valid CSS colors
+const getColorValue = (colorName: string): string => {
+	const colorMap: Record<string, string> = {
+		'black': '#1a1a1a',
+		'white': '#ffffff',
+		'cream': '#fffdd0',
+		'beige': '#f5f5dc',
+		'navy': '#1e3a5f',
+		'blue': '#2563eb',
+		'pink': '#ec4899',
+		'red': '#dc2626',
+		'green': '#16a34a',
+		'gray': '#6b7280',
+		'grey': '#6b7280',
+		'brown': '#78350f',
+		'tan': '#d2b48c',
+		'olive': '#556b2f',
+		'maroon': '#800000',
+		'burgundy': '#800020',
+		'charcoal': '#36454f',
+		'sand': '#c2b280',
+		'ivory': '#fffff0',
+		'khaki': '#c3b091',
+		'stone': '#928e85',
+	}
+	const lowerName = colorName.toLowerCase().trim()
+	return colorMap[lowerName] || colorName.toLowerCase()
+}
+
 export default function ProductDetailPage() {
 	const { data: products, isLoading, error } = useAllProducts()
 	const params = useParams()
@@ -127,9 +156,9 @@ export default function ProductDetailPage() {
 	}
 	
 	const discountedPrice = product.price * (1 - product.discount / 100)
-	const colorInStock = isColorInStock()
-	const sizeInStock = isSizeInStock()
-	const isOutOfStock = !colorInStock || !sizeInStock
+	// Only check stock if selections are made, otherwise assume in stock
+	const hasRequiredSelections = selectedColor && selectedSize
+	const isOutOfStock = hasRequiredSelections ? (!isColorInStock() || !isSizeInStock()) : false
 	
 	return (
 		<div className="bg-stone-950 text-stone-100 overflow-hidden">
@@ -330,12 +359,16 @@ export default function ProductDetailPage() {
 								onClick={() => setSelectedColor(color.name)}
 								whileHover={{ scale: 1.05 }}
 								whileTap={{ scale: 0.95 }}
-								className={`px-4 py-2 rounded-lg border-2 transition-all capitalize ${
+								className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all capitalize ${
 									selectedColor === color.name
 										? "border-stone-100 bg-stone-800/50"
 										: "border-stone-700 hover:border-stone-500"
 								}`}
 							>
+								<span 
+									className="w-4 h-4 rounded-full border border-stone-500"
+									style={{ backgroundColor: getColorValue(color.name) }}
+								/>
 								<span className="text-sm font-medium">{color.name}</span>
 							</motion.button>
 						))}

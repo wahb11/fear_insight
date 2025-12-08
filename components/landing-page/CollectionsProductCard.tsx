@@ -7,6 +7,35 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ShoppingBag, Star } from "lucide-react"
 import { Product } from "@/types/products"
 
+// Map color names to valid CSS colors
+const getColorValue = (colorName: string): string => {
+  const colorMap: Record<string, string> = {
+    'black': '#1a1a1a',
+    'white': '#ffffff',
+    'cream': '#fffdd0',
+    'beige': '#f5f5dc',
+    'navy': '#1e3a5f',
+    'blue': '#2563eb',
+    'pink': '#ec4899',
+    'red': '#dc2626',
+    'green': '#16a34a',
+    'gray': '#6b7280',
+    'grey': '#6b7280',
+    'brown': '#78350f',
+    'tan': '#d2b48c',
+    'olive': '#556b2f',
+    'maroon': '#800000',
+    'burgundy': '#800020',
+    'charcoal': '#36454f',
+    'sand': '#c2b280',
+    'ivory': '#fffff0',
+    'khaki': '#c3b091',
+    'stone': '#928e85',
+  }
+  const lowerName = colorName.toLowerCase().trim()
+  return colorMap[lowerName] || colorName.toLowerCase()
+}
+
 interface CollectionsProductCardProps {
   product: Product
   index: number
@@ -16,7 +45,11 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
   const [isHovered, setIsHovered] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(cardRef, { once: true, margin: "-100px" })
-  const color = Object.keys(product.colors[0] || {})[0] || "#fff"
+  // Handle both string array and object array formats for colors
+  const firstColor = Array.isArray(product.colors) && product.colors[0]
+    ? (typeof product.colors[0] === 'string' ? product.colors[0] : Object.keys(product.colors[0])[0])
+    : 'gray'
+  const colorValue = getColorValue(firstColor)
   const imageUrl = product.images[0] || null
 
   return (
@@ -41,7 +74,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
         <div className="relative h-80">
           <div
             className="w-full h-full flex items-center justify-center rounded-t-lg relative overflow-hidden"
-            style={{ backgroundColor: color }}
+            style={{ backgroundColor: colorValue }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-stone-950/20 to-transparent" />
             {imageUrl ? (

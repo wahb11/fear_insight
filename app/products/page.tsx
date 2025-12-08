@@ -56,6 +56,35 @@ export default function ProductsPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
 
+  // Map color names to valid CSS colors
+  const getColorValue = (colorName: string): string => {
+    const colorMap: Record<string, string> = {
+      'black': '#1a1a1a',
+      'white': '#ffffff',
+      'cream': '#fffdd0',
+      'beige': '#f5f5dc',
+      'navy': '#1e3a5f',
+      'blue': '#2563eb',
+      'pink': '#ec4899',
+      'red': '#dc2626',
+      'green': '#16a34a',
+      'gray': '#6b7280',
+      'grey': '#6b7280',
+      'brown': '#78350f',
+      'tan': '#d2b48c',
+      'olive': '#556b2f',
+      'maroon': '#800000',
+      'burgundy': '#800020',
+      'charcoal': '#36454f',
+      'sand': '#c2b280',
+      'ivory': '#fffff0',
+      'khaki': '#c3b091',
+      'stone': '#928e85',
+    }
+    const lowerName = colorName.toLowerCase().trim()
+    return colorMap[lowerName] || colorName.toLowerCase()
+  }
+
   // Helper to extract values from size/color data (handles both string arrays and object arrays)
   const extractValues = (items: any[] | undefined): string[] => {
     if (!items || !Array.isArray(items)) return []
@@ -422,7 +451,7 @@ export default function ProductsPage() {
                               <span
                                 key={`${colorName}-${idx}`}
                                 className="w-5 h-5 rounded-full border-2 border-stone-600 hover:border-stone-400 transition-colors"
-                                style={{ backgroundColor: colorName }}
+                                style={{ backgroundColor: getColorValue(colorName) }}
                                 title={colorName}
                               />
                             ))}
