@@ -58,17 +58,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const product = products.find((p: Product) => p.id === storedItem.productId)
           if (!product) return null
 
-          const colorStock = product.colors.some((c: Record<string, number>) => {
-            const qty = c[storedItem.selectedColor.toLowerCase() as keyof typeof c]
-            return qty && qty > 0
+          // Check if color exists (handles string arrays)
+          const colorExists = product.colors.some((c) => {
+            if (typeof c === 'string') {
+              return c.toLowerCase() === storedItem.selectedColor.toLowerCase()
+            }
+            return Object.keys(c).some(key => key.toLowerCase() === storedItem.selectedColor.toLowerCase())
           })
 
-          const sizeStock = product.sizes.some((s: Record<string, number>) => {
-            const qty = s[storedItem.selectedSize.toLowerCase() as keyof typeof s]
-            return qty && qty > 0
+          // Check if size exists (handles string arrays)
+          const sizeExists = product.sizes.some((s) => {
+            if (typeof s === 'string') {
+              return s.toLowerCase() === storedItem.selectedSize.toLowerCase()
+            }
+            return Object.keys(s).some(key => key.toLowerCase() === storedItem.selectedSize.toLowerCase())
           })
 
-          if (!colorStock || !sizeStock) return null
+          if (!colorExists || !sizeExists) return null
 
           return {
             product,
@@ -115,16 +121,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, isHydrated])
 
   const addToCart = (product: Product, quantity: number, color: string, size: string) => {
-    const colorStock = product.colors.some((c: Record<string, number>) => {
-      const qty = c[color.toLowerCase() as keyof typeof c]
-      return qty && qty > 0
+    // Check if color exists in product (handles string arrays)
+    const colorExists = product.colors.some((c) => {
+      if (typeof c === 'string') {
+        return c.toLowerCase() === color.toLowerCase()
+      }
+      // Fallback for old object format
+      return Object.keys(c).some(key => key.toLowerCase() === color.toLowerCase())
     })
-    const sizeStock = product.sizes.some((s: Record<string, number>) => {
-      const qty = s[size.toLowerCase() as keyof typeof s]
-      return qty && qty > 0
+    
+    // Check if size exists in product (handles string arrays)
+    const sizeExists = product.sizes.some((s) => {
+      if (typeof s === 'string') {
+        return s.toLowerCase() === size.toLowerCase()
+      }
+      // Fallback for old object format
+      return Object.keys(s).some(key => key.toLowerCase() === size.toLowerCase())
     })
-    if (!colorStock || !sizeStock) {
-      alert('Selected variant is out of stock')
+    
+    if (!colorExists || !sizeExists) {
+      alert('Selected variant is not available')
       return
     }
 

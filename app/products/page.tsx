@@ -420,9 +420,12 @@ export default function ProductsPage() {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() =>
-                            addToCart(product, 1, firstColor, availableSizes[0] || "M")
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (colorList.length > 0 && availableSizes.length > 0) {
+                              addToCart(product, 1, firstColor, availableSizes[0])
+                            }
+                          }}
                           className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors"
                         >
                           <ShoppingBag className="w-5 h-5" />
@@ -430,6 +433,7 @@ export default function ProductsPage() {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
+                          onClick={(e) => e.stopPropagation()}
                           className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors"
                         >
                           <Heart className="w-5 h-5" />

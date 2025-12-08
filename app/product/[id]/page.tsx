@@ -53,25 +53,39 @@ export default function ProductDetailPage() {
 
 	const product = products ? products.find((p) => p.id === params.id as string) : null
 
-	// Extract available colors and sizes from the product data (handles string arrays)
+	// Extract available colors and sizes from the product data (handles both string arrays and object arrays)
 	const availableColors = React.useMemo(() => {
 		if (!product?.colors?.length) return []
-		return product.colors
-			.filter((color): color is string => typeof color === 'string' && color.trim().length > 0)
-			.map((colorName) => ({
-				name: colorName.trim(),
-				inStock: true // Since we don't have stock data, assume in stock
-			}))
+		return product.colors.flatMap((color) => {
+			// String format: "Navy"
+			if (typeof color === 'string' && color.trim().length > 0) {
+				return [{ name: color.trim(), inStock: true }]
+			}
+			// Object format: {"Navy": 5}
+			if (typeof color === 'object' && color !== null) {
+				return Object.keys(color)
+					.filter(key => key.trim().length > 0)
+					.map(key => ({ name: key.trim(), inStock: true }))
+			}
+			return []
+		})
 	}, [product])
 
 	const availableSizes = React.useMemo(() => {
 		if (!product?.sizes?.length) return []
-		return product.sizes
-			.filter((size): size is string => typeof size === 'string' && size.trim().length > 0)
-			.map((sizeName) => ({
-				name: sizeName.trim().toUpperCase(),
-				inStock: true // Since we don't have stock data, assume in stock
-			}))
+		return product.sizes.flatMap((size) => {
+			// String format: "M"
+			if (typeof size === 'string' && size.trim().length > 0) {
+				return [{ name: size.trim().toUpperCase(), inStock: true }]
+			}
+			// Object format: {"M": 10}
+			if (typeof size === 'object' && size !== null) {
+				return Object.keys(size)
+					.filter(key => key.trim().length > 0)
+					.map(key => ({ name: key.trim().toUpperCase(), inStock: true }))
+			}
+			return []
+		})
 	}, [product])
 
 	// States
@@ -435,7 +449,7 @@ export default function ProductDetailPage() {
 								<motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
 									<Button
 										onClick={handleAddToCart}
-										
+										disabled={!selectedColor || !selectedSize || isAdding}
 										className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 h-14 font-semibold text-lg group disabled:opacity-50 disabled:cursor-not-allowed"
 									>
 										{isAdding ? (
@@ -445,8 +459,8 @@ export default function ProductDetailPage() {
 											>
 												Adding...
 											</motion.span>
-										) : isOutOfStock ? (
-											"Out of Stock"
+										) : !selectedColor || !selectedSize ? (
+											"Select Color & Size"
 										) : (
 											<>
 												<ShoppingBag className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
