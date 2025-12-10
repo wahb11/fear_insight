@@ -14,6 +14,25 @@ export default function CartPage() {
   const [promoCode, setPromoCode] = useState('')
   const [discount, setDiscount] = useState(0)
 
+  // Pick the first image whose query param color matches the selected color; fall back to the first image
+  const getImageForColor = (images: string[], selectedColor: string) => {
+    if (!images?.length) return ''
+    const normalizedSelected = selectedColor.toLowerCase().replace(/\s+/g, '')
+
+    const matchIdx = images.findIndex((img) => {
+      try {
+        const url = new URL(img)
+        const colorParam = url.searchParams.get('color')?.toLowerCase().replace(/\s+/g, '')
+        if (colorParam && colorParam === normalizedSelected) return true
+      } catch {
+        // ignore bad URLs, fall back to simple match
+      }
+      return img.toLowerCase().includes(`color=${normalizedSelected}`)
+    })
+
+    return matchIdx >= 0 ? images[matchIdx] : images[0]
+  }
+
   const handleApplyPromo = () => {
     // Simple promo code logic (example: "SAVE10" = 10% off)
     if (promoCode === 'SAVE10') {
@@ -100,7 +119,7 @@ export default function CartPage() {
                       {/* Product Image and Name */}
                       <div className="flex gap-3 items-center">
                         <img
-                          src={item.product.images[0]}
+                          src={getImageForColor(item.product.images, item.selectedColor)}
                           alt={item.product.name}
                           className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border border-stone-700"
                         />
@@ -170,7 +189,7 @@ export default function CartPage() {
                         {/* Product Image and Name */}
                         <div className="flex gap-3 mb-4">
                           <img
-                            src={item.product.images[0]}
+                            src={getImageForColor(item.product.images, item.selectedColor)}
                             alt={item.product.name}
                             className="w-24 h-24 rounded-lg object-cover flex-shrink-0 border border-stone-700"
                           />

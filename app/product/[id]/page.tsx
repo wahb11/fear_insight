@@ -43,6 +43,8 @@ const getColorValue = (colorName: string): string => {
 	return colorMap[lowerName] || colorName.toLowerCase()
 }
 
+type VariantOption = { name: string; inStock: boolean }
+
 export default function ProductDetailPage() {
 	const { data: products, isLoading, error } = useAllProducts()
 	const params = useParams()
@@ -54,9 +56,9 @@ export default function ProductDetailPage() {
 	const product = products ? products.find((p) => p.id === params.id as string) : null
 
 	// Extract available colors and sizes from the product data (handles both string arrays and object arrays)
-	const availableColors = React.useMemo(() => {
+	const availableColors = React.useMemo<VariantOption[]>(() => {
 		if (!product?.colors?.length) return []
-		return product.colors.flatMap((color) => {
+		return product.colors.flatMap((color: unknown) => {
 			// String format: "Navy"
 			if (typeof color === 'string' && color.trim().length > 0) {
 				return [{ name: color.trim(), inStock: true }]
@@ -71,9 +73,9 @@ export default function ProductDetailPage() {
 		})
 	}, [product])
 
-	const availableSizes = React.useMemo(() => {
+	const availableSizes = React.useMemo<VariantOption[]>(() => {
 		if (!product?.sizes?.length) return []
-		return product.sizes.flatMap((size) => {
+		return product.sizes.flatMap((size: unknown) => {
 			// String format: "M"
 			if (typeof size === 'string' && size.trim().length > 0) {
 				return [{ name: size.trim().toUpperCase(), inStock: true }]
@@ -100,26 +102,46 @@ export default function ProductDetailPage() {
 	// Set initial color and size when product loads
 	React.useEffect(() => {
 		if (availableColors.length > 0 && !selectedColor) {
-			const firstAvailableColor = availableColors.find((c) => c.inStock)
+			const firstAvailableColor = availableColors.find((c: VariantOption) => c.inStock)
 			if (firstAvailableColor) setSelectedColor(firstAvailableColor.name)
 		}
 	}, [availableColors, selectedColor])
 
 	React.useEffect(() => {
 		if (availableSizes.length > 0 && !selectedSize) {
-			const firstAvailableSize = availableSizes.find((s) => s.inStock)
+			const firstAvailableSize = availableSizes.find((s: VariantOption) => s.inStock)
 			if (firstAvailableSize) setSelectedSize(firstAvailableSize.name)
 		}
 	}, [availableSizes, selectedSize])
 	
+	// Snap main image to the first image that matches the selected color
+	React.useEffect(() => {
+		if (!product?.images?.length || !selectedColor) return
+
+		const normalizedSelected = selectedColor.toLowerCase().replace(/\s+/g, "")
+
+		const matchingIndex = product.images.findIndex((img: string) => {
+			try {
+				const url = new URL(img)
+				const colorParam = url.searchParams.get("color")?.toLowerCase().replace(/\s+/g, "")
+				if (colorParam && colorParam === normalizedSelected) return true
+			} catch {
+				// ignore parsing errors, fall back to substring match
+			}
+			return img.toLowerCase().includes(`color=${normalizedSelected}`)
+		})
+
+		if (matchingIndex >= 0) setSelectedImage(matchingIndex)
+	}, [product?.images, selectedColor])
+	
 	// Check if current selection is in stock
 	const isColorInStock = useCallback(() => {
-		const colorData = availableColors.find((c) => c.name === selectedColor)
+		const colorData = availableColors.find((c: VariantOption) => c.name === selectedColor)
 		return colorData?.inStock ?? false
 	}, [availableColors, selectedColor])
 	
 	const isSizeInStock = useCallback(() => {
-		const sizeData = availableSizes.find((s) => s.name === selectedSize)
+		const sizeData = availableSizes.find((s: VariantOption) => s.name === selectedSize)
 		return sizeData?.inStock ?? false
 	}, [availableSizes, selectedSize])
 	
@@ -367,7 +389,7 @@ export default function ProductDetailPage() {
 						COLOR
 					</label>
 					<div className="flex flex-wrap gap-3">
-						{availableColors.map((color) => (
+						{availableColors.map((color: VariantOption) => (
 							<motion.button
 								key={color.name}
 								onClick={() => setSelectedColor(color.name)}
@@ -397,7 +419,7 @@ export default function ProductDetailPage() {
 						SIZE
 					</label>
 					<div className="grid grid-cols-5 gap-2">
-						{availableSizes.map((size) => (
+						{availableSizes.map((size: VariantOption) => (
 							<motion.button
 								key={size.name}
 								onClick={() => setSelectedSize(size.name)}
