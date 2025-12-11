@@ -291,7 +291,7 @@ export default function FearInsightLanding() {
                     transition={{ duration: 0.35, delay: 0.08 + idx * 0.05 }}
                     viewport={{ once: true }}
                   >
-                    <p className="text-base md:text-lg text-stone-200 mb-4 leading-relaxed bg-stone-950/25 p-4 rounded-lg text-left">
+                    <p className="text-lg md:text-xl text-stone-200 mb-4 leading-relaxed bg-stone-950/25 p-4 rounded-lg text-left">
                       {para.text}
                     </p>
                   </motion.div>
