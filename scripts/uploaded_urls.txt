@@ -1,5 +1,6 @@
 [
-  "https://fearinsight.com/product/f009.jpg?color=",
+  "https://fearinsight.com/product/f010.jpg?color=",
+  "https://fearinsight.com/product/f011.jpg?color=",
   "https://fearinsight.com/product/f001.jpg?color=",
   "https://fearinsight.com/product/f002.jpg?color=",
   "https://fearinsight.com/product/f003.jpg?color=",
@@ -7,5 +8,6 @@
   "https://fearinsight.com/product/f005.jpg?color=",
   "https://fearinsight.com/product/f006.jpg?color=",
   "https://fearinsight.com/product/f007.jpg?color=",
-  "https://fearinsight.com/product/f008.jpg?color="
+  "https://fearinsight.com/product/f008.jpg?color=",
+  "https://fearinsight.com/product/f009.jpg?color="
 ]

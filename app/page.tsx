@@ -447,23 +447,23 @@ export default function FearInsightLanding() {
                   whileHover={{ y: -10, transition: { duration: 0.2 } }}
                   className="group"
                 >
-                  <Card className="h-full bg-gradient-to-br from-stone-800/40 to-stone-900/40 border border-stone-700/50 hover:border-stone-600/80 transition-all duration-300 overflow-hidden">
+                  <Card className="h-full bg-stone-900/80 border border-stone-800 shadow-lg shadow-black/25 hover:border-stone-500/60 transition-all duration-300 overflow-hidden">
                     <CardContent className="p-6 flex flex-col h-full relative">
                       {/* Step number background */}
-                      <div className="absolute -top-8 -right-8 text-8xl font-bold text-stone-700/20 group-hover:text-stone-600/30 transition-colors duration-300">
+                      <div className="absolute -top-8 -right-8 text-8xl font-bold text-stone-800/25 group-hover:text-stone-600/35 transition-colors duration-300">
                         {step.number}
                       </div>
 
                       {/* Icon */}
                       <motion.div
-                        className="mb-4 relative z-10 p-3 bg-stone-700/30 rounded-lg w-fit"
+                        className="mb-4 relative z-10 p-3 bg-stone-800/60 border border-stone-700/60 rounded-lg w-fit shadow-inner shadow-black/30"
                         initial={{ scale: 0.5, opacity: 0 }}
                         whileInView={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.3, delay: index * 0.08 + 0.1 }}
                         viewport={{ once: true }}
                         whileHover={{ scale: 1.1, rotate: 5 }}
                       >
-                        <step.icon className="w-8 h-8 text-stone-200" />
+                        <step.icon className="w-8 h-8 text-stone-100" />
                       </motion.div>
 
                       {/* Title */}
@@ -479,7 +479,7 @@ export default function FearInsightLanding() {
 
                       {/* Description */}
                       <motion.p
-                        className="text-stone-300 text-sm leading-relaxed relative z-10 flex-grow"
+                        className="text-stone-200 text-sm leading-relaxed relative z-10 flex-grow"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.08 + 0.12 }}
@@ -492,7 +492,7 @@ export default function FearInsightLanding() {
                       {index < 4 && (
                         <div className="hidden lg:block absolute -right-3 top-1/2 transform translate-x-full">
                           <motion.div
-                            className="w-6 h-0.5 bg-gradient-to-r from-stone-600 to-stone-800"
+                            className="w-6 h-0.5 bg-gradient-to-r from-stone-600 to-stone-700"
                             initial={{ scaleX: 0 }}
                             whileInView={{ scaleX: 1 }}
                             transition={{ duration: 0.3, delay: index * 0.08 + 0.15 }}
