@@ -1,110 +1,61 @@
-// CommonJS script - works with plain `node`
-// Save as scripts/renameAndGenerate.cjs and run: node scripts/renameAndGenerate.cjs
-
 const fs = require("fs");
 const path = require("path");
 
-const BASE_URL = "https://fearinsight.com/product";
-const COLOR = "black";      // change if needed
-const DRY_RUN = false;      // set true to only log actions without renaming
-const PRODUCT_DIR = path.join(process.cwd(), "public", "product");
-const OUT_FILE = path.join(process.cwd(), "scripts", "uploaded_urls.txt");
+console.log("[renameAndGenerate] Working directory:", process.cwd());
 
-// allowed image extensions (case-insensitive)
-const IMAGE_REGEX = /\.(jpe?g|png|webp|gif)$/i;
+const productFolder = path.join(process.cwd(), "public", "product");
+console.log("[renameAndGenerate] Product folder:", productFolder);
 
-function pad(n, size = 3) {
-  return String(n).padStart(size, "0");
+if (!fs.existsSync(productFolder)) {
+  console.error("ERROR: product directory not found:", productFolder);
+  process.exit(1);
 }
 
-function log(...args) {
-  console.log("[renameAndGenerate]", ...args);
+const files = fs.readdirSync(productFolder);
+console.log("[renameAndGenerate] Found", files.length, "file(s). Example:", files.slice(0, 5));
+
+const validExt = [".jpg", ".jpeg", ".png", ".webp"];
+
+// Files already matching f001.jpg pattern
+const patternFiles = files.filter((file) => /^f\d{3}\./.test(file));
+
+// Find highest fXXX number
+let maxNum = 0;
+for (const file of patternFiles) {
+  const num = parseInt(file.substring(1, 4));
+  if (num > maxNum) maxNum = num;
 }
 
-(function main() {
-  log("Working directory:", process.cwd());
-  log("Product folder:", PRODUCT_DIR);
+let renamedFiles = [];
 
-  if (!fs.existsSync(PRODUCT_DIR)) {
-    console.error("ERROR: product directory not found:", PRODUCT_DIR);
-    process.exit(1);
+for (const file of files) {
+  if (file.startsWith(".__tmp_rename")) continue;
+
+  const ext = path.extname(file).toLowerCase();
+  if (!validExt.includes(ext)) continue;
+
+  if (/^f\d{3}\./.test(file)) {
+    // Already correct pattern
+    renamedFiles.push(file);
+    continue;
   }
 
-  let files = fs.readdirSync(PRODUCT_DIR)
-    .filter(f => IMAGE_REGEX.test(f))
-    .sort((a,b) => a.localeCompare(b, undefined, { numeric: true }));
+  // Rename file
+  maxNum++;
+  const newName = `f${String(maxNum).padStart(3, "0")}${ext}`;
+  fs.renameSync(path.join(productFolder, file), path.join(productFolder, newName));
 
-  if (files.length === 0) {
-    log("No image files found in public/product. Nothing to do.");
-    process.exit(0);
-  }
+  console.log(`[renameAndGenerate] Renamed: ${file} -> ${newName}`);
+  renamedFiles.push(newName);
+}
 
-  log("Found", files.length, "image(s). Example:", files.slice(0,5));
+// Generate URLs ending with ?color=
+const urls = renamedFiles.map(
+  (file) => `https://fearinsight.com/product/${file}?color=`
+);
 
-  // Filter out already named fNNN.* if you want to re-run safely
-  files = files.filter(f => !/^f\d{3}\./i.test(f));
+const outputPath = path.join(process.cwd(), "scripts", "uploaded_urls.txt");
+fs.writeFileSync(outputPath, JSON.stringify(urls, null, 2));
 
-  if (files.length === 0) {
-    log("After filtering existing f### files, nothing to rename. Exiting.");
-    process.exit(0);
-  }
-
-  // 1) Rename all originals to temporary unique names to avoid collisions
-  const tempNames = [];
-  for (let i = 0; i < files.length; i++) {
-    const old = files[i];
-    const tmp = `.__tmp_rename_${Date.now()}_${i}__${old}`;
-    const oldPath = path.join(PRODUCT_DIR, old);
-    const tmpPath = path.join(PRODUCT_DIR, tmp);
-    if (DRY_RUN) {
-      log("[DRY] would rename:", old, "->", tmp);
-    } else {
-      fs.renameSync(oldPath, tmpPath);
-      log("Renamed (tmp):", old, "->", tmp);
-    }
-    tempNames.push(tmp);
-  }
-
-  // 2) Rename temp files to final f### names and build URLs
-  const urls = [];
-  let counter = 1;
-  for (const tmp of tempNames) {
-    const tmpPath = path.join(PRODUCT_DIR, tmp);
-    const ext = path.extname(tmp).replace(/^\./, "").toLowerCase();
-    const finalName = `f${pad(counter)}.${ext}`;
-    const finalPath = path.join(PRODUCT_DIR, finalName);
-
-    if (fs.existsSync(finalPath)) {
-      // shouldn't normally happen because we filtered earlier, but just in case
-      console.error("ERROR: target file already exists, skipping:", finalName);
-    } else {
-      if (DRY_RUN) {
-        log(`[DRY] would rename tmp -> final: ${tmp} -> ${finalName}`);
-      } else {
-        fs.renameSync(tmpPath, finalPath);
-        log("Renamed (final):", tmp, "->", finalName);
-      }
-    }
-
-    const url = `${BASE_URL}/${finalName}?color=${encodeURIComponent(COLOR)}`;
-    urls.push(url);
-    counter++;
-  }
-
-  // 3) Save URLs to file
-  if (!DRY_RUN) {
-    try {
-      fs.mkdirSync(path.dirname(OUT_FILE), { recursive: true });
-      fs.writeFileSync(OUT_FILE, urls.join("\n") + "\n", "utf8");
-      log("Wrote generated URLs to:", OUT_FILE);
-    } catch (err) {
-      console.error("ERROR writing output file:", err);
-    }
-  } else {
-    log("[DRY] Generated URLs (not saved):\n", urls.join("\n"));
-  }
-
-  // final summary
-  log("Done. Generated", urls.length, "URLs.");
-  console.log(urls.join("\n"));
-})();
+console.log(`[renameAndGenerate] Done. Generated ${urls.length} URLs.`);
+console.log(urls);
