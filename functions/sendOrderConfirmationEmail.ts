@@ -7,14 +7,14 @@ const currency = (value: number | null | undefined) =>
 
 const buildItemsTable = (order: Order) => {
   if (!order.products?.length) {
-    return '<p>No items found for this order.</p>'
+    return '<p style="margin:0 0 12px 0; color:#e5e7eb;">No items found for this order.</p>'
   }
 
   const rows = order.products
     .map(
       (item, idx) => `
         <tr style="background:${idx % 2 === 0 ? '#0f172a' : '#111827'};color:#e5e7eb;">
-          <td style="padding:12px 16px;">${item.product_id}</td>
+          <td style="padding:12px 16px;">Item ${idx + 1}</td>
           <td style="padding:12px 16px; text-transform:capitalize;">${item.color || '-'}</td>
           <td style="padding:12px 16px;">${item.size || '-'}</td>
           <td style="padding:12px 16px; text-align:center;">${item.quantity}</td>
@@ -24,10 +24,10 @@ const buildItemsTable = (order: Order) => {
     .join('')
 
   return `
-    <table style="width:100%; border-collapse:collapse; margin-top:12px; border:1px solid #1f2937;">
+    <table style="width:100%; border-collapse:collapse; margin-top:12px; border:1px solid #1f2937; min-width:280px;">
       <thead>
         <tr style="background:#111827; color:#e5e7eb;">
-          <th style="padding:12px 16px; text-align:left;">Product ID</th>
+          <th style="padding:12px 16px; text-align:left;">Item</th>
           <th style="padding:12px 16px; text-align:left;">Color</th>
           <th style="padding:12px 16px; text-align:left;">Size</th>
           <th style="padding:12px 16px; text-align:center;">Qty</th>
@@ -72,28 +72,30 @@ export async function sendOrderConfirmationEmail(order: Order) {
   `
 
   const html = `
-    <div style="background:#0b0f19; color:#e5e7eb; padding:24px; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+    <div style="background:#0b0f19; color:#e5e7eb; padding:16px; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
       <div style="max-width:640px; margin:0 auto; background:#0f172a; border:1px solid #1f2937; border-radius:16px; overflow:hidden;">
-        <div style="padding:20px 24px; background:linear-gradient(90deg, #111827, #0f172a); border-bottom:1px solid #1f2937;">
+        <div style="padding:16px 18px; background:linear-gradient(90deg, #111827, #0f172a); border-bottom:1px solid #1f2937;">
           <div style="font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:#9ca3af;">Fear Insight</div>
-          <div style="font-size:22px; font-weight:800; color:#f9fafb;">Order Confirmation</div>
+          <div style="font-size:20px; font-weight:800; color:#f9fafb;">Order Confirmation</div>
           <div style="margin-top:6px; color:#d1d5db;">Order #${orderNumber}</div>
         </div>
 
-        <div style="padding:24px;">
-          <p style="margin:0 0 12px 0; color:#e5e7eb;">Hi ${order.first_name || 'there'},</p>
-          <p style="margin:0 0 16px 0; color:#cbd5e1;">
+        <div style="padding:18px">
+          <p style="margin:0 0 12px 0; color:#e5e7eb; font-size:15px; line-height:1.5;">Hi ${order.first_name || 'there'},</p>
+          <p style="margin:0 0 14px 0; color:#cbd5e1; font-size:14px; line-height:1.6;">
             Thank you for your purchase! Your order is confirmed and we’ll notify you once it ships.
           </p>
 
-          ${buildItemsTable(order)}
+          <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+            ${buildItemsTable(order)}
+          </div>
           ${totals}
 
-          <div style="margin-top:16px;">
+          <div style="margin-top:14px;">
             ${addressBlock}
           </div>
 
-          <p style="margin:16px 0 0 0; color:#94a3b8; font-size:13px;">
+          <p style="margin:14px 0 0 0; color:#94a3b8; font-size:13px; line-height:1.5;">
             If you have questions, just reply to this email and we’ll help out.
           </p>
         </div>

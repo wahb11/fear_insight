@@ -169,11 +169,20 @@ export function PaymentStatus({
             ) : isSuccess ? (
               <>
                 <Button
+                  type="button"
                   onClick={onClose}
                   className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white"
                 >
                   Continue Shopping
                 </Button>
+                <a
+                  href="/products"
+                  className="hidden"
+                  aria-hidden="true"
+                  tabIndex={-1}
+                >
+                  Continue Shopping
+                </a>
               </>
             ) : null}
           </motion.div>
