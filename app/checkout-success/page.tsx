@@ -24,7 +24,9 @@ function CheckoutSuccessContent() {
   }, [searchParams, clearCart])
 
   const handleContinueShopping = () => {
-    router.push('/')
+    // Extra safety: ensure cart is clear before navigating away
+    clearCart()
+    router.push('/products')
   }
 
   return (

@@ -17,12 +17,32 @@ export default function BestSellers() {
   const [carX, setCarX] = useState(0)
   const [carWidth, setCarWidth] = useState(0)
   const [zoomImage, setZoomImage] = useState<string | null>(null)
+  const [autoDir, setAutoDir] = useState<'left' | 'right'>('right')
 
   useEffect(() => {
     if (innerRef.current && carouselRef.current) {
       setCarWidth(innerRef.current.scrollWidth - carouselRef.current.offsetWidth)
     }
   }, [innerRef.current, carouselRef.current])
+
+  // Auto scroll carousel
+  useEffect(() => {
+    if (!carWidth || carWidth <= 0) return
+    const id = setInterval(() => {
+      const containerW = carouselRef.current?.offsetWidth || 300
+      const move = Math.round(containerW * 0.75)
+      let next = autoDir === 'right' ? carX - move : carX + move
+      // loop instead of bounce
+      if (next <= -carWidth) {
+        next = 0
+      } else if (next >= 0) {
+        next = -carWidth
+      }
+      setCarX(next)
+      controls.start({ x: next, transition: { type: 'spring', stiffness: 120, damping: 25 } })
+    }, 3200)
+    return () => clearInterval(id)
+  }, [carX, carWidth, controls, autoDir])
 
   function scrollByPixels(direction: 'left' | 'right') {
     const containerW = carouselRef.current?.offsetWidth || 300

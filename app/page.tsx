@@ -255,7 +255,7 @@ export default function FearInsightLanding() {
           <div className="absolute inset-0 bg-gradient-to-br from-stone-900/40 via-stone-950/50 to-stone-900/40" />
 
           <div className="container mx-auto relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
               {/* Left Column - Text Content */}
               <motion.div
                 initial={{ opacity: 0, x: -100 }}
@@ -273,43 +273,29 @@ export default function FearInsightLanding() {
                   OUR VISION
                 </motion.h2>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.08 }}
-                  viewport={{ once: true }}
-                >
-                  <p className="text-xl text-stone-200 mb-6 leading-relaxed backdrop-blur-sm bg-stone-950/20 p-4 rounded-lg">
-                    FEAR INSIGHT represents more than just clothing. We create pieces that embody spiritual strength,
-                    divine inspiration, and fearless self-expression. Each design is carefully crafted to remind you
-                    that you are guided by a higher purpose.
-                  </p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.15 }}
-                  viewport={{ once: true }}
-                >
-                  <p className="text-lg text-stone-300 mb-6 backdrop-blur-sm bg-stone-950/20 p-4 rounded-lg">
-                    Our mission is to inspire confidence and faith through premium streetwear that speaks to your soul.
-                    We believe that fashion can be a powerful expression of one's spiritual journey and divine calling.
-                  </p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                  viewport={{ once: true }}
-                >
-                  <p className="text-md text-stone-400 mb-8 backdrop-blur-sm bg-stone-950/20 p-4 rounded-lg">
-                    Founded on principles of faith, quality, and authenticity, Fear Insight continues to push boundaries
-                    while staying true to our core values. Every thread tells a story of purpose, every design speaks of
-                    hope.
-                  </p>
-                </motion.div>
+                {[
+                  {
+                    text: "FEAR INSIGHT represents more than just clothing. We create pieces that embody spiritual strength, divine inspiration, and fearless self-expression. Each design is carefully crafted to remind you that you are guided by a higher purpose.",
+                  },
+                  {
+                    text: "Our mission is to inspire confidence and faith through premium streetwear that speaks to your soul. We believe that fashion can be a powerful expression of one's spiritual journey and divine calling.",
+                  },
+                  {
+                    text: "Founded on principles of faith, quality, and authenticity, Fear Insight continues to push boundaries while staying true to our core values. Every thread tells a story of purpose, every design speaks of hope.",
+                  },
+                ].map((para, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.08 + idx * 0.05 }}
+                    viewport={{ once: true }}
+                  >
+                    <p className="text-base md:text-lg text-stone-200 mb-4 leading-relaxed bg-stone-950/25 p-4 rounded-lg text-left">
+                      {para.text}
+                    </p>
+                  </motion.div>
+                ))}
               </motion.div>
 
               {/* Right Column - Values Cards */}
@@ -552,20 +538,17 @@ export default function FearInsightLanding() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3, delay: index * 0.08 }}
                   viewport={{ once: true }}
-                  className="text-center p-6 bg-stone-800/30 border border-stone-700/50 rounded-lg hover:bg-stone-800/50 transition-colors duration-300"
+                  className="text-center p-6 bg-stone-900/60 border border-stone-800 rounded-lg hover:border-stone-600/80 transition-colors duration-300"
                 >
-                  <motion.div
-                    className="text-3xl font-bold text-stone-100 mb-2"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    {highlight.value}
-                  </motion.div>
-                  <motion.h4 className="text-sm font-semibold text-stone-200 mb-1">
-                    {highlight.label}
-                  </motion.h4>
-                  <motion.p className="text-xs text-stone-400">
-                    {highlight.description}
-                  </motion.p>
+                      <div className="text-3xl font-bold text-stone-100 mb-2">
+                        {highlight.value}
+                      </div>
+                      <h4 className="text-sm font-semibold text-stone-200 mb-1">
+                        {highlight.label}
+                      </h4>
+                      <p className="text-xs text-stone-400">
+                        {highlight.description}
+                      </p>
                 </motion.div>
               ))}
             </motion.div>

@@ -17,7 +17,10 @@ export default function CheckoutPage() {
 
 
 
-  const { items, subtotal, tax, shipping, total } = useCart()
+  const { items, subtotal } = useCart()
+  const freeShipping = 0
+  const zeroTax = 0
+  const finalTotal = subtotal + freeShipping + zeroTax
 
 
 
@@ -46,7 +49,18 @@ export default function CheckoutPage() {
 
   const handleShippingSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (formData.firstName && formData.lastName && formData.address && formData.city && formData.state && formData.zipCode) {
+    if (
+      formData.firstName &&
+      formData.lastName &&
+      formData.email &&
+      formData.phone &&
+      formData.address &&
+      formData.city &&
+      formData.state &&
+      formData.zipCode &&
+      formData.country &&
+      items.length > 0
+    ) {
       try {
         const order = await createOrder({
           first_name: formData.firstName,
@@ -69,9 +83,9 @@ export default function CheckoutPage() {
           ],
 
           payment: false,
-          tax: tax,
-          shipping: shipping,
-          grand_total: total
+          tax: zeroTax,
+          shipping: freeShipping,
+          grand_total: finalTotal
         })
 
         notifyNewOrderNonPayment(order)
@@ -82,8 +96,8 @@ export default function CheckoutPage() {
             orderId: order.id,
             items: items,
             customer: { email: formData.email },
-            tax,
-            shipping,
+            tax: zeroTax,
+            shipping: freeShipping,
           }),
         })
 
@@ -158,7 +172,7 @@ export default function CheckoutPage() {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 pb-12 md:pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
           {/* Main Checkout Form */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -454,11 +468,11 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex justify-between text-stone-100">
                       <span>Shipping:</span>
-                      <span className="font-semibold">${shipping.toFixed(2)}</span>
+                      <span className="font-semibold text-emerald-400">FREE</span>
                     </div>
                     <div className="flex justify-between text-stone-100">
-                      <span>Tax (10%):</span>
-                      <span className="font-semibold">${tax.toFixed(2)}</span>
+                      <span>Tax:</span>
+                      <span className="font-semibold">$0.00</span>
                     </div>
                   </motion.div>
 
@@ -471,7 +485,7 @@ export default function CheckoutPage() {
                   >
                     <span className="font-bold text-stone-50 uppercase tracking-wide text-sm sm:text-base">Total:</span>
                     <span className="text-xl sm:text-2xl font-bold text-stone-50">
-                      ${total.toFixed(2)}
+                      ${finalTotal.toFixed(2)}
                     </span>
                   </motion.div>
                 </CardContent>

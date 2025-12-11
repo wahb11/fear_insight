@@ -96,8 +96,10 @@ export default function ProductDetailPage() {
 	const [selectedSize, setSelectedSize] = useState("")
 	const [quantity, setQuantity] = useState(1)
 	const [isAdding, setIsAdding] = useState(false)
+	const [imageError, setImageError] = useState(false)
 	
 	const carouselRef = useRef<HTMLDivElement>(null)
+	const fallbackImage = "/placeholder-logo.png"
 
 	// Set initial color and size when product loads
 	React.useEffect(() => {
@@ -133,6 +135,17 @@ export default function ProductDetailPage() {
 
 		if (matchingIndex >= 0) setSelectedImage(matchingIndex)
 	}, [product?.images, selectedColor])
+
+	// Clamp selected image to valid range if data changes
+	React.useEffect(() => {
+		if (!product?.images?.length) return
+		if (selectedImage >= product.images.length) setSelectedImage(0)
+	}, [product?.images?.length, selectedImage])
+
+	// Reset image error when selection changes
+	React.useEffect(() => {
+		setImageError(false)
+	}, [selectedImage, selectedColor])
 	
 	// Check if current selection is in stock
 	const isColorInStock = useCallback(() => {
@@ -218,7 +231,7 @@ export default function ProductDetailPage() {
 			{/* Main Content */}
 			<section className="py-12 px-4">
 				<div className="container mx-auto">
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start">
 						{/* Image Section */}
 						<motion.div
 							initial={{ opacity: 0, x: -50 }}
@@ -232,12 +245,31 @@ export default function ProductDetailPage() {
 								whileHover={{ scale: 1.02 }}
 								transition={{ duration: 0.3 }}
 							>
+								{/* Main image navigation */}
+								{product.images.length > 1 && (
+									<>
+										<button
+											onClick={() => setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length)}
+											className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 p-2 rounded-full text-stone-100"
+										>
+											<ChevronLeft className="w-5 h-5" />
+										</button>
+										<button
+											onClick={() => setSelectedImage((prev) => (prev + 1) % product.images.length)}
+											className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 p-2 rounded-full text-stone-100"
+										>
+											<ChevronRight className="w-5 h-5" />
+										</button>
+									</>
+								)}
+
 								<AnimatePresence mode="wait">
 									<motion.img
 										key={selectedImage}
-										src={product.images[selectedImage]}
+										src={imageError ? fallbackImage : (product.images[selectedImage] || fallbackImage)}
 										alt={product.name}
 										className="w-full h-full object-cover"
+										onError={() => setImageError(true)}
 										initial={{ opacity: 0 }}
 										animate={{ opacity: 1 }}
 										exit={{ opacity: 0 }}
@@ -468,11 +500,16 @@ export default function ProductDetailPage() {
 
 							{/* Add to Cart & Wishlist */}
 							<div className="flex gap-4 pt-4">
-								<motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+								<motion.div
+									className="flex-1"
+									whileHover={{ scale: 1.03, y: -2 }}
+									whileTap={{ scale: 0.98 }}
+									transition={{ type: "spring", stiffness: 260, damping: 18 }}
+								>
 									<Button
 										onClick={handleAddToCart}
 										disabled={!selectedColor || !selectedSize || isAdding}
-										className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 h-14 font-semibold text-lg group disabled:opacity-50 disabled:cursor-not-allowed"
+										className="w-full bg-gradient-to-r from-stone-800 via-stone-700 to-stone-900 hover:from-stone-700 hover:via-stone-600 hover:to-stone-800 text-stone-50 h-14 font-semibold text-lg group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-black/30"
 									>
 										{isAdding ? (
 											<motion.span
@@ -529,36 +566,40 @@ export default function ProductDetailPage() {
 
 					{/* Description & Specifications */}
 					<motion.div
-						initial={{ opacity: 0, y: 50 }}
+						initial={{ opacity: 0, y: 40 }}
 						whileInView={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8 }}
+						transition={{ duration: 0.6 }}
 						viewport={{ once: true }}
-						className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-8"
+						className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6"
 					>
-						<div className="lg:col-span-2 space-y-6">
-							<div>
-								<h2 className="text-2xl font-bold text-stone-100 mb-4">Product Description</h2>
-								<p className="text-stone-400 leading-relaxed">
-									{product.fullDescription}
-								</p>
-							</div>
+						<div className="lg:col-span-2 space-y-4">
+							<Card className="bg-stone-900/70 border-stone-800 shadow-2xl shadow-black/20">
+								<CardContent className="p-6 space-y-3">
+									<h2 className="text-2xl font-bold text-stone-100">Product Description</h2>
+									<p className="text-stone-300 leading-relaxed">
+										{product.fullDescription}
+									</p>
+								</CardContent>
+							</Card>
 
-							<div>
-								<h3 className="text-lg font-semibold text-stone-200 mb-3">Material & Care</h3>
-								<p className="text-stone-400 mb-3">
-									<strong>Material:</strong> {product.material}
-								</p>
-								<p className="text-stone-400">
-									<strong>Care Instructions:</strong> {product.care}
-								</p>
-							</div>
+							<Card className="bg-stone-900/70 border-stone-800 shadow-2xl shadow-black/20">
+								<CardContent className="p-6 space-y-3">
+									<h3 className="text-xl font-semibold text-stone-100">Material & Care</h3>
+									<p className="text-stone-300">
+										<strong>Material:</strong> 80% premium cotton, 20% polyester
+									</p>
+									<p className="text-stone-300">
+										<strong>Care Instructions:</strong> {product.care}
+									</p>
+								</CardContent>
+							</Card>
 						</div>
 
 						<div>
-							<Card className="bg-stone-900/50 border-stone-700">
+							<Card className="bg-stone-900/70 border-stone-800 shadow-2xl shadow-black/20">
 								<CardContent className="p-6 space-y-4">
 									<h3 className="font-bold text-stone-100">Shipping Info</h3>
-									<p className="text-sm text-stone-400">
+									<p className="text-sm text-stone-300">
 										{product.shipping}
 									</p>
 									<Button className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50">

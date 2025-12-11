@@ -151,19 +151,17 @@ export default function ProductsPage() {
         return false
       }
 
-      // Color filter
+      // Color filter (handles string or object inputs)
       if (selectedColor !== "All") {
-        const hasColor = product.colors?.some((colorObj) =>
-          Object.keys(colorObj).some((color) => color.toLowerCase() === selectedColor.toLowerCase())
-        )
+        const colors = extractValues(product.colors)
+        const hasColor = colors.some((color) => color.toLowerCase() === selectedColor.toLowerCase())
         if (!hasColor) return false
       }
 
-      // Size filter
+      // Size filter (handles string or object inputs)
       if (selectedSize !== "All") {
-        const hasSize = product.sizes?.some((sizeObj) =>
-          Object.keys(sizeObj).some((size) => size.toUpperCase() === selectedSize.toUpperCase())
-        )
+        const sizes = extractValues(product.sizes).map((s) => s.toUpperCase())
+        const hasSize = sizes.includes(selectedSize.toUpperCase())
         if (!hasSize) return false
       }
 
@@ -267,10 +265,10 @@ export default function ProductsPage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-8"
+            className="flex flex-col gap-4 items-stretch justify-between mb-6"
           >
             {/* Search */}
-            <div className="relative flex-1 max-w-md">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400 w-4 h-4" />
               <Input
                 type="text"
@@ -282,58 +280,64 @@ export default function ProductsPage() {
             </div>
 
             {/* Filter Controls */}
-            <div className="flex flex-wrap gap-4 items-center">
-              {/* Color Filter */}
-              <select
-                value={selectedColor}
-                onChange={(e) => setSelectedColor(e.target.value)}
-                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => setShowFilters((prev) => !prev)}
+                className="md:hidden w-full text-left text-sm text-stone-200 bg-stone-900/70 border border-stone-800 rounded px-3 py-2 flex items-center justify-between"
               >
-                {dynamicFilters.colors.map((color) => (
-                  <option key={color} value={color}>
-                    {color === "All" ? "All Colors" : color}
-                  </option>
-                ))}
-              </select>
+                <span>Filters & Sort</span>
+                <span className="text-xs text-stone-400">{showFilters ? "Hide" : "Show"}</span>
+              </button>
 
-              {/* Size Filter */}
-              <select
-                value={selectedSize}
-                onChange={(e) => setSelectedSize(e.target.value)}
-                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
-              >
-                {dynamicFilters.sizes.map((size) => (
-                  <option key={size} value={size}>
-                    {size === "All" ? "All Sizes" : size}
-                  </option>
-                ))}
-              </select>
+              <div className={`grid gap-3 ${showFilters ? "grid-cols-1 sm:grid-cols-2" : "hidden md:grid md:grid-cols-4"}`}>
+                <select
+                  value={selectedColor}
+                  onChange={(e) => setSelectedColor(e.target.value)}
+                  className="w-full bg-stone-950/70 border border-stone-800 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
+                >
+                  {dynamicFilters.colors.map((color) => (
+                    <option key={color} value={color}>
+                      {color === "All" ? "All Colors" : color}
+                    </option>
+                  ))}
+                </select>
 
-              {/* Price Filter */}
-              <select
-                value={selectedPrice}
-                onChange={(e) => setSelectedPrice(e.target.value)}
-                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
-              >
-                {dynamicFilters.priceRanges.map((price) => (
-                  <option key={price} value={price}>
-                    {price === "All" ? "All Prices" : price}
-                  </option>
-                ))}
-              </select>
+                <select
+                  value={selectedSize}
+                  onChange={(e) => setSelectedSize(e.target.value)}
+                  className="w-full bg-stone-950/70 border border-stone-800 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
+                >
+                  {dynamicFilters.sizes.map((size) => (
+                    <option key={size} value={size}>
+                      {size === "All" ? "All Sizes" : size}
+                    </option>
+                  ))}
+                </select>
 
-              {/* Sort */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-stone-950/70 border border-stone-700 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
-              >
-                {["Featured", "Price: Low to High", "Price: High to Low", "Best Selling", "Highest Rated"].map((sort) => (
-                  <option key={sort} value={sort}>
-                    Sort by: {sort}
-                  </option>
-                ))}
-              </select>
+                <select
+                  value={selectedPrice}
+                  onChange={(e) => setSelectedPrice(e.target.value)}
+                  className="w-full bg-stone-950/70 border border-stone-800 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
+                >
+                  {dynamicFilters.priceRanges.map((price) => (
+                    <option key={price} value={price}>
+                      {price === "All" ? "All Prices" : price}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full bg-stone-950/70 border border-stone-800 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
+                >
+                  {["Featured", "Price: Low to High", "Price: High to Low", "Best Selling", "Highest Rated"].map((sort) => (
+                    <option key={sort} value={sort}>
+                      Sort by: {sort}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </motion.div>
 
