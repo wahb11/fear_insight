@@ -52,11 +52,11 @@ export default function Header() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.2 }}
-      className="fixed top-0 w-full z-50 bg-stone-950/90 border-b border-stone-800 backdrop-blur-md"
+      className="fixed top-0 w-full z-50 bg-black border-b border-stone-800 backdrop-blur-md"
       style={{ willChange: "opacity" }}
     >
-      <div className="container mx-auto px-4 md:px-6 py-3 md:py-4">
-        <div className="flex items-center justify-between w-full relative">
+      <div className="container mx-auto px-4 md:px-6 py-4 md:py-5">
+        <div className="flex items-center justify-between w-full">
           {/* Left: Hamburger (Mobile) / Logo (Desktop) */}
           <div className="flex items-center flex-shrink-0 w-1/3">
             {/* Hamburger Menu Button - Mobile Only */}
@@ -89,7 +89,7 @@ export default function Header() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className="text-lg font-bold text-stone-100 cursor-pointer"
+                className="text-xl font-bold text-white cursor-pointer tracking-wide"
               >
                 FEAR INSIGHT
               </motion.div>
@@ -104,20 +104,20 @@ export default function Header() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className="text-lg font-bold text-stone-100 cursor-pointer"
+                className="text-lg font-bold text-white cursor-pointer"
               >
                 FEAR INSIGHT
               </motion.div>
             </Link>
             
             {/* Desktop Navigation - Centered */}
-            <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+            <div className="hidden md:flex items-center space-x-10 lg:space-x-12">
               {["Home", "Products", "About", "Contact"].map((item) => (
                 <a
                   key={item}
                   href={item === "Home" ? "/" : item === "Products" ? "/products" : `#${item.toLowerCase()}`}
                   onClick={(e) => handleNavClick(item, e)}
-                  className="text-stone-100 hover:text-stone-300 transition-colors duration-200 text-sm font-normal uppercase tracking-wide cursor-pointer whitespace-nowrap"
+                  className="text-white hover:text-stone-300 transition-colors duration-200 text-base font-medium uppercase tracking-wider cursor-pointer whitespace-nowrap"
                 >
                   {item.toUpperCase()}
                 </a>
@@ -130,16 +130,16 @@ export default function Header() {
             <Link href="/cart">
               <motion.button
                 animate={cartButtonControls}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-lg hover:bg-stone-800/80 transition-all duration-200 relative group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-lg hover:bg-stone-800/80 transition-all duration-200 relative group"
               >
-                <ShoppingBag className="w-5 h-5 text-stone-100 group-hover:text-stone-50 transition-colors" />
+                <ShoppingBag className="w-6 h-6 text-white group-hover:text-stone-50 transition-colors" strokeWidth={2} />
                 {items.length > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center"
+                    className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-lg"
                   >
                     {items.length}
                   </motion.span>
@@ -163,9 +163,11 @@ export default function Header() {
               <motion.button
                 key={item}
                 onClick={(e) => handleNavClick(item, e)}
-                className="text-stone-100 hover:text-stone-300 transition-colors duration-200 py-2 px-4 rounded-lg hover:bg-stone-800 text-left w-full"
+                className="text-white hover:text-stone-300 transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-stone-800 text-left w-full font-medium"
               >
-                <motion.span whileHover={{ x: 10 }}>{item}</motion.span>
+                <motion.span whileHover={{ x: 10 }} className="uppercase tracking-wide">
+                  {item}
+                </motion.span>
               </motion.button>
             )
           })}
