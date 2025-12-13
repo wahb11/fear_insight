@@ -1,121 +1,307 @@
 import { Order } from '@/types/order'
-import nodemailer from 'nodemailer'  // ← ADD THIS LINE
+import nodemailer from 'nodemailer'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 const currency = (value: number | null | undefined) =>
   typeof value === 'number' ? `$${value.toFixed(2)}` : '$0.00'
 
-const buildItemsTable = (order: Order) => {
-  if (!order.products?.length) {
-    return '<p style="margin:0 0 12px 0; color:#e5e7eb;">No items found for this order.</p>'
-  }
-
-  const rows = order.products
-    .map(
-      (item, idx) => `
-        <tr style="background:${idx % 2 === 0 ? '#0f172a' : '#111827'};color:#e5e7eb;">
-          <td style="padding:12px 16px;">Item ${idx + 1}</td>
-          <td style="padding:12px 16px; text-transform:capitalize;">${item.color || '-'}</td>
-          <td style="padding:12px 16px;">${item.size || '-'}</td>
-          <td style="padding:12px 16px; text-align:center;">${item.quantity}</td>
-        </tr>
-      `
-    )
-    .join('')
-
-  return `
-    <table style="width:100%; border-collapse:collapse; margin-top:12px; border:1px solid #1f2937; min-width:280px;">
-      <thead>
-        <tr style="background:#111827; color:#e5e7eb;">
-          <th style="padding:12px 16px; text-align:left;">Item</th>
-          <th style="padding:12px 16px; text-align:left;">Color</th>
-          <th style="padding:12px 16px; text-align:left;">Size</th>
-          <th style="padding:12px 16px; text-align:center;">Qty</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
-  `
+// Calculate estimated delivery date (5-7 business days from now)
+const getEstimatedDelivery = () => {
+  const date = new Date()
+  date.setDate(date.getDate() + 6) // Add 6 days for standard shipping
+  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
+  return date.toLocaleDateString('en-US', options)
 }
 
 export async function sendOrderConfirmationEmail(order: Order) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
-    secure: true, // SSL/TLS
+    secure: true,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS
     }
   })
 
-  const orderNumber = order.order_number || order.id
+  // Fetch product names
+  const productIds = order.products?.map(p => p.product_id) || []
+  let productMap: Record<string, string> = {}
+  
+  if (productIds.length > 0) {
+    const { data: products } = await supabase
+      .from('products')
+      .select('id, name')
+      .in('id', productIds)
+    
+    if (products) {
+      products.forEach(p => {
+        productMap[p.id] = p.name
+      })
+    }
+  }
 
-  const totals = `
-    <div style="margin-top:12px; padding:12px 16px; background:#0f172a; border:1px solid #1f2937; border-radius:10px; color:#e5e7eb;">
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Subtotal</span><span>${currency((order.grand_total || 0) - (order.tax || 0) - (order.shipping || 0))}</span></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Tax</span><span>${currency(order.tax)}</span></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Shipping</span><span>${currency(order.shipping)}</span></div>
-      <div style="border-top:1px solid #1f2937; margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; font-weight:700;"><span>Total</span><span>${currency(order.grand_total)}</span></div>
-    </div>
-  `
+  const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase()
+  const subtotal = (order.grand_total || 0) - (order.tax || 0) - (order.shipping || 0)
+  const itemCount = order.products?.reduce((sum, item) => sum + item.quantity, 0) || 0
+  const estimatedDelivery = getEstimatedDelivery()
 
-  const addressBlock = `
-    <div style="padding:12px 16px; background:#0f172a; border:1px solid #1f2937; border-radius:10px; color:#e5e7eb;">
-      <div style="font-weight:700; margin-bottom:6px;">Shipping Address</div>
-      <div>${order.first_name} ${order.last_name}</div>
-      <div>${order.address || ''}</div>
-      <div>${order.city || ''}${order.state ? ', ' + order.state : ''} ${order.zip_code || ''}</div>
-      <div>${order.country || ''}</div>
-      ${order.phone ? `<div style="margin-top:6px;">Phone: ${order.phone}</div>` : ''}
-    </div>
-  `
+  // Build order items list
+  const orderItems = order.products?.map(item => {
+    const productName = productMap[item.product_id] || 'Product'
+    return {
+      name: productName,
+      color: item.color,
+      size: item.size,
+      quantity: item.quantity
+    }
+  }) || []
 
   const html = `
-    <div style="background:#0b0f19; color:#e5e7eb; padding:16px; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
-      <div style="max-width:640px; margin:0 auto; background:#0f172a; border:1px solid #1f2937; border-radius:16px; overflow:hidden;">
-        <div style="padding:16px 18px; background:linear-gradient(90deg, #111827, #0f172a); border-bottom:1px solid #1f2937;">
-          <div style="font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:#9ca3af;">Fear Insight</div>
-          <div style="font-size:20px; font-weight:800; color:#f9fafb;">Order Confirmation</div>
-          <div style="margin-top:6px; color:#d1d5db;">Order #${orderNumber}</div>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation - Fear Insight</title>
+  <style>
+    @media only screen and (max-width: 600px) {
+      .two-column { width: 100% !important; padding: 0 !important; display: block !important; }
+      .two-column table { width: 100% !important; }
+      .two-column td { width: 100% !important; display: block !important; padding: 12px 0 !important; }
+      .main-table { width: 100% !important; padding: 20px 16px !important; }
+      .header-table { padding: 20px 24px !important; }
+      .header-table td { font-size: 24px !important; }
+      .checkmark-circle { width: 60px !important; height: 60px !important; }
+      .checkmark-inner { width: 30px !important; height: 30px !important; }
+      h1 { font-size: 24px !important; }
+      .promo-section { padding: 24px 20px !important; }
+      .promo-section h2 { font-size: 20px !important; }
+      .promo-section a { padding: 12px 24px !important; font-size: 14px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background-color:#f5f5f4; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f4; padding:20px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; max-width:600px; width:100%; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+          
+          <!-- Header -->
+          <tr>
+            <td class="header-table" style="background:linear-gradient(135deg, #1c1917 0%, #0c0a09 100%); padding:24px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#fafaf9; font-size:28px; font-weight:800; letter-spacing:1px;">FEAR INSIGHT</td>
+                  <td align="right" style="color:#fafaf9; font-size:14px; font-weight:600;">
+                    <a href="https://fearinsight.com" style="color:#fafaf9; text-decoration:none;">Shop →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-        <div style="padding:18px">
-          <p style="margin:0 0 12px 0; color:#e5e7eb; font-size:15px; line-height:1.5;">Hi ${order.first_name || 'there'},</p>
-          <p style="margin:0 0 14px 0; color:#cbd5e1; font-size:14px; line-height:1.6;">
-            Thank you for your purchase! Your order is confirmed and we'll notify you once it ships.
-          </p>
+          <!-- Main Content -->
+          <tr>
+            <td class="main-table" style="padding:40px 32px; background-color:#ffffff;">
+              
+              <!-- Checkmark Circle -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding-bottom:24px;">
+                    <div class="checkmark-circle" style="width:80px; height:80px; background-color:#e7e5e4; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;">
+                      <div class="checkmark-inner" style="width:40px; height:40px; background-color:#16a34a; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                        <span style="color:#ffffff; font-size:24px; font-weight:bold;">✓</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
 
-          <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
-            ${buildItemsTable(order)}
-          </div>
-          ${totals}
+              <!-- Thank You Message -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding-bottom:16px;">
+                    <h1 style="margin:0; color:#1c1917; font-size:32px; font-weight:700; line-height:1.2;">Thank You For Your Order!</h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-bottom:32px;">
+                    <p style="margin:0; color:#57534e; font-size:15px; line-height:1.6; max-width:500px;">
+                      Your order has been confirmed and will be processed shortly. We'll notify you once it ships.
+                    </p>
+                  </td>
+                </tr>
+              </table>
 
-          <div style="margin-top:14px;">
-            ${addressBlock}
-          </div>
+              <!-- Order Summary Table -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:32px;">
+                <tr>
+                  <td style="padding:16px 0; border-bottom:1px solid #e7e5e4;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color:#57534e; font-size:14px;">Order Confirmation #</td>
+                        <td align="right" style="color:#1c1917; font-size:14px; font-weight:700;">${orderNumber}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:16px 0; border-bottom:1px solid #e7e5e4;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color:#57534e; font-size:14px;">Purchased Item${itemCount > 1 ? 's' : ''} (${itemCount})</td>
+                        <td align="right" style="color:#1c1917; font-size:14px; font-weight:600;">${currency(subtotal)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                ${order.shipping ? `
+                <tr>
+                  <td style="padding:16px 0; border-bottom:1px solid #e7e5e4;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color:#57534e; font-size:14px;">Shipping + Handling</td>
+                        <td align="right" style="color:#1c1917; font-size:14px; font-weight:600;">${currency(order.shipping)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                ` : ''}
+                ${order.tax ? `
+                <tr>
+                  <td style="padding:16px 0; border-bottom:1px solid #e7e5e4;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color:#57534e; font-size:14px;">Sales Tax</td>
+                        <td align="right" style="color:#1c1917; font-size:14px; font-weight:600;">${currency(order.tax)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                ` : ''}
+                <tr>
+                  <td style="padding:20px 0; border-top:2px solid #d6d3d1;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color:#1c1917; font-size:18px; font-weight:700;">TOTAL</td>
+                        <td align="right" style="color:#1c1917; font-size:20px; font-weight:800;">${currency(order.grand_total)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
 
-          <p style="margin:14px 0 0 0; color:#94a3b8; font-size:13px; line-height:1.5;">
-            If you have questions, contact us at <a href="mailto:info@fearinsight.com" style="color:#60a5fa; text-decoration:none;">info@fearinsight.com</a>
-          </p>
-        </div>
+              <!-- Order Items Details -->
+              ${orderItems.length > 0 ? `
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px; border:1px solid #e7e5e4; border-radius:8px; overflow:hidden;">
+                <thead>
+                  <tr style="background-color:#fafaf9;">
+                    <th style="padding:12px 16px; text-align:left; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Item</th>
+                    <th style="padding:12px 16px; text-align:left; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Color</th>
+                    <th style="padding:12px 16px; text-align:left; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Size</th>
+                    <th style="padding:12px 16px; text-align:center; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Qty</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${orderItems.map((item, idx) => `
+                  <tr style="background-color:${idx % 2 === 0 ? '#ffffff' : '#fafaf9'};">
+                    <td style="padding:12px 16px; color:#1c1917; font-size:14px;">${item.name}</td>
+                    <td style="padding:12px 16px; color:#57534e; font-size:14px; text-transform:capitalize;">${item.color || '-'}</td>
+                    <td style="padding:12px 16px; color:#57534e; font-size:14px;">${item.size || '-'}</td>
+                    <td style="padding:12px 16px; text-align:center; color:#57534e; font-size:14px;">${item.quantity}</td>
+                  </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+              ` : ''}
 
-        <div style="padding:14px 18px; background:#0b0f19; border-top:1px solid #1f2937; text-align:center;">
-          <div style="font-size:12px; color:#6b7280;">Fear Insight</div>
-          <div style="font-size:11px; color:#4b5563; margin-top:4px;">
-            <a href="https://fearinsight.com" style="color:#60a5fa; text-decoration:none;">fearinsight.com</a>
-          </div>
-        </div>
-      </div>
-    </div>
+              <!-- Delivery Information - Two Columns -->
+              <table width="100%" cellpadding="0" cellspacing="0" class="two-column" style="margin-bottom:32px;">
+                <tr>
+                  <td width="48%" valign="top" style="padding-right:2%; padding-bottom:16px;" class="two-column">
+                    <div style="background-color:#fafaf9; padding:20px; border-radius:8px; border:1px solid #e7e5e4;">
+                      <h3 style="margin:0 0 12px 0; color:#1c1917; font-size:16px; font-weight:700;">Delivery Address</h3>
+                      <p style="margin:4px 0; color:#57534e; font-size:14px; line-height:1.6;">
+                        ${order.first_name} ${order.last_name}<br>
+                        ${order.address || ''}<br>
+                        ${order.city || ''}${order.state ? ', ' + order.state : ''} ${order.zip_code || ''}<br>
+                        ${order.country || ''}
+                      </p>
+                    </div>
+                  </td>
+                  <td width="48%" valign="top" style="padding-left:2%;" class="two-column">
+                    <div style="background-color:#fafaf9; padding:20px; border-radius:8px; border:1px solid #e7e5e4;">
+                      <h3 style="margin:0 0 12px 0; color:#1c1917; font-size:16px; font-weight:700;">Estimated Delivery Date</h3>
+                      <p style="margin:0; color:#57534e; font-size:14px; line-height:1.6;">
+                        ${estimatedDelivery}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Promotional Section -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="promo-section" style="background:linear-gradient(135deg, #1c1917 0%, #0c0a09 100%); padding:32px; border-radius:8px; text-align:center;">
+                    <h2 style="margin:0 0 20px 0; color:#fafaf9; font-size:24px; font-weight:700;">Get 25% off your next order</h2>
+                    <a href="https://fearinsight.com/products" style="display:inline-block; background-color:#fafaf9; color:#1c1917; padding:14px 32px; border-radius:6px; text-decoration:none; font-weight:700; font-size:15px;">Shop Now</a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#1c1917; padding:32px; text-align:center;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding-bottom:16px;">
+                    <div style="width:60px; height:60px; background-color:#fafaf9; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; margin:0 auto;">
+                      <span style="color:#1c1917; font-size:32px; font-weight:800;">FI</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-bottom:8px;">
+                    <p style="margin:0; color:#a8a29e; font-size:13px; line-height:1.6;">
+                      Fear Insight<br>
+                      <span style="color:#fafaf9; font-weight:600;">DIRECTED BY GOD</span>
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top:16px; border-top:1px solid #292524;">
+                    <p style="margin:0; color:#78716c; font-size:11px; line-height:1.5;">
+                      If you didn't create an account using this email address, please ignore this email or 
+                      <a href="https://fearinsight.com" style="color:#a8a29e; text-decoration:underline;">unsubscribe</a>.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
   `
 
   const mailOptions = {
-    from: `"Fear Insight" <info@fearinsight.com>`,
+    from: `"Fear Insight" <${process.env.SMTP_USER}>`,
     replyTo: 'info@fearinsight.com',
     to: order.email,
-    subject: `Order confirmed — #${orderNumber}`,
+    subject: `Order Confirmation #${orderNumber} - Fear Insight`,
     html,
   }
 
