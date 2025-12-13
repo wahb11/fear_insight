@@ -45,6 +45,7 @@ export default function Footer() {
   }
 
   return (
+    <>
       <footer id="contact" className="py-12 px-4 bg-stone-950 border-t border-stone-800">
             <div className="container mx-auto">
               <motion.div
@@ -181,6 +182,7 @@ export default function Footer() {
               </motion.div>
             </div>
           </footer>
-          <SizeChart isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
+      <SizeChart isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
+    </>
   )
 }
