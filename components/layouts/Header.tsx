@@ -55,19 +55,19 @@ export default function Header() {
       className="fixed top-0 w-full z-50 bg-stone-950/90 border-b border-stone-800 backdrop-blur-md"
       style={{ willChange: "opacity" }}
     >
-      <div className="container mx-auto px-4 md:px-6 py-4 md:py-5">
-        <div className="flex items-center justify-between w-full">
-          {/* Left: Logo */}
-          <div className="flex items-center flex-shrink-0">
+      <div className="container mx-auto px-4 md:px-6 py-3 md:py-4">
+        <div className="flex items-center justify-between w-full relative">
+          {/* Left: Hamburger (Mobile) / Logo (Desktop) */}
+          <div className="flex items-center flex-shrink-0 w-1/3">
             {/* Hamburger Menu Button - Mobile Only */}
             <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex md:hidden items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 group mr-3"
+              className="flex md:hidden items-center justify-center w-9 h-9 rounded-lg hover:bg-stone-800 transition-colors duration-200 group"
             >
-              <div className="w-6 h-5 flex flex-col justify-between items-center cursor-pointer">
+              <div className="w-5 h-4 flex flex-col justify-between items-center cursor-pointer">
                 <motion.div
                   className="w-full h-0.5 bg-stone-100 rounded-full"
-                  animate={{ rotate: isMenuOpen ? 45 : 0, y: isMenuOpen ? 9 : 0 }}
+                  animate={{ rotate: isMenuOpen ? 45 : 0, y: isMenuOpen ? 8 : 0 }}
                   transition={{ duration: 0.3 }}
                 />
                 <motion.div
@@ -77,53 +77,69 @@ export default function Header() {
                 />
                 <motion.div
                   className="w-full h-0.5 bg-stone-100 rounded-full"
-                  animate={{ rotate: isMenuOpen ? -45 : 0, y: isMenuOpen ? -9 : 0 }}
+                  animate={{ rotate: isMenuOpen ? -45 : 0, y: isMenuOpen ? -8 : 0 }}
                   transition={{ duration: 0.3 }}
                 />
               </div>
             </motion.button>
             
-            <Link href="/" className="flex-shrink-0">
+            {/* Logo - Desktop Only (Left) */}
+            <Link href="/" className="hidden md:block flex-shrink-0">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className="text-xl md:text-2xl font-bold text-stone-100 cursor-pointer"
+                className="text-lg font-bold text-stone-100 cursor-pointer"
               >
                 FEAR INSIGHT
               </motion.div>
             </Link>
           </div>
 
-          {/* Center: Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6 lg:space-x-8 flex-1 justify-center">
-            {["Home", "Products", "About", "Contact"].map((item) => (
-              <a
-                key={item}
-                href={item === "Home" ? "/" : item === "Products" ? "/products" : `#${item.toLowerCase()}`}
-                onClick={(e) => handleNavClick(item, e)}
-                className="text-stone-100 hover:text-stone-300 transition-colors duration-200 text-sm font-semibold uppercase tracking-wider cursor-pointer whitespace-nowrap"
+          {/* Center: Logo (Mobile) / Navigation (Desktop) */}
+          <div className="flex items-center justify-center flex-1 w-1/3">
+            {/* Logo - Mobile Only (Centered) */}
+            <Link href="/" className="md:hidden flex-shrink-0">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="text-lg font-bold text-stone-100 cursor-pointer"
               >
-                {item.toUpperCase()}
-              </a>
-            ))}
+                FEAR INSIGHT
+              </motion.div>
+            </Link>
+            
+            {/* Desktop Navigation - Centered */}
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+              {["Home", "Products", "About", "Contact"].map((item) => (
+                <a
+                  key={item}
+                  href={item === "Home" ? "/" : item === "Products" ? "/products" : `#${item.toLowerCase()}`}
+                  onClick={(e) => handleNavClick(item, e)}
+                  className="text-stone-100 hover:text-stone-300 transition-colors duration-200 text-sm font-normal uppercase tracking-wide cursor-pointer whitespace-nowrap"
+                >
+                  {item.toUpperCase()}
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Right: Cart Button */}
-          <div className="flex items-center justify-end flex-shrink-0">
+          <div className="flex items-center justify-end flex-shrink-0 w-1/3">
             <Link href="/cart">
               <motion.button
                 animate={cartButtonControls}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-lg hover:bg-stone-800/80 transition-all duration-200 relative group"
+                className="flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-lg hover:bg-stone-800/80 transition-all duration-200 relative group"
               >
-                <ShoppingBag className="w-5 h-5 md:w-6 md:h-6 text-stone-100 group-hover:text-stone-50 transition-colors" />
+                <ShoppingBag className="w-5 h-5 text-stone-100 group-hover:text-stone-50 transition-colors" />
                 {items.length > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-lg"
+                    className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center"
                   >
                     {items.length}
                   </motion.span>
