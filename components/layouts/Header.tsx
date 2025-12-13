@@ -55,71 +55,82 @@ export default function Header() {
       className="fixed top-0 w-full z-50 bg-stone-950/90 border-b border-stone-800 backdrop-blur-md"
       style={{ willChange: "opacity" }}
     >
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center relative">
-        {/* Hamburger Menu Button */}
-        <motion.button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="flex md:hidden items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 group"
-        >
-          <div className="w-6 h-5 flex flex-col justify-between items-center cursor-pointer">
-            <motion.div
-              className="w-full h-0.5 bg-stone-100 rounded-full"
-              animate={{ rotate: isMenuOpen ? 45 : 0, y: isMenuOpen ? 9 : 0 }}
-              transition={{ duration: 0.3 }}
-            />
-            <motion.div
-              className="w-full h-0.5 bg-stone-100 rounded-full"
-              animate={{ opacity: isMenuOpen ? 0 : 1, x: isMenuOpen ? 10 : 0 }}
-              transition={{ duration: 0.3 }}
-            />
-            <motion.div
-              className="w-full h-0.5 bg-stone-100 rounded-full"
-              animate={{ rotate: isMenuOpen ? -45 : 0, y: isMenuOpen ? -9 : 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-        </motion.button>
-
-        {/* Logo */}
-        <Link href="/">
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.2 }}
-            className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent cursor-pointer"
+      <div className="container mx-auto px-4 md:px-6 py-4 md:py-5 flex items-center justify-between relative">
+        {/* Left: Hamburger (mobile) + Logo */}
+        <div className="flex items-center gap-4 flex-1">
+          {/* Hamburger Menu Button - Mobile Only */}
+          <motion.button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="flex md:hidden items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 group"
           >
-            FEAR INSIGHT
-          </motion.div>
-        </Link>
+            <div className="w-6 h-5 flex flex-col justify-between items-center cursor-pointer">
+              <motion.div
+                className="w-full h-0.5 bg-stone-100 rounded-full"
+                animate={{ rotate: isMenuOpen ? 45 : 0, y: isMenuOpen ? 9 : 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <motion.div
+                className="w-full h-0.5 bg-stone-100 rounded-full"
+                animate={{ opacity: isMenuOpen ? 0 : 1, x: isMenuOpen ? 10 : 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <motion.div
+                className="w-full h-0.5 bg-stone-100 rounded-full"
+                animate={{ rotate: isMenuOpen ? -45 : 0, y: isMenuOpen ? -9 : 0 }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+          </motion.button>
 
-        {/* Desktop Navigation */}
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-stone-100 via-stone-300 to-stone-400 bg-clip-text text-transparent cursor-pointer tracking-tight"
+            >
+              FEAR INSIGHT
+            </motion.div>
+          </Link>
+        </div>
+
+        {/* Center: Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
           {["Home", "Products", "About", "Contact"].map((item) => (
             <a
               key={item}
               href={item === "Home" ? "/" : item === "Products" ? "/products" : `#${item.toLowerCase()}`}
               onClick={(e) => handleNavClick(item, e)}
-              className="text-stone-300 hover:text-stone-100 transition-colors duration-200 text-sm font-medium uppercase tracking-wider cursor-pointer"
+              className="text-stone-300 hover:text-stone-100 transition-colors duration-200 text-sm font-semibold uppercase tracking-wider cursor-pointer"
             >
               {item}
             </a>
           ))}
         </div>
 
-        {/* Cart Button */}
-        <Link href="/cart">
-          <motion.button
-            animate={cartButtonControls}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 relative"
-          >
-            <ShoppingBag className="w-6 h-6 text-stone-100" />
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-              {items.length}
-            </span>
-          </motion.button>
-        </Link>
+        {/* Right: Cart Button */}
+        <div className="flex items-center justify-end flex-1">
+          <Link href="/cart">
+            <motion.button
+              animate={cartButtonControls}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="flex items-center justify-center w-11 h-11 md:w-12 md:h-12 rounded-lg hover:bg-stone-800/80 transition-all duration-200 relative group"
+            >
+              <ShoppingBag className="w-6 h-6 md:w-7 md:h-7 text-stone-100 group-hover:text-stone-50 transition-colors" />
+              {items.length > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg border-2 border-stone-950"
+                >
+                  {items.length}
+                </motion.span>
+              )}
+            </motion.button>
+          </Link>
+        </div>
       </div>
 
       {/* Mobile Menu */}

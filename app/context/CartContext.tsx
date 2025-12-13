@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useAllProducts } from '@/hooks/useAllProducts'
 import { Product } from '@/types/products'
+import { Toast } from '@/components/ui/toast'
 
 export interface CartItem {
   product: Product
@@ -30,6 +31,7 @@ interface CartContextType {
   total: number
   shippingType: 'standard' | 'express' | 'overnight'
   setShippingType: (type: 'standard' | 'express' | 'overnight') => void
+  showToast: (message: string) => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -42,7 +44,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [total, setTotal] = useState(0)
   const [shippingType, setShippingType] = useState<'standard' | 'express' | 'overnight'>('standard')
   const [isHydrated, setIsHydrated] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
   const { data: products, isSuccess } = useAllProducts()
+
+  const showToast = (message: string) => {
+    setToastMessage(message)
+    setTimeout(() => setToastMessage(null), 3000)
+  }
 
   // Load from localStorage only once when products are loaded
   useEffect(() => {
@@ -152,12 +160,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         i => i.product.id === product.id && i.selectedColor === color && i.selectedSize === size
       )
       if (existing) {
-        return prev.map(i =>
+        const updated = prev.map(i =>
           i.product.id === product.id && i.selectedColor === color && i.selectedSize === size
             ? { ...i, quantity: i.quantity + quantity }
             : i
         )
+        showToast(`${product.name} quantity updated in cart!`)
+        return updated
       }
+      showToast(`${product.name} added to cart!`)
       return [...prev, { product, quantity, selectedColor: color, selectedSize: size }]
     })
   }
@@ -180,9 +191,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, subtotal, tax, shipping, total, shippingType, setShippingType }}
+      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, subtotal, tax, shipping, total, shippingType, setShippingType, showToast }}
     >
       {children}
+      <Toast
+        message={toastMessage || ''}
+        isVisible={!!toastMessage}
+        onClose={() => setToastMessage(null)}
+      />
     </CartContext.Provider>
   )
 }
