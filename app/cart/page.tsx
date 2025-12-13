@@ -267,15 +267,15 @@ export default function CartPage() {
                     <div className="space-y-3 text-sm">
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                         <span className="text-stone-300">Standard Shipping (5-7 days)</span>
-                        <span className="text-stone-100 font-semibold">FREE on orders $75+</span>
+                        <span className="text-stone-100 font-semibold">FREE</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                         <span className="text-stone-300">Express Shipping (2-3 days)</span>
-                        <span className="text-stone-100 font-semibold">$12.99</span>
+                        <span className="text-stone-100 font-semibold">FREE</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                         <span className="text-stone-300">Overnight (1 day)</span>
-                        <span className="text-stone-100 font-semibold">$24.99</span>
+                        <span className="text-stone-100 font-semibold">FREE</span>
                       </div>
                       <Link href="/shipping-returns" className="mt-3 inline-block">
                         <p className="text-stone-400 hover:text-stone-200 transition-colors text-xs underline">
@@ -328,12 +328,8 @@ export default function CartPage() {
                       <span className="font-semibold">${subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-stone-100">
-                      <span className="text-sm">Taxes</span>
-                      <span className="font-semibold">${tax.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-stone-100">
                       <span className="text-sm">Shipping</span>
-                      <span className="font-semibold">{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                      <span className="font-semibold">FREE</span>
                     </div>
                     {discount > 0 && (
                       <div className="flex justify-between text-green-400">

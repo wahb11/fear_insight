@@ -103,9 +103,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       },
       0
     )
-    const newTax = newSubtotal * 0.1
-    const newShipping = newSubtotal > 100 ? 0 : 10
-    const newTotal = newSubtotal + newTax + newShipping
+    const newTax = 0
+    const newShipping = 0
+    const newTotal = newSubtotal
     setSubtotal(newSubtotal)
     setTax(newTax)
     setShipping(newShipping)
