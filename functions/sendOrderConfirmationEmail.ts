@@ -73,16 +73,22 @@ export async function sendOrderConfirmationEmail(order: Order) {
       .two-column { width: 100% !important; padding: 0 !important; display: block !important; }
       .two-column table { width: 100% !important; }
       .two-column td { width: 100% !important; display: block !important; padding: 0 0 16px 0 !important; }
-      .main-table { width: 100% !important; padding: 32px 20px !important; }
-      .header-table { padding: 20px 24px !important; }
+      .main-table { width: 100% !important; padding: 24px 16px !important; }
+      .header-table { padding: 20px 20px !important; }
       .header-table td { font-size: 22px !important; }
-      .checkmark-circle { width: 70px !important; height: 70px !important; }
-      .checkmark-inner { width: 35px !important; height: 35px !important; }
-      h1 { font-size: 26px !important; }
+      .checkmark-wrapper { padding-top: 8px !important; padding-bottom: 20px !important; }
+      .checkmark-circle { width: 64px !important; height: 64px !important; }
+      .checkmark-inner { width: 32px !important; height: 32px !important; }
+      .checkmark-inner span { font-size: 18px !important; }
+      h1 { font-size: 24px !important; margin: 0 !important; }
+      .thank-you-text { padding-bottom: 24px !important; }
+      .thank-you-text p { font-size: 14px !important; padding: 0 8px !important; }
       .order-items-table { font-size: 12px !important; }
       .order-items-table th, .order-items-table td { padding: 10px 12px !important; }
       .delivery-card { padding: 16px !important; margin-bottom: 16px !important; }
-      .footer-content { padding: 24px 20px !important; }
+      .footer-content { padding: 24px 16px !important; }
+      .order-summary { margin-bottom: 24px !important; }
+      .order-summary td { padding: 14px 0 !important; }
     }
   </style>
 </head>
@@ -113,7 +119,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
               <!-- Checkmark Circle -->
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td align="center" style="padding-bottom:28px;">
+                  <td align="center" class="checkmark-wrapper" style="padding-top:0; padding-bottom:28px;">
                     <div class="checkmark-circle" style="width:80px; height:80px; background-color:#e7e5e4; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;">
                       <div class="checkmark-inner" style="width:40px; height:40px; background-color:#16a34a; border-radius:50%; display:flex; align-items:center; justify-content:center;">
                         <span style="color:#ffffff; font-size:24px; font-weight:bold;">✓</span>
@@ -131,7 +137,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" style="padding-bottom:40px;">
+                  <td align="center" class="thank-you-text" style="padding-bottom:40px;">
                     <p style="margin:0; color:#57534e; font-size:15px; line-height:1.6; max-width:500px;">
                       Your order has been confirmed and will be processed shortly. We'll notify you once it ships.
                     </p>
@@ -140,7 +146,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
               </table>
 
               <!-- Order Summary Table -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:36px;">
+              <table width="100%" cellpadding="0" cellspacing="0" class="order-summary" style="border-collapse:collapse; margin-bottom:36px;">
                 <tr>
                   <td style="padding:18px 0; border-bottom:1px solid #e7e5e4;">
                     <table width="100%" cellpadding="0" cellspacing="0">
