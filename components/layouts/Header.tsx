@@ -88,7 +88,7 @@ export default function Header() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-stone-100 via-stone-300 to-stone-400 bg-clip-text text-transparent cursor-pointer tracking-tight"
+              className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent cursor-pointer"
             >
               FEAR INSIGHT
             </motion.div>
