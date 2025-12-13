@@ -72,16 +72,17 @@ export async function sendOrderConfirmationEmail(order: Order) {
     @media only screen and (max-width: 600px) {
       .two-column { width: 100% !important; padding: 0 !important; display: block !important; }
       .two-column table { width: 100% !important; }
-      .two-column td { width: 100% !important; display: block !important; padding: 12px 0 !important; }
-      .main-table { width: 100% !important; padding: 20px 16px !important; }
+      .two-column td { width: 100% !important; display: block !important; padding: 0 0 16px 0 !important; }
+      .main-table { width: 100% !important; padding: 32px 20px !important; }
       .header-table { padding: 20px 24px !important; }
-      .header-table td { font-size: 24px !important; }
-      .checkmark-circle { width: 60px !important; height: 60px !important; }
-      .checkmark-inner { width: 30px !important; height: 30px !important; }
-      h1 { font-size: 24px !important; }
-      .promo-section { padding: 24px 20px !important; }
-      .promo-section h2 { font-size: 20px !important; }
-      .promo-section a { padding: 12px 24px !important; font-size: 14px !important; }
+      .header-table td { font-size: 22px !important; }
+      .checkmark-circle { width: 70px !important; height: 70px !important; }
+      .checkmark-inner { width: 35px !important; height: 35px !important; }
+      h1 { font-size: 26px !important; }
+      .order-items-table { font-size: 12px !important; }
+      .order-items-table th, .order-items-table td { padding: 10px 12px !important; }
+      .delivery-card { padding: 16px !important; margin-bottom: 16px !important; }
+      .footer-content { padding: 24px 20px !important; }
     }
   </style>
 </head>
@@ -93,7 +94,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
           
           <!-- Header -->
           <tr>
-            <td class="header-table" style="background:linear-gradient(135deg, #1c1917 0%, #0c0a09 100%); padding:24px 32px;">
+            <td class="header-table" style="background:linear-gradient(135deg, #1c1917 0%, #0c0a09 100%); padding:28px 32px;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#fafaf9; font-size:28px; font-weight:800; letter-spacing:1px;">FEAR INSIGHT</td>
@@ -107,12 +108,12 @@ export async function sendOrderConfirmationEmail(order: Order) {
 
           <!-- Main Content -->
           <tr>
-            <td class="main-table" style="padding:40px 32px; background-color:#ffffff;">
+            <td class="main-table" style="padding:48px 32px; background-color:#ffffff;">
               
               <!-- Checkmark Circle -->
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td align="center" style="padding-bottom:24px;">
+                  <td align="center" style="padding-bottom:28px;">
                     <div class="checkmark-circle" style="width:80px; height:80px; background-color:#e7e5e4; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;">
                       <div class="checkmark-inner" style="width:40px; height:40px; background-color:#16a34a; border-radius:50%; display:flex; align-items:center; justify-content:center;">
                         <span style="color:#ffffff; font-size:24px; font-weight:bold;">✓</span>
@@ -130,7 +131,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" style="padding-bottom:32px;">
+                  <td align="center" style="padding-bottom:40px;">
                     <p style="margin:0; color:#57534e; font-size:15px; line-height:1.6; max-width:500px;">
                       Your order has been confirmed and will be processed shortly. We'll notify you once it ships.
                     </p>
@@ -139,9 +140,9 @@ export async function sendOrderConfirmationEmail(order: Order) {
               </table>
 
               <!-- Order Summary Table -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:36px;">
                 <tr>
-                  <td style="padding:16px 0; border-bottom:1px solid #e7e5e4;">
+                  <td style="padding:18px 0; border-bottom:1px solid #e7e5e4;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="color:#57534e; font-size:14px;">Order Confirmation #</td>
@@ -151,7 +152,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:16px 0; border-bottom:1px solid #e7e5e4;">
+                  <td style="padding:18px 0; border-bottom:1px solid #e7e5e4;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="color:#57534e; font-size:14px;">Purchased Item${itemCount > 1 ? 's' : ''} (${itemCount})</td>
@@ -162,7 +163,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
                 </tr>
                 ${order.shipping ? `
                 <tr>
-                  <td style="padding:16px 0; border-bottom:1px solid #e7e5e4;">
+                  <td style="padding:18px 0; border-bottom:1px solid #e7e5e4;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="color:#57534e; font-size:14px;">Shipping + Handling</td>
@@ -174,7 +175,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
                 ` : ''}
                 ${order.tax ? `
                 <tr>
-                  <td style="padding:16px 0; border-bottom:1px solid #e7e5e4;">
+                  <td style="padding:18px 0; border-bottom:1px solid #e7e5e4;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="color:#57534e; font-size:14px;">Sales Tax</td>
@@ -185,7 +186,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
                 </tr>
                 ` : ''}
                 <tr>
-                  <td style="padding:20px 0; border-top:2px solid #d6d3d1;">
+                  <td style="padding:24px 0 0 0; border-top:2px solid #d6d3d1;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="color:#1c1917; font-size:18px; font-weight:700;">TOTAL</td>
@@ -198,22 +199,22 @@ export async function sendOrderConfirmationEmail(order: Order) {
 
               <!-- Order Items Details -->
               ${orderItems.length > 0 ? `
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px; border:1px solid #e7e5e4; border-radius:8px; overflow:hidden;">
+              <table width="100%" cellpadding="0" cellspacing="0" class="order-items-table" style="margin-bottom:36px; border:1px solid #e7e5e4; border-radius:8px; overflow:hidden;">
                 <thead>
                   <tr style="background-color:#fafaf9;">
-                    <th style="padding:12px 16px; text-align:left; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Item</th>
-                    <th style="padding:12px 16px; text-align:left; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Color</th>
-                    <th style="padding:12px 16px; text-align:left; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Size</th>
-                    <th style="padding:12px 16px; text-align:center; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Qty</th>
+                    <th style="padding:14px 16px; text-align:left; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Item</th>
+                    <th style="padding:14px 16px; text-align:left; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Color</th>
+                    <th style="padding:14px 16px; text-align:left; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Size</th>
+                    <th style="padding:14px 16px; text-align:center; color:#1c1917; font-size:13px; font-weight:600; border-bottom:1px solid #e7e5e4;">Qty</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${orderItems.map((item, idx) => `
                   <tr style="background-color:${idx % 2 === 0 ? '#ffffff' : '#fafaf9'};">
-                    <td style="padding:12px 16px; color:#1c1917; font-size:14px;">${item.name}</td>
-                    <td style="padding:12px 16px; color:#57534e; font-size:14px; text-transform:capitalize;">${item.color || '-'}</td>
-                    <td style="padding:12px 16px; color:#57534e; font-size:14px;">${item.size || '-'}</td>
-                    <td style="padding:12px 16px; text-align:center; color:#57534e; font-size:14px;">${item.quantity}</td>
+                    <td style="padding:14px 16px; color:#1c1917; font-size:14px;">${item.name}</td>
+                    <td style="padding:14px 16px; color:#57534e; font-size:14px; text-transform:capitalize;">${item.color || '-'}</td>
+                    <td style="padding:14px 16px; color:#57534e; font-size:14px;">${item.size || '-'}</td>
+                    <td style="padding:14px 16px; text-align:center; color:#57534e; font-size:14px;">${item.quantity}</td>
                   </tr>
                   `).join('')}
                 </tbody>
@@ -221,11 +222,11 @@ export async function sendOrderConfirmationEmail(order: Order) {
               ` : ''}
 
               <!-- Delivery Information - Two Columns -->
-              <table width="100%" cellpadding="0" cellspacing="0" class="two-column" style="margin-bottom:32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" class="two-column" style="margin-bottom:0;">
                 <tr>
                   <td width="48%" valign="top" style="padding-right:2%; padding-bottom:16px;" class="two-column">
-                    <div style="background-color:#fafaf9; padding:20px; border-radius:8px; border:1px solid #e7e5e4;">
-                      <h3 style="margin:0 0 12px 0; color:#1c1917; font-size:16px; font-weight:700;">Delivery Address</h3>
+                    <div class="delivery-card" style="background-color:#fafaf9; padding:24px; border-radius:8px; border:1px solid #e7e5e4;">
+                      <h3 style="margin:0 0 14px 0; color:#1c1917; font-size:16px; font-weight:700;">Delivery Address</h3>
                       <p style="margin:4px 0; color:#57534e; font-size:14px; line-height:1.6;">
                         ${order.first_name} ${order.last_name}<br>
                         ${order.address || ''}<br>
@@ -235,22 +236,12 @@ export async function sendOrderConfirmationEmail(order: Order) {
                     </div>
                   </td>
                   <td width="48%" valign="top" style="padding-left:2%;" class="two-column">
-                    <div style="background-color:#fafaf9; padding:20px; border-radius:8px; border:1px solid #e7e5e4;">
-                      <h3 style="margin:0 0 12px 0; color:#1c1917; font-size:16px; font-weight:700;">Estimated Delivery Date</h3>
+                    <div class="delivery-card" style="background-color:#fafaf9; padding:24px; border-radius:8px; border:1px solid #e7e5e4;">
+                      <h3 style="margin:0 0 14px 0; color:#1c1917; font-size:16px; font-weight:700;">Estimated Delivery Date</h3>
                       <p style="margin:0; color:#57534e; font-size:14px; line-height:1.6;">
                         ${estimatedDelivery}
                       </p>
                     </div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Promotional Section -->
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td class="promo-section" style="background:linear-gradient(135deg, #1c1917 0%, #0c0a09 100%); padding:32px; border-radius:8px; text-align:center;">
-                    <h2 style="margin:0 0 20px 0; color:#fafaf9; font-size:24px; font-weight:700;">Get 25% off your next order</h2>
-                    <a href="https://fearinsight.com/products" style="display:inline-block; background-color:#fafaf9; color:#1c1917; padding:14px 32px; border-radius:6px; text-decoration:none; font-weight:700; font-size:15px;">Shop Now</a>
                   </td>
                 </tr>
               </table>
@@ -260,25 +251,20 @@ export async function sendOrderConfirmationEmail(order: Order) {
 
           <!-- Footer -->
           <tr>
-            <td style="background-color:#1c1917; padding:32px; text-align:center;">
+            <td class="footer-content" style="background-color:#1c1917; padding:40px 32px; text-align:center;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td align="center" style="padding-bottom:16px;">
-                    <div style="width:60px; height:60px; background-color:#fafaf9; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; margin:0 auto;">
-                      <span style="color:#1c1917; font-size:32px; font-weight:800;">FI</span>
-                    </div>
+                  <td align="center" style="padding-bottom:12px;">
+                    <p style="margin:0; color:#fafaf9; font-size:16px; font-weight:700; letter-spacing:0.5px;">Fear Insight</p>
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" style="padding-bottom:8px;">
-                    <p style="margin:0; color:#a8a29e; font-size:13px; line-height:1.6;">
-                      Fear Insight<br>
-                      <span style="color:#fafaf9; font-weight:600;">DIRECTED BY GOD</span>
-                    </p>
+                  <td align="center" style="padding-bottom:20px;">
+                    <p style="margin:0; color:#a8a29e; font-size:12px; font-weight:500; letter-spacing:1px; text-transform:uppercase;">DIRECTED BY GOD</p>
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" style="padding-top:16px; border-top:1px solid #292524;">
+                  <td align="center" style="padding-top:20px; border-top:1px solid #292524;">
                     <p style="margin:0; color:#78716c; font-size:11px; line-height:1.5;">
                       If you didn't create an account using this email address, please ignore this email or 
                       <a href="https://fearinsight.com" style="color:#a8a29e; text-decoration:underline;">unsubscribe</a>.

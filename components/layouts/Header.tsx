@@ -55,78 +55,82 @@ export default function Header() {
       className="fixed top-0 w-full z-50 bg-stone-950/90 border-b border-stone-800 backdrop-blur-md"
       style={{ willChange: "opacity" }}
     >
-      <div className="container mx-auto px-4 md:px-6 py-4 md:py-5 flex items-center justify-between relative">
-        {/* Left: Hamburger Menu Button - Mobile Only */}
-        <motion.button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="flex md:hidden items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 group flex-shrink-0"
-        >
-          <div className="w-6 h-5 flex flex-col justify-between items-center cursor-pointer">
-            <motion.div
-              className="w-full h-0.5 bg-stone-100 rounded-full"
-              animate={{ rotate: isMenuOpen ? 45 : 0, y: isMenuOpen ? 9 : 0 }}
-              transition={{ duration: 0.3 }}
-            />
-            <motion.div
-              className="w-full h-0.5 bg-stone-100 rounded-full"
-              animate={{ opacity: isMenuOpen ? 0 : 1, x: isMenuOpen ? 10 : 0 }}
-              transition={{ duration: 0.3 }}
-            />
-            <motion.div
-              className="w-full h-0.5 bg-stone-100 rounded-full"
-              animate={{ rotate: isMenuOpen ? -45 : 0, y: isMenuOpen ? -9 : 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-        </motion.button>
-
-        {/* Logo - Centered on mobile, left on desktop */}
-        <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none flex-shrink-0">
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.2 }}
-            className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent cursor-pointer"
-          >
-            FEAR INSIGHT
-          </motion.div>
-        </Link>
-
-        {/* Center: Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-          {["Home", "Products", "About", "Contact"].map((item) => (
-            <a
-              key={item}
-              href={item === "Home" ? "/" : item === "Products" ? "/products" : `#${item.toLowerCase()}`}
-              onClick={(e) => handleNavClick(item, e)}
-              className="text-stone-300 hover:text-stone-100 transition-colors duration-200 text-sm font-semibold uppercase tracking-wider cursor-pointer"
-            >
-              {item}
-            </a>
-          ))}
-        </div>
-
-        {/* Right: Cart Button */}
-        <div className="flex items-center justify-end flex-1">
-          <Link href="/cart">
+      <div className="container mx-auto px-4 md:px-6 py-4 md:py-5">
+        <div className="flex items-center justify-between w-full">
+          {/* Left: Logo */}
+          <div className="flex items-center flex-shrink-0">
+            {/* Hamburger Menu Button - Mobile Only */}
             <motion.button
-              animate={cartButtonControls}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="flex items-center justify-center w-11 h-11 md:w-12 md:h-12 rounded-lg hover:bg-stone-800/80 transition-all duration-200 relative group"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="flex md:hidden items-center justify-center w-10 h-10 rounded-lg hover:bg-stone-800 transition-colors duration-200 group mr-3"
             >
-              <ShoppingBag className="w-6 h-6 md:w-7 md:h-7 text-stone-100 group-hover:text-stone-50 transition-colors" />
-              {items.length > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg border-2 border-stone-950"
-                >
-                  {items.length}
-                </motion.span>
-              )}
+              <div className="w-6 h-5 flex flex-col justify-between items-center cursor-pointer">
+                <motion.div
+                  className="w-full h-0.5 bg-stone-100 rounded-full"
+                  animate={{ rotate: isMenuOpen ? 45 : 0, y: isMenuOpen ? 9 : 0 }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.div
+                  className="w-full h-0.5 bg-stone-100 rounded-full"
+                  animate={{ opacity: isMenuOpen ? 0 : 1, x: isMenuOpen ? 10 : 0 }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.div
+                  className="w-full h-0.5 bg-stone-100 rounded-full"
+                  animate={{ rotate: isMenuOpen ? -45 : 0, y: isMenuOpen ? -9 : 0 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
             </motion.button>
-          </Link>
+            
+            <Link href="/" className="flex-shrink-0">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="text-xl md:text-2xl font-bold text-stone-100 cursor-pointer"
+              >
+                FEAR INSIGHT
+              </motion.div>
+            </Link>
+          </div>
+
+          {/* Center: Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8 flex-1 justify-center">
+            {["Home", "Products", "About", "Contact"].map((item) => (
+              <a
+                key={item}
+                href={item === "Home" ? "/" : item === "Products" ? "/products" : `#${item.toLowerCase()}`}
+                onClick={(e) => handleNavClick(item, e)}
+                className="text-stone-100 hover:text-stone-300 transition-colors duration-200 text-sm font-semibold uppercase tracking-wider cursor-pointer whitespace-nowrap"
+              >
+                {item.toUpperCase()}
+              </a>
+            ))}
+          </div>
+
+          {/* Right: Cart Button */}
+          <div className="flex items-center justify-end flex-shrink-0">
+            <Link href="/cart">
+              <motion.button
+                animate={cartButtonControls}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-lg hover:bg-stone-800/80 transition-all duration-200 relative group"
+              >
+                <ShoppingBag className="w-5 h-5 md:w-6 md:h-6 text-stone-100 group-hover:text-stone-50 transition-colors" />
+                {items.length > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-lg"
+                  >
+                    {items.length}
+                  </motion.span>
+                )}
+              </motion.button>
+            </Link>
+          </div>
         </div>
       </div>
 
