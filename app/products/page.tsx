@@ -5,7 +5,8 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { ShoppingBag, Star, Heart, ArrowRight, Search } from "lucide-react"
+import { ShoppingBag, Star, Ruler, ArrowRight, Search } from "lucide-react"
+import { SizeChart } from "@/components/ui/size-chart"
 import { useCart } from "@/app/context/CartContext"
 import { useAllProducts } from "@/hooks/useAllProducts"
 import { Product } from "@/types/products"
@@ -55,6 +56,7 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [showSizeChart, setShowSizeChart] = useState(false)
 
   // Map color names to valid CSS colors
   const getColorValue = (colorName: string): string => {
@@ -437,10 +439,13 @@ export default function ProductsPage() {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowSizeChart(true)
+                          }}
                           className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors"
                         >
-                          <Heart className="w-5 h-5" />
+                          <Ruler className="w-5 h-5" />
                         </motion.button>
                       </div>
                     </div>
@@ -524,6 +529,7 @@ export default function ProductsPage() {
       </section>
 
 
+      <SizeChart isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
     </div>
   )
 }

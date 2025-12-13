@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useCart } from "@/app/context/CartContext"
-import { Star, ShoppingBag, Heart, Share2, Truck, RotateCcw, Shield, ChevronLeft, ChevronRight, Mail, Instagram, Twitter, ArrowLeft } from "lucide-react"
+import { Star, ShoppingBag, Ruler, Share2, Truck, RotateCcw, Shield, ChevronLeft, ChevronRight, Mail, Instagram, Twitter, ArrowLeft } from "lucide-react"
+import { SizeChart } from "@/components/ui/size-chart"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useAllProducts } from "@/hooks/useAllProducts"
@@ -97,6 +98,7 @@ export default function ProductDetailPage() {
 	const [quantity, setQuantity] = useState(1)
 	const [isAdding, setIsAdding] = useState(false)
 	const [imageError, setImageError] = useState(false)
+	const [showSizeChart, setShowSizeChart] = useState(false)
 	
 	const carouselRef = useRef<HTMLDivElement>(null)
 	const fallbackImage = "/download.png"
@@ -531,9 +533,10 @@ export default function ProductDetailPage() {
 								<motion.button
 									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.95 }}
+									onClick={() => setShowSizeChart(true)}
 									className="w-14 h-14 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-100 flex items-center justify-center"
 								>
-									<Heart className="w-5 h-5" />
+									<Ruler className="w-5 h-5" />
 								</motion.button>
 							</div>
 
@@ -613,6 +616,7 @@ export default function ProductDetailPage() {
 			</section>
 
 		
+			<SizeChart isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
 		</div>
 	)
 }

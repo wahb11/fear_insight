@@ -10,7 +10,7 @@ import { ArrowLeft, Trash2, Plus, Minus, Package, CreditCard, ShieldCheck } from
 import { useCart } from '@/app/context/CartContext'
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity, subtotal, tax, shipping, total } = useCart()
+  const { items, removeFromCart, updateQuantity, subtotal, tax, shipping, total, shippingType, setShippingType } = useCart()
   const [promoCode, setPromoCode] = useState('')
   const [discount, setDiscount] = useState(0)
 
@@ -271,11 +271,11 @@ export default function CartPage() {
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                         <span className="text-stone-300">Express Shipping (2-3 days)</span>
-                        <span className="text-stone-100 font-semibold">FREE</span>
+                        <span className="text-stone-100 font-semibold">$12.99</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                         <span className="text-stone-300">Overnight (1 day)</span>
-                        <span className="text-stone-100 font-semibold">FREE</span>
+                        <span className="text-stone-100 font-semibold">$24.99</span>
                       </div>
                       <Link href="/shipping-returns" className="mt-3 inline-block">
                         <p className="text-stone-400 hover:text-stone-200 transition-colors text-xs underline">
@@ -322,22 +322,71 @@ export default function CartPage() {
                 <CardContent className="p-4 sm:p-6">
                   <h2 className="text-lg font-bold text-stone-50 mb-6 uppercase tracking-wider">Order Summary</h2>
 
-                  <div className="space-y-3 mb-6 pb-6 border-b border-stone-600/70">
-                    <div className="flex justify-between text-stone-100">
-                      <span className="text-sm">Subtotal</span>
-                      <span className="font-semibold">${subtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-stone-100">
-                      <span className="text-sm">Shipping</span>
-                      <span className="font-semibold">FREE</span>
-                    </div>
-                    {discount > 0 && (
-                      <div className="flex justify-between text-green-400">
-                        <span className="text-sm">Discount</span>
-                        <span className="font-semibold">-${discount.toFixed(2)}</span>
+                    <div className="space-y-3 mb-4">
+                      <div className="flex justify-between text-stone-100">
+                        <span className="text-sm">Subtotal</span>
+                        <span className="font-semibold">${subtotal.toFixed(2)}</span>
                       </div>
-                    )}
-                  </div>
+                      {discount > 0 && (
+                        <div className="flex justify-between text-green-400">
+                          <span className="text-sm">Discount</span>
+                          <span className="font-semibold">-${discount.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Shipping Selection */}
+                    <div className="mb-6 pb-6 border-b border-stone-600/70">
+                      <label className="block text-sm font-semibold text-stone-200 mb-3">Shipping</label>
+                      <div className="space-y-2">
+                        <label className="flex items-center justify-between p-3 bg-stone-800/50 rounded-lg border border-stone-700 cursor-pointer hover:bg-stone-800/70 transition-colors">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="shipping"
+                              value="standard"
+                              checked={shippingType === 'standard'}
+                              onChange={() => setShippingType('standard')}
+                              className="w-4 h-4 text-stone-600"
+                            />
+                            <span className="text-stone-100 text-sm">Standard (5-7 days)</span>
+                          </div>
+                          <span className="text-stone-300 font-semibold text-sm">FREE</span>
+                        </label>
+                        <label className="flex items-center justify-between p-3 bg-stone-800/50 rounded-lg border border-stone-700 cursor-pointer hover:bg-stone-800/70 transition-colors">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="shipping"
+                              value="express"
+                              checked={shippingType === 'express'}
+                              onChange={() => setShippingType('express')}
+                              className="w-4 h-4 text-stone-600"
+                            />
+                            <span className="text-stone-100 text-sm">Express (2-3 days)</span>
+                          </div>
+                          <span className="text-stone-300 font-semibold text-sm">$12.99</span>
+                        </label>
+                        <label className="flex items-center justify-between p-3 bg-stone-800/50 rounded-lg border border-stone-700 cursor-pointer hover:bg-stone-800/70 transition-colors">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="shipping"
+                              value="overnight"
+                              checked={shippingType === 'overnight'}
+                              onChange={() => setShippingType('overnight')}
+                              className="w-4 h-4 text-stone-600"
+                            />
+                            <span className="text-stone-100 text-sm">Overnight (1 day)</span>
+                          </div>
+                          <span className="text-stone-300 font-semibold text-sm">$24.99</span>
+                        </label>
+                      </div>
+                      <div className="mt-3 flex justify-between text-stone-100">
+                        <span className="text-sm">Shipping Cost</span>
+                        <span className="font-semibold">{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                      </div>
+                    </div>
 
                   <div className="flex justify-between items-center mb-6 p-4 bg-stone-950/80 rounded-lg border border-stone-500/60">
                     <span className="font-bold text-stone-50 uppercase tracking-wide">TOTAL</span>

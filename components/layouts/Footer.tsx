@@ -1,9 +1,10 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { motion } from "framer-motion"
 import { Instagram, Mail} from "lucide-react"
+import { SizeChart } from "@/components/ui/size-chart"
 
 // TikTok icon component since lucide-react may not have it
 const TikTokIcon = () => (
@@ -15,6 +16,7 @@ const TikTokIcon = () => (
 export default function Footer() {
   const router = useRouter()
   const pathname = usePathname()
+  const [showSizeChart, setShowSizeChart] = useState(false)
 
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault()
@@ -110,7 +112,7 @@ export default function Footer() {
                   {
                     title: "Support",
                     items: [
-                      { name: "Size Guide", href: "/products" },
+                      { name: "Size Guide", href: "#size-guide", isSizeGuide: true },
                       { name: "Shipping & Returns", href: "/shipping-returns" },
                       { name: "FAQ", href: "/faq" },
                       { name: "Contact Us", href: "#contact" },
@@ -135,7 +137,18 @@ export default function Footer() {
                           viewport={{ once: true }}
                         >
                           <motion.div whileHover={{ x: 5 }}>
-                            {item.href.startsWith('#') ? (
+                            {(item as any).isSizeGuide ? (
+                              <a
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  setShowSizeChart(true)
+                                }}
+                                className="hover:text-stone-300 transition-colors cursor-pointer"
+                              >
+                                {item.name}
+                              </a>
+                            ) : item.href.startsWith('#') ? (
                               <a
                                 href={item.href}
                                 onClick={(e) => handleAnchorClick(e, item.href)}
@@ -168,5 +181,6 @@ export default function Footer() {
               </motion.div>
             </div>
           </footer>
+          <SizeChart isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
   )
 }

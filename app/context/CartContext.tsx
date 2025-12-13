@@ -28,6 +28,8 @@ interface CartContextType {
   tax: number
   shipping: number
   total: number
+  shippingType: 'standard' | 'express' | 'overnight'
+  setShippingType: (type: 'standard' | 'express' | 'overnight') => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -38,6 +40,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [tax, setTax] = useState(0)
   const [shipping, setShipping] = useState(0)
   const [total, setTotal] = useState(0)
+  const [shippingType, setShippingType] = useState<'standard' | 'express' | 'overnight'>('standard')
   const [isHydrated, setIsHydrated] = useState(false)
   const { data: products, isSuccess } = useAllProducts()
 
@@ -104,8 +107,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       0
     )
     const newTax = 0
-    const newShipping = 0
-    const newTotal = newSubtotal
+    const newShipping = shippingType === 'standard' ? 0 : shippingType === 'express' ? 12.99 : 24.99
+    const newTotal = newSubtotal + newShipping
     setSubtotal(newSubtotal)
     setTax(newTax)
     setShipping(newShipping)
@@ -118,7 +121,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       selectedSize: i.selectedSize,
     }))
     localStorage.setItem('cart', JSON.stringify(stored))
-  }, [items, isHydrated])
+  }, [items, isHydrated, shippingType])
 
   const addToCart = (product: Product, quantity: number, color: string, size: string) => {
     // Check if color exists in product (handles string arrays)
@@ -177,7 +180,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, subtotal, tax, shipping, total }}
+      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, subtotal, tax, shipping, total, shippingType, setShippingType }}
     >
       {children}
     </CartContext.Provider>
