@@ -19,14 +19,22 @@ export const metadata: Metadata = {
   creator: 'Fear Insight',
   publisher: 'Fear Insight',
   icons: {
-    icon: '/fear-insight-logo.svg',
-    shortcut: '/fear-insight-logo.svg',
-    apple: '/fear-insight-logo.svg',
+    icon: [
+      { url: '/download.png', sizes: 'any' },
+      { url: '/download.png', sizes: '32x32', type: 'image/png' },
+      { url: '/download.png', sizes: '192x192', type: 'image/png' },
+      { url: '/download.png', sizes: '512x512', type: 'image/png' },
+    ],
+    shortcut: '/download.png',
+    apple: [
+      { url: '/download.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   openGraph: {
     title: 'Fear Insight',
     description: 'Fear Insight is a premium streetwear brand that creates pieces that embody spiritual strength, divine inspiration, and fearless self-expression. Each design is carefully crafted to remind you that you are guided by a higher purpose.',
     url: 'https://fearinsight.com',
+    images: ['/download.png'],
   },
 }
 

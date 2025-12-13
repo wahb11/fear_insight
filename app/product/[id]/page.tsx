@@ -99,7 +99,7 @@ export default function ProductDetailPage() {
 	const [imageError, setImageError] = useState(false)
 	
 	const carouselRef = useRef<HTMLDivElement>(null)
-	const fallbackImage = "/placeholder-logo.png"
+	const fallbackImage = "/download.png"
 
 	// Set initial color and size when product loads
 	React.useEffect(() => {
