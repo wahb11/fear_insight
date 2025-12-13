@@ -168,7 +168,7 @@ export default function BestSellers() {
           onClick={() => setZoomImage(null)}
         >
           <motion.div
-            className="relative max-w-2xl w-full"
+            className="relative max-w-lg w-full mx-4"
             initial={{ scale: 0.5 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0.5 }}
@@ -176,14 +176,14 @@ export default function BestSellers() {
           >
             <button
               onClick={() => setZoomImage(null)}
-              className="absolute -top-8 -right-8 bg-stone-900/80 hover:bg-stone-800 rounded-full p-2 transition-colors"
+              className="absolute -top-12 -right-0 md:-right-4 bg-stone-900/90 hover:bg-stone-800 rounded-full p-2 transition-colors z-10 shadow-lg"
             >
-              <X className="w-6 h-6 text-stone-100" />
+              <X className="w-5 h-5 md:w-6 md:h-6 text-stone-100" />
             </button>
             <img
               src={zoomImage}
               alt="Zoomed product"
-              className="w-full h-auto rounded-lg"
+              className="w-full h-auto rounded-lg max-h-[80vh] object-contain"
             />
           </motion.div>
         </motion.div>

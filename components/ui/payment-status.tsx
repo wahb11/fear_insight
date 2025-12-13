@@ -167,23 +167,21 @@ export function PaymentStatus({
                 )}
               </>
             ) : isSuccess ? (
-              <>
-                <Button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white"
-                >
-                  Continue Shopping
-                </Button>
-                <a
-                  href="/products"
-                  className="hidden"
-                  aria-hidden="true"
-                  tabIndex={-1}
-                >
-                  Continue Shopping
-                </a>
-              </>
+              <Button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if (onClose) {
+                    onClose()
+                  } else {
+                    window.location.href = '/products'
+                  }
+                }}
+                className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white"
+              >
+                Continue Shopping
+              </Button>
             ) : null}
           </motion.div>
 

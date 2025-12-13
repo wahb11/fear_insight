@@ -1,6 +1,5 @@
-
 import { Order } from '@/types/order'
-import nodemailer from 'nodemailer'
+import nodemailer from 'nodemailer'  // ← ADD THIS LINE
 
 const currency = (value: number | null | undefined) =>
   typeof value === 'number' ? `$${value.toFixed(2)}` : '$0.00'
@@ -42,10 +41,12 @@ const buildItemsTable = (order: Order) => {
 
 export async function sendOrderConfirmationEmail(order: Order) {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: true, // SSL/TLS
     auth: {
-      user: process.env.NEXT_PUBLIC_GMAIL_USER,
-      pass: process.env.NEXT_PUBLIC_GMAIL_PASS
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS
     }
   })
 
@@ -83,7 +84,7 @@ export async function sendOrderConfirmationEmail(order: Order) {
         <div style="padding:18px">
           <p style="margin:0 0 12px 0; color:#e5e7eb; font-size:15px; line-height:1.5;">Hi ${order.first_name || 'there'},</p>
           <p style="margin:0 0 14px 0; color:#cbd5e1; font-size:14px; line-height:1.6;">
-            Thank you for your purchase! Your order is confirmed and we’ll notify you once it ships.
+            Thank you for your purchase! Your order is confirmed and we'll notify you once it ships.
           </p>
 
           <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
@@ -96,15 +97,23 @@ export async function sendOrderConfirmationEmail(order: Order) {
           </div>
 
           <p style="margin:14px 0 0 0; color:#94a3b8; font-size:13px; line-height:1.5;">
-            If you have questions, just reply to this email and we’ll help out.
+            If you have questions, contact us at <a href="mailto:info@fearinsight.com" style="color:#60a5fa; text-decoration:none;">info@fearinsight.com</a>
           </p>
+        </div>
+
+        <div style="padding:14px 18px; background:#0b0f19; border-top:1px solid #1f2937; text-align:center;">
+          <div style="font-size:12px; color:#6b7280;">Fear Insight</div>
+          <div style="font-size:11px; color:#4b5563; margin-top:4px;">
+            <a href="https://fearinsight.com" style="color:#60a5fa; text-decoration:none;">fearinsight.com</a>
+          </div>
         </div>
       </div>
     </div>
   `
 
   const mailOptions = {
-    from: `Fear Insight <${process.env.NEXT_PUBLIC_GMAIL_USER}>`,
+    from: `"Fear Insight" <info@fearinsight.com>`,
+    replyTo: 'info@fearinsight.com',
     to: order.email,
     subject: `Order confirmed — #${orderNumber}`,
     html,
