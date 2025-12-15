@@ -18,50 +18,69 @@ const getEstimatedDelivery = () => {
 }
 
 export async function sendOrderConfirmationEmail(order: Order) {
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: true,
-    auth: {
+  try {
+    console.log('🔔 Email function called for order:', order.order_number || order.id)
+    console.log('📧 Recipient email:', order.email)
+    console.log('🔧 SMTP Config check:', {
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
       user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  })
+      hasPassword: !!process.env.SMTP_PASS
+    })
 
-  // Fetch product names
-  const productIds = order.products?.map(p => p.product_id) || []
-  let productMap: Record<string, string> = {}
-  
-  if (productIds.length > 0) {
-    const { data: products } = await supabase
-      .from('products')
-      .select('id, name')
-      .in('id', productIds)
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    })
+
+    console.log('📦 Fetching product details...')
+    // Fetch product names
+    const productIds = order.products?.map(p => p.product_id) || []
+    let productMap: Record<string, string> = {}
     
-    if (products) {
-      products.forEach(p => {
-        productMap[p.id] = p.name
-      })
+    if (productIds.length > 0) {
+      const { data: products } = await supabase
+        .from('products')
+        .select('id, name')
+        .in('id', productIds)
+      
+      if (products) {
+        products.forEach(p => {
+          productMap[p.id] = p.name
+        })
+        console.log('✅ Found', products.length, 'products')
+      }
     }
-  }
 
-  const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase()
-  const subtotal = (order.grand_total || 0) - (order.tax || 0) - (order.shipping || 0)
-  const itemCount = order.products?.reduce((sum, item) => sum + item.quantity, 0) || 0
-  const estimatedDelivery = getEstimatedDelivery()
+    const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase()
+    const subtotal = (order.grand_total || 0) - (order.tax || 0) - (order.shipping || 0)
+    const itemCount = order.products?.reduce((sum, item) => sum + item.quantity, 0) || 0
+    const estimatedDelivery = getEstimatedDelivery()
 
-  // Build order items list
-  const orderItems = order.products?.map(item => {
-    const productName = productMap[item.product_id] || 'Product'
-    return {
-      name: productName,
-      color: item.color,
-      size: item.size,
-      quantity: item.quantity
-    }
-  }) || []
+    console.log('📊 Order details:', {
+      orderNumber,
+      itemCount,
+      total: order.grand_total,
+      email: order.email
+    })
 
-  const html = `
+    // Build order items list
+    const orderItems = order.products?.map(item => {
+      const productName = productMap[item.product_id] || 'Product'
+      return {
+        name: productName,
+        color: item.color,
+        size: item.size,
+        quantity: item.quantity
+      }
+    }) || []
+
+    const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -289,14 +308,26 @@ export async function sendOrderConfirmationEmail(order: Order) {
 </html>
   `
 
-  const mailOptions = {
-    from: `"Fear Insight" <${process.env.SMTP_USER}>`,
-    replyTo: 'info@fearinsight.com',
-    to: order.email,
-    subject: `Order Confirmation #${orderNumber} - Fear Insight`,
-    html,
-  }
+    const mailOptions = {
+      from: `"Fear Insight" <${process.env.SMTP_USER}>`,
+      replyTo: 'info@fearinsight.com',
+      to: order.email,
+      subject: `Order Confirmation #${orderNumber} - Fear Insight`,
+      html,
+    }
 
-  await transporter.sendMail(mailOptions)
-  return true
+    console.log('📤 Attempting to send email to:', order.email)
+    await transporter.sendMail(mailOptions)
+    console.log('✅ Email sent successfully to:', order.email)
+    
+    return true
+    
+  } catch (error) {
+    console.error('❌ Email sending error:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    })
+    throw error
+  }
 }
