@@ -98,7 +98,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
           </div>
 
           <motion.div
-            className="absolute top-4 right-4 bg-stone-900/70 backdrop-blur-sm rounded-full p-2"
+            className="absolute top-4 right-4 bg-stone-900/70 backdrop-blur-sm rounded-full p-2 pointer-events-none z-20"
             initial={{ scale: 0 }}
             animate={{ scale: isInView ? 1 : 0 }}
             transition={{ delay: index * 0.08 + 0.15 }}
