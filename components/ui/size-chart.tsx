@@ -11,13 +11,9 @@ interface SizeChartProps {
 
 export function SizeChart({ isOpen, onClose }: SizeChartProps) {
   const sizeData = [
-    { size: "XS", chest: "18-20", length: "26", sleeve: "32" },
     { size: "S", chest: "20-22", length: "27", sleeve: "33" },
     { size: "M", chest: "22-24", length: "28", sleeve: "34" },
     { size: "L", chest: "24-26", length: "29", sleeve: "35" },
-    { size: "XL", chest: "26-28", length: "30", sleeve: "36" },
-    { size: "2XL", chest: "28-30", length: "31", sleeve: "37" },
-    { size: "3XL", chest: "30-32", length: "32", sleeve: "38" },
   ]
 
   return (

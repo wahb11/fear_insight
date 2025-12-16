@@ -420,8 +420,8 @@ export default function ProductsPage() {
                           ) : null}
                         </div>
 
-                        {/* Hover Actions */}
-                        <div className="absolute inset-0 bg-stone-950/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 pointer-events-none group-hover:pointer-events-auto z-30">
+                        {/* Hover Actions - Hidden on mobile to prevent click interference */}
+                        <div className="hidden md:flex absolute inset-0 bg-stone-950/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center gap-4 pointer-events-none group-hover:pointer-events-auto z-30">
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
