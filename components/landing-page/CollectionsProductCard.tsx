@@ -60,10 +60,10 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
         initial={{ opacity: 0, y: 100 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{
-          duration: 0.4,
-          delay: index * 0.08,
+          duration: 0.25,
+          delay: index * 0.03,
           type: "spring",
-          stiffness: 100,
+          stiffness: 120,
         }}
         whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
         onHoverStart={() => setIsHovered(true)}
@@ -101,7 +101,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             className="absolute top-4 right-4 bg-stone-900/70 backdrop-blur-sm rounded-full p-2 pointer-events-none z-20"
             initial={{ scale: 0 }}
             animate={{ scale: isInView ? 1 : 0 }}
-            transition={{ delay: index * 0.08 + 0.15 }}
+            transition={{ delay: index * 0.03 + 0.05 }}
           >
             <ShoppingBag className="w-5 h-5 text-stone-100" />
           </motion.div>
@@ -112,7 +112,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             className="text-xl font-bold mb-3 text-stone-100"
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: index * 0.08 + 0.1 }}
+            transition={{ delay: index * 0.03 + 0.05 }}
           >
             {product.name}
           </motion.h3>
@@ -120,7 +120,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             className="flex justify-between items-center"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: index * 0.08 + 0.13 }}
+            transition={{ delay: index * 0.03 + 0.07 }}
           >
             <span className="text-2xl font-bold text-stone-100">
               ${product.price.toFixed(2)}
@@ -131,7 +131,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
                   key={i}
                   initial={{ opacity: 0, scale: 0 }}
                   animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                  transition={{ delay: index * 0.08 + 0.15 + i * 0.05 }}
+                  transition={{ delay: index * 0.03 + 0.08 + i * 0.02 }}
                 >
                   <Star className={`w-4 h-4 ${i < Math.floor(product.ratings) ? "fill-stone-400 text-stone-400" : "text-stone-600"}`} />
                 </motion.div>
