@@ -90,7 +90,12 @@
   * {
     @apply border-border;
   }
+  html {
+    font-size: 18px;
+  }
   body {
     @apply bg-background text-foreground;
+    font-size: 1rem;
+    line-height: 1.6;
   }
 }
