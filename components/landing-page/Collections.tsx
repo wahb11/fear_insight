@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react"
 
-import { motion, useAnimation } from "framer-motion"
+import { motion } from "framer-motion"
 import { CollectionsProductCard } from "./CollectionsProductCard"
 import { useAllProducts } from "@/hooks/useAllProducts"
 
@@ -15,13 +15,15 @@ export default function Collections() {
 
   const trackRef = useRef<HTMLDivElement | null>(null)
   const innerRef = useRef<HTMLDivElement | null>(null)
-  const controls = useAnimation()
   const [carX, setCarX] = useState(0)
   const [cardWidth, setCardWidth] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+  const [isTouching, setIsTouching] = useState(false)
   const animationFrameRef = useRef<number | null>(null)
   const isMountedRef = useRef(false)
   const currentXRef = useRef(0)
+  const touchStartXRef = useRef(0)
+  const touchStartTimeRef = useRef(0)
 
   // Mark component as mounted
   useEffect(() => {
@@ -60,14 +62,14 @@ export default function Collections() {
     const animate = () => {
       if (!isMountedRef.current) return
       
-      if (!isPaused) {
-        currentXRef.current -= 0.5 // Move 0.5px per frame for smooth continuous movement
+      if (!isPaused && !isTouching) {
+        currentXRef.current -= 1 // Move 1px per frame for faster, smoother movement
         // Reset position when we've scrolled one full set
         if (currentXRef.current <= -singleSetWidth) {
           currentXRef.current = 0
         }
         setCarX(currentXRef.current)
-        controls.start({ x: currentXRef.current, transition: { duration: 0 } })
+        // Animation is handled by animate prop with carX state
       }
       animationFrameRef.current = requestAnimationFrame(animate)
     }
@@ -79,7 +81,7 @@ export default function Collections() {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [cardWidth, products.length, controls, isPaused])
+  }, [cardWidth, products.length, isPaused, isTouching])
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -127,9 +129,48 @@ export default function Collections() {
           <motion.div
             ref={innerRef}
             className="flex gap-6"
-            animate={controls}
+            drag="x"
+            dragElastic={0.1}
+            dragConstraints={{ left: -Infinity, right: Infinity }}
+            whileTap={{ cursor: "grabbing" }}
+            animate={{ x: carX }}
             initial={{ x: 0 }}
-            style={{ willChange: 'transform' }}
+            transition={{ duration: 0 }}
+            onDragStart={() => {
+              setIsTouching(true)
+              setIsPaused(true)
+            }}
+            onDragEnd={(_: any, info: { offset: { x: number } }) => {
+              const newX = currentXRef.current + info.offset.x
+              currentXRef.current = newX
+              setCarX(newX)
+              // Resume after a short delay
+              setTimeout(() => {
+                setIsTouching(false)
+                setIsPaused(false)
+              }, 300)
+            }}
+            onTouchStart={(e) => {
+              setIsTouching(true)
+              setIsPaused(true)
+              touchStartXRef.current = e.touches[0].clientX
+              touchStartTimeRef.current = Date.now()
+            }}
+            onTouchEnd={() => {
+              // Only resume if it was a quick tap (not a swipe)
+              const touchDuration = Date.now() - touchStartTimeRef.current
+              setTimeout(() => {
+                setIsTouching(false)
+                if (touchDuration < 200) {
+                  // Quick tap, resume immediately
+                  setIsPaused(false)
+                } else {
+                  // Longer touch, resume after delay
+                  setTimeout(() => setIsPaused(false), 500)
+                }
+              }, 100)
+            }}
+            style={{ willChange: 'transform', touchAction: 'pan-y pinch-zoom' }}
           >
             {duplicatedProducts && duplicatedProducts.map((product, index) => (
               <div 
@@ -138,10 +179,23 @@ export default function Collections() {
                 style={{ width: `${cardWidth}px` }}
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
-                onClick={() => {
-                  // Keep paused during click for smooth navigation
+                onTouchStart={() => {
+                  setIsTouching(true)
                   setIsPaused(true)
-                  setTimeout(() => setIsPaused(false), 200)
+                }}
+                onTouchEnd={(e) => {
+                  // Allow click events to propagate
+                  e.stopPropagation()
+                }}
+                onClick={(e) => {
+                  // Keep paused during click for smooth navigation
+                  e.stopPropagation()
+                  setIsPaused(true)
+                  setIsTouching(true)
+                  setTimeout(() => {
+                    setIsPaused(false)
+                    setIsTouching(false)
+                  }, 200)
                 }}
               >
                 <CollectionsProductCard 

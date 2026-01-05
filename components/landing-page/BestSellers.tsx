@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react"
 import Link from "next/link"
-import { motion, useAnimation } from "framer-motion"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, X } from "lucide-react"
@@ -11,16 +11,18 @@ import { Product } from "@/types/products"
 import { useAllProducts } from "@/hooks/useAllProducts"
 
 export default function BestSellers() {
-  const controls = useAnimation()
   const carouselRef = useRef<HTMLDivElement | null>(null)
   const innerRef = useRef<HTMLDivElement | null>(null)
   const [carX, setCarX] = useState(0)
   const [cardWidth, setCardWidth] = useState(320) // Default width to prevent 0 width
   const [zoomImage, setZoomImage] = useState<string | null>(null)
   const [isPaused, setIsPaused] = useState(false)
+  const [isTouching, setIsTouching] = useState(false)
   const animationFrameRef = useRef<number | null>(null)
   const isMountedRef = useRef(false)
   const currentXRef = useRef(0)
+  const touchStartXRef = useRef(0)
+  const touchStartTimeRef = useRef(0)
 
   const { data, isLoading, error } = useAllProducts()
   const products = data ? data.filter(product => product.best_seller) : []
@@ -80,30 +82,17 @@ export default function BestSellers() {
       currentXRef.current = 0
       setCarX(0)
       
-      // Initialize position safely
-      try {
-        controls.start({ x: 0, transition: { duration: 0 } })
-      } catch (e) {
-        // Controls not ready yet, will be set via animate prop
-      }
-      
       const animate = () => {
         if (!isMountedRef.current) return
         
-        if (!isPaused) {
-          currentXRef.current -= 0.5 // Move 0.5px per frame for smooth continuous movement
+        if (!isPaused && !isTouching) {
+          currentXRef.current -= 1 // Move 1px per frame for faster, smoother movement
           // Reset position when we've scrolled one full set
           if (currentXRef.current <= -singleSetWidth) {
             currentXRef.current = 0
           }
           setCarX(currentXRef.current)
-          
-          // Safely update controls
-          try {
-            controls.start({ x: currentXRef.current, transition: { duration: 0 } })
-          } catch (e) {
-            // Controls not ready, skip this frame
-          }
+          // Animation is handled by animate prop with carX state
         }
         animationFrameRef.current = requestAnimationFrame(animate)
       }
@@ -117,7 +106,7 @@ export default function BestSellers() {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [cardWidth, products.length, controls, isPaused])
+  }, [cardWidth, products.length, isPaused, isTouching])
 
   function scrollByPixels(direction: 'left' | 'right') {
     const move = cardWidth + 24 // card width + gap
@@ -188,16 +177,46 @@ export default function BestSellers() {
             className="flex pb-6"
             drag="x"
             dragElastic={0.1}
+            dragConstraints={{ left: -Infinity, right: Infinity }}
             whileTap={{ cursor: "grabbing" }}
             animate={{ x: carX }}
             initial={{ x: 0 }}
             transition={{ duration: 0 }}
+            onDragStart={() => {
+              setIsTouching(true)
+              setIsPaused(true)
+            }}
             onDragEnd={(_: any, info: { offset: { x: number } }) => {
               const newX = currentXRef.current + info.offset.x
               currentXRef.current = newX
               setCarX(newX)
+              // Resume after a short delay
+              setTimeout(() => {
+                setIsTouching(false)
+                setIsPaused(false)
+              }, 300)
             }}
-            style={{ willChange: 'transform' }}
+            onTouchStart={(e) => {
+              setIsTouching(true)
+              setIsPaused(true)
+              touchStartXRef.current = e.touches[0].clientX
+              touchStartTimeRef.current = Date.now()
+            }}
+            onTouchEnd={() => {
+              // Only resume if it was a quick tap (not a swipe)
+              const touchDuration = Date.now() - touchStartTimeRef.current
+              setTimeout(() => {
+                setIsTouching(false)
+                if (touchDuration < 200) {
+                  // Quick tap, resume immediately
+                  setIsPaused(false)
+                } else {
+                  // Longer touch, resume after delay
+                  setTimeout(() => setIsPaused(false), 500)
+                }
+              }, 100)
+            }}
+            style={{ willChange: 'transform', touchAction: 'pan-y pinch-zoom' }}
           >
             {duplicatedProducts && duplicatedProducts.map((p: Product, i: number) => (
               <motion.div 
@@ -209,6 +228,14 @@ export default function BestSellers() {
                 }}
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
+                onTouchStart={() => {
+                  setIsTouching(true)
+                  setIsPaused(true)
+                }}
+                onTouchEnd={(e) => {
+                  // Allow click events to propagate
+                  e.stopPropagation()
+                }}
               >
                 <Card className="bg-stone-900/30 border border-stone-700/50 hover:border-stone-600/80 transition-all duration-300 h-full flex flex-col w-full">
                   <CardContent className="p-4 flex flex-col flex-1 w-full">
@@ -229,10 +256,15 @@ export default function BestSellers() {
                       <Link 
                         href={`/product/${p.id}`} 
                         className="flex-1"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation()
                           setIsPaused(true)
+                          setIsTouching(true)
                           // Resume after navigation starts
-                          setTimeout(() => setIsPaused(false), 100)
+                          setTimeout(() => {
+                            setIsPaused(false)
+                            setIsTouching(false)
+                          }, 200)
                         }}
                       >
                         <motion.button
@@ -248,7 +280,9 @@ export default function BestSellers() {
                         className="border border-stone-700 text-stone-100"
                         onClick={(e) => {
                           e.preventDefault()
+                          e.stopPropagation()
                           setIsPaused(true)
+                          setIsTouching(true)
                           setZoomImage(p.images[0])
                         }}
                       >
