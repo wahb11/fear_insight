@@ -11,6 +11,7 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 
 const BUCKET_NAME = "products"
 const IS_VERCEL = process.env.VERCEL === "1"
+const IS_VERCEL = process.env.VERCEL === "1"
 
 export async function POST(
   req: NextRequest,
@@ -97,7 +98,8 @@ export async function POST(
           .from(BUCKET_NAME)
           .getPublicUrl(newName)
 
-        // Use direct Supabase Storage URL (works everywhere)
+        // Use Supabase Storage URL for new uploads on Vercel
+        // Existing images in public/product/ will continue to work
         const imageUrl = urlData.publicUrl
         newImageUrls.push(imageUrl)
       }

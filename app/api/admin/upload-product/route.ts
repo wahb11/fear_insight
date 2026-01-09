@@ -91,8 +91,8 @@ export async function POST(req: NextRequest) {
           .from(BUCKET_NAME)
           .getPublicUrl(newName)
 
-        // Use direct Supabase Storage URL (works everywhere)
-        // This ensures images load correctly on both local and production
+        // Use Supabase Storage URL for new uploads on Vercel
+        // Existing images in public/product/ will continue to work
         const imageUrl = urlData.publicUrl
         imageUrls.push(imageUrl)
       }
