@@ -242,7 +242,7 @@ export default function BestSellers() {
                     <div className="w-full h-44 mb-4 bg-stone-800 rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {p.images[0] ? (
                         <img
-                          src={p.images[0]}
+                          src={p.images[0]?.startsWith("/") ? p.images[0] : p.images[0]?.replace(/^https?:\/\/[^\/]+/, "") || "/download.png"}
                           alt={p.name}
                           className="w-full h-full object-cover rounded-md"
                         />
@@ -323,7 +323,7 @@ export default function BestSellers() {
               <X className="w-5 h-5 md:w-6 md:h-6 text-stone-100" />
             </button>
             <img
-              src={zoomImage}
+              src={zoomImage?.startsWith("/") ? zoomImage : zoomImage?.replace(/^https?:\/\/[^\/]+/, "") || "/download.png"}
               alt="Zoomed product"
               className="w-full h-auto rounded-lg max-h-[80vh] object-contain"
             />

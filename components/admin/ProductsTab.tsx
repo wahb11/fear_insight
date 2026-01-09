@@ -409,7 +409,7 @@ export default function ProductsTab() {
                       <div className="flex gap-4">
                         {product.images && product.images[0] && (
                           <img
-                            src={product.images[0]}
+                            src={product.images[0]?.startsWith("/") ? product.images[0] : product.images[0]?.replace(/^https?:\/\/[^\/]+/, "") || "/download.png"}
                             alt={product.name}
                             className="w-24 h-24 object-cover rounded border border-stone-700"
                           />

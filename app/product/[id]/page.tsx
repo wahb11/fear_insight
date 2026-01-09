@@ -268,7 +268,7 @@ export default function ProductDetailPage() {
 								<AnimatePresence mode="wait">
 									<motion.img
 										key={selectedImage}
-										src={imageError ? fallbackImage : (product.images[selectedImage] || fallbackImage)}
+										src={imageError ? fallbackImage : (product.images[selectedImage]?.startsWith("/") ? product.images[selectedImage] : product.images[selectedImage]?.replace(/^https?:\/\/[^\/]+/, "") || fallbackImage)}
 										alt={product.name}
 										className="w-full h-full object-cover"
 										onError={() => setImageError(true)}
@@ -305,7 +305,7 @@ export default function ProductDetailPage() {
 											}`}
 										>
 											<img
-												src={image}
+												src={image?.startsWith("/") ? image : image?.replace(/^https?:\/\/[^\/]+/, "") || "/download.png"}
 												alt={`${product.name} ${index}`}
 												className="w-full h-full object-cover"
 											/>
