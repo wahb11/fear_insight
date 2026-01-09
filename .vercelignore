@@ -1,0 +1,11 @@
+# Exclude large product images from serverless functions
+# They will still be served statically from public/ folder
+public/product/*.jpg
+public/product/*.jpeg
+public/product/*.png
+public/product/*.webp
+
+# Exclude other large files
+node_modules
+.next/cache
+

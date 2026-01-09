@@ -330,6 +330,10 @@ export default function ProductsTab() {
     if (!confirm("Are you sure you want to remove this image?")) return
 
     try {
+      // Extract filename from URL (works for both local and Supabase Storage URLs)
+      const urlParts = imageUrl.split("/")
+      const filename = urlParts[urlParts.length - 1].split("?")[0] // Remove query params if any
+
       // Fetch current product
       const res = await fetch(`/api/admin/products/${productId}`)
       const data = await res.json()
@@ -339,6 +343,7 @@ export default function ProductsTab() {
       const product = data.product
       const updatedImages = product.images.filter((img: string) => img !== imageUrl)
 
+      // Update product (removes image URL from database)
       const updateRes = await fetch(`/api/admin/products/${productId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -346,6 +351,20 @@ export default function ProductsTab() {
       })
 
       if (updateRes.ok) {
+        // Try to delete from Supabase Storage (if it's a Supabase URL)
+        if (imageUrl.includes("supabase.co/storage")) {
+          try {
+            await fetch(`/api/admin/products/${productId}/delete-image`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ filename }),
+            })
+          } catch (err) {
+            // Ignore storage deletion errors - image is already removed from product
+            console.log("Note: Image removed from product but may still exist in storage")
+          }
+        }
+
         toast({
           title: "Success",
           description: "Image removed successfully!",

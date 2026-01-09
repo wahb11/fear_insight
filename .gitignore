@@ -32,6 +32,14 @@ lerna-debug.log*
 .env.production.local
 !.env.example
 
+# Large product images - use Supabase Storage instead
+# Keep images locally but don't commit to Git
+public/product/*.jpg
+public/product/*.jpeg
+public/product/*.png
+public/product/*.webp
+!public/product/.gitkeep
+
 # vercel
 .vercel
 
