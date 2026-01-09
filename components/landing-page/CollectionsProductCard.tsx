@@ -79,7 +79,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             <div className="absolute inset-0 bg-gradient-to-br from-stone-950/20 to-transparent" />
             {imageUrl ? (
               <img
-                src={imageUrl?.startsWith("/") ? imageUrl : imageUrl?.replace(/^https?:\/\/[^\/]+/, "") || "/download.png"}
+                src={imageUrl}
                 alt={product.name}
                 className="w-full h-full object-cover rounded-t-lg z-10"
               />

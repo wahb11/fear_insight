@@ -9,8 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Removed rewrite - using direct Supabase Storage URLs instead
-  // This ensures images work correctly without breaking existing images
+  // Next.js automatically serves files from public/ folder
+  // URLs like /product/f001.jpg will work if file exists in public/product/f001.jpg
 }
 
 export default nextConfig

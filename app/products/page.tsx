@@ -386,7 +386,7 @@ export default function ProductsPage() {
                       <div className="relative h-80 overflow-hidden">
                         {firstImage ? (
                           <img
-                            src={firstImage?.startsWith("/") ? firstImage : firstImage?.replace(/^https?:\/\/[^\/]+/, "") || "/download.png"}
+                            src={firstImage}
                             alt={product.name}
                             className="w-full h-full object-cover"
                           />
