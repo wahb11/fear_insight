@@ -32,13 +32,8 @@ lerna-debug.log*
 .env.production.local
 !.env.example
 
-# Product images - keep locally but don't commit to Git
-# Generate URLs with renameAndGenerate.js and add to database manually
-public/product/*.jpg
-public/product/*.jpeg
-public/product/*.png
-public/product/*.webp
-!public/product/.gitkeep
+# Product images ARE committed to Git for production deployment
+# Your workflow: renameAndGenerate.js -> add URLs to database -> push code with images
 
 # vercel
 .vercel

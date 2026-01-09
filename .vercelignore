@@ -1,12 +1,4 @@
-# Exclude product images from Vercel deployment
-# They're too large and cause serverless function size errors
-# Use Supabase Storage or CDN for production images
-public/product/*.jpg
-public/product/*.jpeg
-public/product/*.png
-public/product/*.webp
-
-# Exclude other large files
+# Exclude build artifacts
 node_modules
 .next/cache
 

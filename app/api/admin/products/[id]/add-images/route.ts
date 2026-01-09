@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { createClient } from "@supabase/supabase-js"
-import { writeFile, readdir } from "fs/promises"
-import { existsSync } from "fs"
-import path from "path"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 const BUCKET_NAME = "products"
-const IS_VERCEL = process.env.VERCEL === "1"
 
 export async function POST(
   req: NextRequest,
@@ -44,104 +40,60 @@ export async function POST(
       return NextResponse.json({ error: fetchError.message }, { status: 500 })
     }
 
-    // Replicate renameAndGenerate.js logic
+    // Get existing files from Supabase Storage to find the highest number
+    const { data: existingFiles } = await supabase.storage
+      .from(BUCKET_NAME)
+      .list("", {
+        limit: 1000,
+        sortBy: { column: "name", order: "asc" },
+      })
+
+    // Find highest fXXX number
     let maxNum = 0
+    if (existingFiles) {
+      const patternFiles = existingFiles.filter((file) => /^f\d{3}\./.test(file.name))
+      for (const file of patternFiles) {
+        const num = parseInt(file.name.substring(1, 4))
+        if (num > maxNum) maxNum = num
+      }
+    }
+
+    // Process and upload images to Supabase Storage
     const validExt = [".jpg", ".jpeg", ".png", ".webp"]
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fearinsight.com"
     const newImageUrls: string[] = []
 
-    if (IS_VERCEL) {
-      // On Vercel: Use Supabase Storage
-      const { data: existingFiles } = await supabase.storage
-        .from(BUCKET_NAME)
-        .list("", {
-          limit: 1000,
-          sortBy: { column: "name", order: "asc" },
-        })
+    for (const file of files) {
+      const ext = "." + (file.name.split(".").pop()?.toLowerCase() || "jpg")
+      if (!validExt.includes(ext)) continue
 
-      // Find highest fXXX number
-      if (existingFiles) {
-        const patternFiles = existingFiles.filter((file) => /^f\d{3}\./.test(file.name))
-        for (const file of patternFiles) {
-          const num = parseInt(file.name.substring(1, 4))
-          if (num > maxNum) maxNum = num
-        }
-      }
+      maxNum++
+      const newName = `f${String(maxNum).padStart(3, "0")}${ext}`
+
+      // Convert file to array buffer
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
 
       // Upload to Supabase Storage
-      for (const file of files) {
-        maxNum++
-        const ext = path.extname(file.name).toLowerCase() || ".jpg"
-        if (!validExt.includes(ext)) continue
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(newName, buffer, {
+          contentType: file.type || `image/${ext.replace(".", "")}`,
+          upsert: false,
+        })
 
-        const newName = `f${String(maxNum).padStart(3, "0")}${ext}`
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
-
-        const { error: uploadError } = await supabase.storage
-          .from(BUCKET_NAME)
-          .upload(newName, buffer, {
-            contentType: file.type || `image/${ext.replace(".", "")}`,
-            upsert: false,
-          })
-
-        if (uploadError) {
-          return NextResponse.json(
-            { error: `Failed to upload ${file.name}: ${uploadError.message}` },
-            { status: 500 }
-          )
-        }
-
-        // Get public URL from Supabase Storage
-        const { data: urlData } = supabase.storage
-          .from(BUCKET_NAME)
-          .getPublicUrl(newName)
-
-        // Use Supabase Storage URL for new uploads on Vercel
-        // Existing images in public/product/ will continue to work
-        const imageUrl = urlData.publicUrl
-        newImageUrls.push(imageUrl)
-      }
-    } else {
-      // Local: Use filesystem (like renameAndGenerate.js)
-      const productFolder = path.join(process.cwd(), "public", "product")
-      
-      if (!existsSync(productFolder)) {
+      if (uploadError) {
         return NextResponse.json(
-          { error: "Product folder not found" },
+          { error: `Failed to upload ${file.name}: ${uploadError.message}` },
           { status: 500 }
         )
       }
 
-      const existingFiles = (await readdir(productFolder)).filter((f: string) => /^f\d{3}\./.test(f))
-      
-      for (const file of existingFiles) {
-        const num = parseInt(file.substring(1, 4))
-        if (num > maxNum) maxNum = num
-      }
+      // Get public URL from Supabase Storage
+      const { data: urlData } = supabase.storage
+        .from(BUCKET_NAME)
+        .getPublicUrl(newName)
 
-      // Save to public/product/
-      for (const file of files) {
-        if (file.name.startsWith(".__tmp_rename")) continue
-
-        const ext = path.extname(file.name).toLowerCase()
-        if (!validExt.includes(ext)) continue
-
-        if (/^f\d{3}\./.test(file.name)) {
-          newImageUrls.push(`${baseUrl}/product/${file.name}?color=`)
-          continue
-        }
-
-        maxNum++
-        const newName = `f${String(maxNum).padStart(3, "0")}${ext}`
-        const filePath = path.join(productFolder, newName)
-
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
-        await writeFile(filePath, buffer)
-
-        newImageUrls.push(`${baseUrl}/product/${newName}?color=`)
-      }
+      newImageUrls.push(urlData.publicUrl)
     }
 
     // Merge with existing images

@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { createClient } from "@supabase/supabase-js"
-import { writeFile, mkdir, readdir } from "fs/promises"
-import { existsSync } from "fs"
-import path from "path"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 const BUCKET_NAME = "products"
-const IS_VERCEL = process.env.VERCEL === "1" // Vercel sets this automatically
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,121 +26,61 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No images provided" }, { status: 400 })
     }
 
-    // Replicate renameAndGenerate.js logic to find highest fXXX number
+    // Get existing files from Supabase Storage to find the highest number
+    const { data: existingFiles } = await supabase.storage
+      .from(BUCKET_NAME)
+      .list("", {
+        limit: 1000,
+        sortBy: { column: "name", order: "asc" },
+      })
+
+    // Find highest fXXX number
     let maxNum = 0
-    const validExt = [".jpg", ".jpeg", ".png", ".webp"]
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fearinsight.com"
-    const imageUrls: string[] = []
-
-    if (IS_VERCEL) {
-      // On Vercel: Use Supabase Storage (filesystem is read-only)
-      const { data: existingFiles, error: listError } = await supabase.storage
-        .from(BUCKET_NAME)
-        .list("", {
-          limit: 1000,
-          sortBy: { column: "name", order: "asc" },
-        })
-
-      if (listError && listError.message !== "Bucket not found") {
-        console.error("Error listing files:", listError)
-      }
-
-      // Find highest fXXX number (same logic as renameAndGenerate.js)
-      if (existingFiles) {
-        const patternFiles = existingFiles.filter((file) => /^f\d{3}\./.test(file.name))
-        for (const file of patternFiles) {
-          const num = parseInt(file.name.substring(1, 4))
-          if (num > maxNum) maxNum = num
-        }
-      }
-
-      // Process and upload images to Supabase Storage
-      for (const file of files) {
-        maxNum++
-        const ext = path.extname(file.name).toLowerCase() || ".jpg"
-        if (!validExt.includes(ext)) continue
-
-        const newName = `f${String(maxNum).padStart(3, "0")}${ext}`
-
-        // Convert file to array buffer
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
-
-        // Upload to Supabase Storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from(BUCKET_NAME)
-          .upload(newName, buffer, {
-            contentType: file.type || `image/${ext.replace(".", "")}`,
-            upsert: false,
-          })
-
-        if (uploadError) {
-          console.error("Upload error for", newName, ":", uploadError)
-          return NextResponse.json(
-            { error: `Failed to upload ${file.name}: ${uploadError.message}` },
-            { status: 500 }
-          )
-        }
-
-        // Get public URL from Supabase Storage
-        const { data: urlData } = supabase.storage
-          .from(BUCKET_NAME)
-          .getPublicUrl(newName)
-
-        // Use Supabase Storage URL for new uploads on Vercel
-        // Existing images in public/product/ will continue to work
-        const imageUrl = urlData.publicUrl
-        imageUrls.push(imageUrl)
-      }
-    } else {
-      // Local development: Use filesystem (like renameAndGenerate.js)
-      const productFolder = path.join(process.cwd(), "public", "product")
-      
-      // Ensure folder exists
-      if (!existsSync(productFolder)) {
-        await mkdir(productFolder, { recursive: true })
-      }
-
-      // Get existing files (same logic as renameAndGenerate.js)
-      const existingFiles = existsSync(productFolder)
-        ? (await readdir(productFolder)).filter((f: string) => /^f\d{3}\./.test(f))
-        : []
-
-      // Find highest fXXX number
-      for (const file of existingFiles) {
-        const num = parseInt(file.substring(1, 4))
+    if (existingFiles) {
+      const patternFiles = existingFiles.filter((file) => /^f\d{3}\./.test(file.name))
+      for (const file of patternFiles) {
+        const num = parseInt(file.name.substring(1, 4))
         if (num > maxNum) maxNum = num
       }
+    }
 
-      // Process and save images to public/product/ (like renameAndGenerate.js)
-      // imageUrls already declared above
-      for (const file of files) {
-        if (file.name.startsWith(".__tmp_rename")) continue
+    // Process and upload images to Supabase Storage
+    const validExt = [".jpg", ".jpeg", ".png", ".webp"]
+    const imageUrls: string[] = []
 
-        const ext = path.extname(file.name).toLowerCase()
-        if (!validExt.includes(ext)) continue
+    for (const file of files) {
+      const ext = "." + (file.name.split(".").pop()?.toLowerCase() || "jpg")
+      if (!validExt.includes(ext)) continue
 
-        // Skip if already matches pattern
-        if (/^f\d{3}\./.test(file.name)) {
-          const imageUrl = `${baseUrl}/product/${file.name}?color=`
-          imageUrls.push(imageUrl)
-          continue
-        }
+      maxNum++
+      const newName = `f${String(maxNum).padStart(3, "0")}${ext}`
 
-        // Rename file (same logic as renameAndGenerate.js)
-        maxNum++
-        const newName = `f${String(maxNum).padStart(3, "0")}${ext}`
-        const filePath = path.join(productFolder, newName)
+      // Convert file to array buffer
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
 
-        // Convert file to buffer and save
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
-        await writeFile(filePath, buffer)
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(newName, buffer, {
+          contentType: file.type || `image/${ext.replace(".", "")}`,
+          upsert: false,
+        })
 
-        // Generate URL (same format as renameAndGenerate.js)
-        const imageUrl = `${baseUrl}/product/${newName}?color=`
-        imageUrls.push(imageUrl)
+      if (uploadError) {
+        console.error("Upload error for", newName, ":", uploadError)
+        return NextResponse.json(
+          { error: `Failed to upload ${file.name}: ${uploadError.message}` },
+          { status: 500 }
+        )
       }
+
+      // Get public URL from Supabase Storage
+      const { data: urlData } = supabase.storage
+        .from(BUCKET_NAME)
+        .getPublicUrl(newName)
+
+      imageUrls.push(urlData.publicUrl)
     }
 
     // Validate category_id
