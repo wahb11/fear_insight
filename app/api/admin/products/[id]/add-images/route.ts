@@ -92,10 +92,13 @@ export async function POST(
           )
         }
 
-        // Generate URL in same format as renameAndGenerate.js
-        // Format: https://fearinsight.com/product/f001.jpg?color=
-        // Next.js rewrite will proxy to Supabase Storage
-        const imageUrl = `${baseUrl}/product/${newName}?color=`
+        // Get public URL from Supabase Storage
+        const { data: urlData } = supabase.storage
+          .from(BUCKET_NAME)
+          .getPublicUrl(newName)
+
+        // Use direct Supabase Storage URL (works everywhere)
+        const imageUrl = urlData.publicUrl
         newImageUrls.push(imageUrl)
       }
     } else {

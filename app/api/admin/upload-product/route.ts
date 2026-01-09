@@ -91,11 +91,9 @@ export async function POST(req: NextRequest) {
           .from(BUCKET_NAME)
           .getPublicUrl(newName)
 
-        // Generate URL in same format as renameAndGenerate.js
-        // Format: https://fearinsight.com/product/f001.jpg?color=
-        // The actual file is in Supabase Storage, but URL uses your domain
-        // Next.js will proxy this to Supabase Storage (via rewrite in next.config)
-        const imageUrl = `${baseUrl}/product/${newName}?color=`
+        // Use direct Supabase Storage URL (works everywhere)
+        // This ensures images load correctly on both local and production
+        const imageUrl = urlData.publicUrl
         imageUrls.push(imageUrl)
       }
     } else {
