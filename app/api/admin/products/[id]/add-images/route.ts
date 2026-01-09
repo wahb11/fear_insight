@@ -11,7 +11,6 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 
 const BUCKET_NAME = "products"
 const IS_VERCEL = process.env.VERCEL === "1"
-const IS_VERCEL = process.env.VERCEL === "1"
 
 export async function POST(
   req: NextRequest,
