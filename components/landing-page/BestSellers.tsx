@@ -1,335 +1,368 @@
 "use client"
 
-import React, { useRef, useState, useEffect } from "react"
+import React, { useRef, useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight, X } from "lucide-react"
+import { ArrowRight, ArrowLeft, X, Eye, ShoppingBag, Star, Sparkles } from "lucide-react"
 
 import { Product } from "@/types/products"
 import { useAllProducts } from "@/hooks/useAllProducts"
 
 export default function BestSellers() {
-  const carouselRef = useRef<HTMLDivElement | null>(null)
-  const innerRef = useRef<HTMLDivElement | null>(null)
-  const [carX, setCarX] = useState(0)
-  const [cardWidth, setCardWidth] = useState(320) // Default width to prevent 0 width
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [zoomImage, setZoomImage] = useState<string | null>(null)
+  const [zoomProduct, setZoomProduct] = useState<Product | null>(null)
   const [isPaused, setIsPaused] = useState(false)
-  const [isTouching, setIsTouching] = useState(false)
-  const animationFrameRef = useRef<number | null>(null)
-  const isMountedRef = useRef(false)
-  const currentXRef = useRef(0)
-  const touchStartXRef = useRef(0)
-  const touchStartTimeRef = useRef(0)
+  const [cardsToShow, setCardsToShow] = useState(4)
+  const [cardWidth, setCardWidth] = useState(0)
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null)
+  const gap = 16 // gap-4 = 16px
 
   const { data, isLoading, error } = useAllProducts()
   const products = data ? data.filter(product => product.best_seller) : []
-  
-  // Duplicate products for seamless infinite scroll
-  const duplicatedProducts = [...products, ...products]
 
+  // Calculate cards to show and card width based on screen size
   useEffect(() => {
-    // Calculate card width based on container
-    const updateCardWidth = () => {
-      if (!carouselRef.current) return
-      const containerWidth = carouselRef.current.offsetWidth
-      // Responsive card width: smaller on mobile, larger on desktop
-      let newWidth = 320 // default
-      if (containerWidth < 640) {
-        newWidth = 220 // mobile
-      } else if (containerWidth < 1024) {
-        newWidth = 280 // tablet
+    const updateLayout = () => {
+      const width = window.innerWidth
+      let cards = 4
+      if (width < 640) {
+        cards = 1
+      } else if (width < 768) {
+        cards = 2
+      } else if (width < 1024) {
+        cards = 3
       } else {
-        newWidth = 320 // desktop
+        cards = 4
       }
-      setCardWidth(newWidth)
+      setCardsToShow(cards)
+      
+      // Calculate card width based on container
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth
+        const totalGaps = (cards - 1) * gap
+        const singleCardWidth = (containerWidth - totalGaps) / cards
+        setCardWidth(singleCardWidth)
+      }
     }
     
-    // Use setTimeout to ensure DOM is ready
-    const timer = setTimeout(() => {
-      updateCardWidth()
-    }, 100)
-    
-    window.addEventListener("resize", updateCardWidth)
+    // Initial calculation with delay to ensure DOM is ready
+    const timer = setTimeout(updateLayout, 100)
+    window.addEventListener("resize", updateLayout)
     return () => {
       clearTimeout(timer)
-      window.removeEventListener("resize", updateCardWidth)
+      window.removeEventListener("resize", updateLayout)
     }
   }, [products.length])
 
-  // Mark component as mounted
+  // Auto-play carousel
   useEffect(() => {
-    isMountedRef.current = true
-    return () => {
-      isMountedRef.current = false
-    }
-  }, [])
+    if (products.length === 0 || isPaused || products.length <= cardsToShow) return
 
-  // Continuous infinite scroll animation
-  useEffect(() => {
-    if (cardWidth <= 0 || products.length === 0) return
-    
-    // Wait to ensure component is fully mounted and DOM is ready
-    const timer = setTimeout(() => {
-      if (!isMountedRef.current) return
-      
-      const totalWidth = cardWidth * products.length
-      const gap = 24 // gap-6 = 1.5rem = 24px
-      const singleSetWidth = totalWidth + (gap * (products.length - 1))
-      
-      currentXRef.current = 0
-      setCarX(0)
-      
-      const animate = () => {
-        if (!isMountedRef.current) return
-        
-        if (!isPaused && !isTouching) {
-          currentXRef.current -= 1 // Move 1px per frame for faster, smoother movement
-          // Reset position when we've scrolled one full set
-          if (currentXRef.current <= -singleSetWidth) {
-            currentXRef.current = 0
-          }
-          setCarX(currentXRef.current)
-          // Animation is handled by animate prop with carX state
-        }
-        animationFrameRef.current = requestAnimationFrame(animate)
-      }
-      
-      animationFrameRef.current = requestAnimationFrame(animate)
-    }, 300)
-    
+    autoPlayRef.current = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const maxIndex = products.length - cardsToShow
+        return prev >= maxIndex ? 0 : prev + 1
+      })
+    }, 4000)
+
     return () => {
-      clearTimeout(timer)
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current)
       }
     }
-  }, [cardWidth, products.length, isPaused, isTouching])
+  }, [products.length, cardsToShow, isPaused])
 
-  function scrollByPixels(direction: 'left' | 'right') {
-    const move = cardWidth + 24 // card width + gap
-    let next = currentXRef.current
-    if (direction === 'right') {
-      next = currentXRef.current - move
-    } else {
-      next = currentXRef.current + move
-    }
-    currentXRef.current = next
-    setCarX(next)
+  const scrollTo = useCallback((direction: 'left' | 'right') => {
+    const maxIndex = products.length - cardsToShow
+    setCurrentIndex((prev) => {
+      if (direction === 'right') {
+        return prev >= maxIndex ? 0 : prev + 1
+      } else {
+        return prev <= 0 ? maxIndex : prev - 1
+      }
+    })
+  }, [products.length, cardsToShow])
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index)
   }
 
   if (isLoading) return (
-    <section className="py-16 px-4">
+    <section className="py-20 px-4 bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
       <div className="container mx-auto">
-        <p className="text-center text-stone-300">Loading...</p>
+        <div className="flex justify-center items-center h-64">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-stone-700 border-t-amber-500 rounded-full animate-spin" />
+            <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-amber-500" />
+          </div>
+        </div>
       </div>
     </section>
   )
   
   if (error) return (
-    <section className="py-16 px-4">
+    <section className="py-20 px-4 bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
       <div className="container mx-auto">
-        <p className="text-center text-stone-300">Error fetching best sellers</p>
+        <p className="text-center text-stone-400">Error fetching best sellers</p>
       </div>
     </section>
   )
 
   if (products.length === 0) return null
 
+  const maxIndex = Math.max(0, products.length - cardsToShow)
+  const dotCount = maxIndex + 1
+  const translateX = currentIndex * (cardWidth + gap)
+
   return (
-    <section className="py-16 px-4 relative overflow-hidden">
+    <section className="py-20 px-4 relative overflow-hidden bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-stone-500/5 rounded-full blur-3xl" />
+      </div>
+
       <div className="container mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="mb-8 text-center"
+          className="mb-12 text-center"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent">
+          <motion.div
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-stone-500/20 px-4 py-2 rounded-full mb-4 border border-amber-500/20"
+          >
+            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+            <span className="text-sm font-medium text-amber-400">Customer Favorites</span>
+          </motion.div>
+          
+          <h2 className="text-4xl md:text-6xl font-black mb-4 bg-gradient-to-r from-stone-100 via-amber-200 to-stone-400 bg-clip-text text-transparent">
             OUR BEST SELLERS
           </h2>
-          <p className="text-stone-300 max-w-2xl mx-auto">
+          <p className="text-stone-400 max-w-2xl mx-auto text-lg">
             Explore the pieces our community wears most — heavyweight hoodies built for comfort, durability, and style.
           </p>
         </motion.div>
 
-        <div ref={carouselRef} className="overflow-hidden relative w-full">
-          <motion.button
-            onClick={() => scrollByPixels('left')}
-            whileHover={{ scale: 1.05 }}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-40 bg-stone-900/60 p-2 rounded-full border border-stone-700/50"
-          >
-            <ArrowRight className="w-5 h-5 text-stone-100 rotate-180" />
-          </motion.button>
-          <motion.button
-            onClick={() => scrollByPixels('right')}
-            whileHover={{ scale: 1.05 }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-40 bg-stone-900/60 p-2 rounded-full border border-stone-700/50"
-          >
-            <ArrowRight className="w-5 h-5 text-stone-100" />
-          </motion.button>
-
-          <motion.div
-            ref={innerRef}
-            className="flex pb-6"
-            drag="x"
-            dragElastic={0.1}
-            dragConstraints={{ left: -Infinity, right: Infinity }}
-            whileTap={{ cursor: "grabbing" }}
-            animate={{ x: carX }}
-            initial={{ x: 0 }}
-            transition={{ duration: 0 }}
-            onDragStart={() => {
-              setIsTouching(true)
-              setIsPaused(true)
-            }}
-            onDragEnd={(_: any, info: { offset: { x: number } }) => {
-              const newX = currentXRef.current + info.offset.x
-              currentXRef.current = newX
-              setCarX(newX)
-              // Resume after a short delay
-              setTimeout(() => {
-                setIsTouching(false)
-                setIsPaused(false)
-              }, 300)
-            }}
-            onTouchStart={(e) => {
-              setIsTouching(true)
-              setIsPaused(true)
-              touchStartXRef.current = e.touches[0].clientX
-              touchStartTimeRef.current = Date.now()
-            }}
-            onTouchEnd={() => {
-              // Only resume if it was a quick tap (not a swipe)
-              const touchDuration = Date.now() - touchStartTimeRef.current
-              setTimeout(() => {
-                setIsTouching(false)
-                if (touchDuration < 200) {
-                  // Quick tap, resume immediately
-                  setIsPaused(false)
-                } else {
-                  // Longer touch, resume after delay
-                  setTimeout(() => setIsPaused(false), 500)
-                }
-              }, 100)
-            }}
-            style={{ willChange: 'transform', touchAction: 'pan-y pinch-zoom' }}
-          >
-            {duplicatedProducts && duplicatedProducts.map((p: Product, i: number) => (
-              <motion.div 
-                key={`${p.id}-${i}`} 
-                className="flex-shrink-0"
-                style={{ 
-                  width: `${cardWidth}px`,
-                  marginRight: i < duplicatedProducts.length - 1 ? '24px' : '0'
-                }}
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
-                onTouchStart={() => {
-                  setIsTouching(true)
-                  setIsPaused(true)
-                }}
-                onTouchEnd={(e) => {
-                  // Allow click events to propagate
-                  e.stopPropagation()
-                }}
+        {/* Carousel Container */}
+        <div 
+          className="relative"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          {/* Navigation Arrows */}
+          {products.length > cardsToShow && (
+            <>
+              <motion.button
+                onClick={() => scrollTo('left')}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-amber-500/50 transition-colors group"
               >
-                <Card className="bg-stone-900/30 border border-stone-700/50 hover:border-stone-600/80 transition-all duration-300 h-full flex flex-col w-full">
-                  <CardContent className="p-4 flex flex-col flex-1 w-full">
-                    <div className="w-full h-44 mb-4 bg-stone-800 rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
-                      {p.images[0] ? (
-                        <img
-                          src={p.images[0]}
-                          alt={p.name}
-                          className="w-full h-full object-cover rounded-md"
-                        />
-                      ) : (
-                        <div className="text-stone-50 font-semibold text-center px-2">{p.name}</div>
-                      )}
-                    </div>
-                    <h3 className="text-lg font-semibold text-stone-100 mb-2 line-clamp-2">{p.name}</h3>
-                    <p className="text-stone-300 mb-3">${p.price.toFixed(2)}</p>
-                    <div className="flex gap-2 mt-auto">
-                      <Link 
-                        href={`/product/${p.id}`} 
-                        className="flex-1"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setIsPaused(true)
-                          setIsTouching(true)
-                          // Resume after navigation starts
-                          setTimeout(() => {
-                            setIsPaused(false)
-                            setIsTouching(false)
-                          }, 200)
-                        }}
-                      >
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 px-3 py-1 rounded text-sm font-semibold transition-all"
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-amber-400 transition-colors" />
+              </motion.button>
+              <motion.button
+                onClick={() => scrollTo('right')}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-amber-500/50 transition-colors group"
+              >
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-amber-400 transition-colors" />
+              </motion.button>
+            </>
+          )}
+
+          {/* Cards Container */}
+          <div ref={containerRef} className="overflow-hidden">
+            <motion.div
+              className="flex"
+              style={{ gap: `${gap}px` }}
+              animate={{ x: -translateX }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              {products.map((p: Product, i: number) => (
+                <motion.div 
+                  key={p.id}
+                  className="flex-shrink-0"
+                  style={{ width: cardWidth > 0 ? `${cardWidth}px` : `calc(${100 / cardsToShow}% - ${(cardsToShow - 1) * gap / cardsToShow}px)` }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                  viewport={{ once: true }}
+                >
+                  <Card className="bg-gradient-to-b from-stone-900/90 to-stone-950/90 border border-stone-700/50 hover:border-amber-500/30 transition-all duration-500 h-full flex flex-col group overflow-hidden shadow-lg shadow-black/20">
+                    <CardContent className="p-0 flex flex-col flex-1">
+                      {/* Image Container */}
+                      <div className="relative w-full aspect-[4/5] overflow-hidden">
+                        {p.images[0] ? (
+                          <img
+                            src={p.images[0]}
+                            alt={p.name}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-stone-800 to-stone-900 flex items-center justify-center">
+                            <ShoppingBag className="w-12 h-12 text-stone-600" />
+                          </div>
+                        )}
+                        
+                        {/* Overlay on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+                        
+                        {/* Best Seller Badge */}
+                        <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                          BEST SELLER
+                        </div>
+                        
+                        {/* Quick View Button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setZoomImage(p.images[0])
+                            setZoomProduct(p)
+                          }}
+                          className="absolute bottom-3 right-3 bg-stone-900/90 backdrop-blur-sm text-stone-100 px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-2 border border-stone-700/50 hover:border-amber-500/50 hover:scale-105"
                         >
-                          Buy Now
-                        </motion.button>
-                      </Link>
-                      <Button 
-                        size="sm" 
-                        className="border border-stone-700 text-stone-100"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          setIsPaused(true)
-                          setIsTouching(true)
-                          setZoomImage(p.images[0])
-                        }}
-                      >
-                        Quick View
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+                          <Eye className="w-4 h-4" />
+                          <span className="text-sm font-medium">Quick View</span>
+                        </button>
+                      </div>
+
+                      {/* Product Info */}
+                      <div className="p-4 sm:p-5 flex flex-col flex-1">
+                        <h3 className="text-base sm:text-lg font-bold text-stone-100 mb-2 line-clamp-2 group-hover:text-amber-200 transition-colors">
+                          {p.name}
+                        </h3>
+                        
+                        {/* Rating Stars */}
+                        <div className="flex items-center gap-1 mb-3">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              className={`w-3.5 h-3.5 ${i < Math.floor(p.ratings || 4) ? 'text-amber-400 fill-amber-400' : 'text-stone-600'}`} 
+                            />
+                          ))}
+                          <span className="text-stone-500 text-xs ml-1">({p.ratings || 4}.0)</span>
+                        </div>
+
+                        <div className="flex items-baseline gap-2 mb-4">
+                          <span className="text-xl sm:text-2xl font-bold text-stone-100">${p.price.toFixed(2)}</span>
+                          {p.discount > 0 && (
+                            <span className="text-sm text-stone-500 line-through">${(p.price * (1 + p.discount / 100)).toFixed(2)}</span>
+                          )}
+                        </div>
+
+                        <Link 
+                          href={`/product/${p.id}`} 
+                          className="mt-auto w-full"
+                        >
+                          <button
+                            className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-amber-600 hover:to-amber-700 text-stone-100 px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 border border-stone-700/50 hover:border-amber-500/50"
+                          >
+                            <ShoppingBag className="w-4 h-4" />
+                            Shop Now
+                          </button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Pagination Dots */}
+          {dotCount > 1 && (
+            <div className="flex justify-center gap-2 mt-8">
+              {Array.from({ length: dotCount }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goToSlide(i)}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    i === currentIndex 
+                      ? 'bg-amber-500 w-8' 
+                      : 'bg-stone-700 hover:bg-stone-600 w-2.5'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Zoom Modal */}
-      {zoomImage && (
-        <motion.div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => {
-            setZoomImage(null)
-            setIsPaused(false)
-          }}
-        >
+      <AnimatePresence>
+        {zoomImage && zoomProduct && (
           <motion.div
-            className="relative max-w-lg w-full mx-4"
-            initial={{ scale: 0.5 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0.5 }}
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              setZoomImage(null)
+              setZoomProduct(null)
+            }}
           >
-            <button
-              onClick={() => setZoomImage(null)}
-              className="absolute -top-12 -right-0 md:-right-4 bg-stone-900/90 hover:bg-stone-800 rounded-full p-2 transition-colors z-10 shadow-lg"
+            <motion.div
+              className="relative max-w-4xl w-full mx-4 bg-stone-900 rounded-2xl overflow-hidden border border-stone-700/50 shadow-2xl"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <X className="w-5 h-5 md:w-6 md:h-6 text-stone-100" />
-            </button>
-            <img
-              src={zoomImage}
-              alt="Zoomed product"
-              className="w-full h-auto rounded-lg max-h-[80vh] object-contain"
-            />
+              <button
+                onClick={() => {
+                  setZoomImage(null)
+                  setZoomProduct(null)
+                }}
+                className="absolute top-4 right-4 bg-stone-800/90 hover:bg-stone-700 rounded-full p-2 transition-colors z-10 shadow-lg border border-stone-600/50"
+              >
+                <X className="w-5 h-5 text-stone-100" />
+              </button>
+              
+              <div className="flex flex-col md:flex-row">
+                <div className="md:w-1/2">
+                  <img
+                    src={zoomImage}
+                    alt={zoomProduct.name}
+                    className="w-full h-64 md:h-full object-cover"
+                  />
+                </div>
+                <div className="md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
+                  <div className="inline-flex items-center gap-2 bg-amber-500/20 px-3 py-1 rounded-full mb-4 w-fit">
+                    <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                    <span className="text-xs font-medium text-amber-400">Best Seller</span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-stone-100 mb-3">{zoomProduct.name}</h3>
+                  <p className="text-stone-400 mb-4 line-clamp-3">{zoomProduct.description || "Premium quality streetwear designed with purpose."}</p>
+                  <div className="flex items-center gap-1 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`w-4 h-4 ${i < Math.floor(zoomProduct.ratings || 4) ? 'text-amber-400 fill-amber-400' : 'text-stone-600'}`} />
+                    ))}
+                  </div>
+                  <p className="text-3xl font-bold text-stone-100 mb-6">${zoomProduct.price.toFixed(2)}</p>
+                  <Link href={`/product/${zoomProduct.id}`}>
+                    <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 font-bold py-3">
+                      View Full Details
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
+      </AnimatePresence>
     </section>
   )
 }

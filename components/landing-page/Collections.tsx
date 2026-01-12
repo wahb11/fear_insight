@@ -1,109 +1,154 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
-
+import React, { useEffect, useRef, useState, useCallback } from "react"
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { CollectionsProductCard } from "./CollectionsProductCard"
 import { useAllProducts } from "@/hooks/useAllProducts"
+import { ArrowLeft, ArrowRight, Sparkles, Flame } from "lucide-react"
 
 export default function Collections() {
   const { data, isLoading, error } = useAllProducts()
   const products = data ? data.filter(product => product.featured) : []
   
-  // Duplicate products for seamless infinite scroll
-  const duplicatedProducts = [...products, ...products]
-
-  const trackRef = useRef<HTMLDivElement | null>(null)
-  const innerRef = useRef<HTMLDivElement | null>(null)
-  const [carX, setCarX] = useState(0)
-  const [cardWidth, setCardWidth] = useState(0)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
-  const [isTouching, setIsTouching] = useState(false)
-  const animationFrameRef = useRef<number | null>(null)
-  const isMountedRef = useRef(false)
-  const currentXRef = useRef(0)
-  const touchStartXRef = useRef(0)
-  const touchStartTimeRef = useRef(0)
+  const [cardsToShow, setCardsToShow] = useState(4)
+  const [cardWidth, setCardWidth] = useState(0)
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null)
+  const gap = 16 // gap-4 = 16px
 
-  // Mark component as mounted
+  // Calculate cards to show and card width based on screen size
   useEffect(() => {
-    isMountedRef.current = true
-    return () => {
-      isMountedRef.current = false
-    }
-  }, [])
-
-  useEffect(() => {
-    // Calculate card width based on screen size
-    const updateCardWidth = () => {
-      if (window.innerWidth < 640) {
-        setCardWidth(260) // mobile
-      } else if (window.innerWidth < 1024) {
-        setCardWidth(320) // tablet
+    const updateLayout = () => {
+      const width = window.innerWidth
+      let cards = 4
+      if (width < 640) {
+        cards = 1
+      } else if (width < 768) {
+        cards = 2
+      } else if (width < 1024) {
+        cards = 3
       } else {
-        setCardWidth(360) // desktop
+        cards = 4
       }
-    }
-    
-    updateCardWidth()
-    window.addEventListener("resize", updateCardWidth)
-    return () => window.removeEventListener("resize", updateCardWidth)
-  }, [])
-
-  // Continuous infinite scroll animation
-  useEffect(() => {
-    if (!cardWidth || products.length === 0 || !isMountedRef.current) return
-    
-    const gap = 24 // gap-6 = 1.5rem = 24px
-    const singleSetWidth = (cardWidth * products.length) + (gap * (products.length - 1))
-    
-    currentXRef.current = carX
-    
-    const animate = () => {
-      if (!isMountedRef.current) return
+      setCardsToShow(cards)
       
-      if (!isPaused && !isTouching) {
-        currentXRef.current -= 1 // Move 1px per frame for faster, smoother movement
-        // Reset position when we've scrolled one full set
-        if (currentXRef.current <= -singleSetWidth) {
-          currentXRef.current = 0
-        }
-        setCarX(currentXRef.current)
-        // Animation is handled by animate prop with carX state
+      // Calculate card width based on container
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth
+        const totalGaps = (cards - 1) * gap
+        const singleCardWidth = (containerWidth - totalGaps) / cards
+        setCardWidth(singleCardWidth)
       }
-      animationFrameRef.current = requestAnimationFrame(animate)
     }
     
-    animationFrameRef.current = requestAnimationFrame(animate)
-    
+    // Initial calculation with delay to ensure DOM is ready
+    const timer = setTimeout(updateLayout, 100)
+    window.addEventListener("resize", updateLayout)
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
+      clearTimeout(timer)
+      window.removeEventListener("resize", updateLayout)
+    }
+  }, [products.length])
+
+  // Auto-play carousel
+  useEffect(() => {
+    if (products.length === 0 || isPaused || products.length <= cardsToShow) return
+
+    autoPlayRef.current = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const maxIndex = products.length - cardsToShow
+        return prev >= maxIndex ? 0 : prev + 1
+      })
+    }, 5000)
+
+    return () => {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current)
       }
     }
-  }, [cardWidth, products.length, isPaused, isTouching])
+  }, [products.length, cardsToShow, isPaused])
+
+  const scrollTo = useCallback((direction: 'left' | 'right') => {
+    const maxIndex = products.length - cardsToShow
+    setCurrentIndex((prev) => {
+      if (direction === 'right') {
+        return prev >= maxIndex ? 0 : prev + 1
+      } else {
+        return prev <= 0 ? maxIndex : prev - 1
+      }
+    })
+  }, [products.length, cardsToShow])
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index)
+  }
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <section className="py-20 px-4 bg-stone-900">
+        <div className="container mx-auto">
+          <div className="flex justify-center items-center h-64">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-stone-700 border-t-stone-400 rounded-full animate-spin" />
+              <Flame className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-stone-400" />
+            </div>
+          </div>
+        </div>
+      </section>
+    )
   }
+
   if (error) {
-    return <div className="text-center text-stone-300">Error loading products</div>
+    return (
+      <section className="py-20 px-4 bg-stone-900">
+        <div className="container mx-auto text-center text-stone-300">
+          Error loading products
+        </div>
+      </section>
+    )
   }
+
+  if (products.length === 0) return null
+
+  const maxIndex = Math.max(0, products.length - cardsToShow)
+  const dotCount = maxIndex + 1
+  const translateX = currentIndex * (cardWidth + gap)
+
   return (
-    <section id="products" className="py-20 px-4 relative bg-stone-900">
-      <div className="container mx-auto">
+    <section id="products" className="py-20 px-4 relative bg-gradient-to-b from-stone-900 via-stone-950 to-stone-900 overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-stone-800/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-stone-700/10 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container mx-auto relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 100 }}
+          initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25 }}
+          transition={{ duration: 0.5 }}
           viewport={{ once: true }}
           className="text-center mb-12"
         >
+          <motion.div
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-stone-700/40 to-stone-800/40 px-4 py-2 rounded-full mb-4 border border-stone-600/30"
+          >
+            <Sparkles className="w-4 h-4 text-stone-400" />
+            <span className="text-sm font-medium text-stone-300">Handpicked Selection</span>
+          </motion.div>
+
           <motion.h2
-            className="text-4xl md:text-6xl font-bold mb-3 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent"
-            initial={{ opacity: 0, scale: 0.5 }}
+            className="text-4xl md:text-6xl font-black mb-4 bg-gradient-to-r from-stone-100 via-stone-300 to-stone-500 bg-clip-text text-transparent"
+            initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
             FEATURED COLLECTION
@@ -111,9 +156,9 @@ export default function Collections() {
 
           <motion.p
             className="text-base md:text-lg text-stone-400 max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, delay: 0.05 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
           >
             Premium streetwear designed with purpose and crafted with precision. Each piece tells a story of faith,
@@ -121,91 +166,92 @@ export default function Collections() {
           </motion.p>
         </motion.div>
 
+        {/* Carousel Container */}
         <div
-          ref={trackRef}
-          className="overflow-hidden pb-4 relative"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          className="relative"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
         >
-          <motion.div
-            ref={innerRef}
-            className="flex gap-6"
-            drag="x"
-            dragElastic={0.1}
-            dragConstraints={{ left: -Infinity, right: Infinity }}
-            whileTap={{ cursor: "grabbing" }}
-            animate={{ x: carX }}
-            initial={{ x: 0 }}
-            transition={{ duration: 0 }}
-            onDragStart={() => {
-              setIsTouching(true)
-              setIsPaused(true)
-            }}
-            onDragEnd={(_: any, info: { offset: { x: number } }) => {
-              const newX = currentXRef.current + info.offset.x
-              currentXRef.current = newX
-              setCarX(newX)
-              // Resume after a short delay
-              setTimeout(() => {
-                setIsTouching(false)
-                setIsPaused(false)
-              }, 300)
-            }}
-            onTouchStart={(e) => {
-              setIsTouching(true)
-              setIsPaused(true)
-              touchStartXRef.current = e.touches[0].clientX
-              touchStartTimeRef.current = Date.now()
-            }}
-            onTouchEnd={() => {
-              // Only resume if it was a quick tap (not a swipe)
-              const touchDuration = Date.now() - touchStartTimeRef.current
-              setTimeout(() => {
-                setIsTouching(false)
-                if (touchDuration < 200) {
-                  // Quick tap, resume immediately
-                  setIsPaused(false)
-                } else {
-                  // Longer touch, resume after delay
-                  setTimeout(() => setIsPaused(false), 500)
-                }
-              }, 100)
-            }}
-            style={{ willChange: 'transform', touchAction: 'pan-y pinch-zoom' }}
-          >
-            {duplicatedProducts && duplicatedProducts.map((product, index) => (
-              <div 
-                key={`${product.id}-${index}`} 
-                className="flex-shrink-0 h-full"
-                style={{ width: `${cardWidth}px` }}
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
-                onTouchStart={() => {
-                  setIsTouching(true)
-                  setIsPaused(true)
-                }}
-                onTouchEnd={(e) => {
-                  // Allow click events to propagate
-                  e.stopPropagation()
-                }}
-                onClick={(e) => {
-                  // Keep paused during click for smooth navigation
-                  e.stopPropagation()
-                  setIsPaused(true)
-                  setIsTouching(true)
-                  setTimeout(() => {
-                    setIsPaused(false)
-                    setIsTouching(false)
-                  }, 200)
-                }}
+          {/* Navigation Arrows */}
+          {products.length > cardsToShow && (
+            <>
+              <motion.button
+                onClick={() => scrollTo('left')}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-stone-500 transition-colors group"
               >
-                <CollectionsProductCard 
-                  product={product} 
-                  index={index % products.length}
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-stone-100 transition-colors" />
+              </motion.button>
+              <motion.button
+                onClick={() => scrollTo('right')}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-stone-500 transition-colors group"
+              >
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-stone-100 transition-colors" />
+              </motion.button>
+            </>
+          )}
+
+          {/* Cards Container */}
+          <div ref={containerRef} className="overflow-hidden">
+            <motion.div
+              className="flex"
+              style={{ gap: `${gap}px` }}
+              animate={{ x: -translateX }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              {products.map((product, index) => (
+                <div 
+                  key={product.id} 
+                  className="flex-shrink-0 h-full"
+                  style={{ width: cardWidth > 0 ? `${cardWidth}px` : `calc(${100 / cardsToShow}% - ${(cardsToShow - 1) * gap / cardsToShow}px)` }}
+                >
+                  <CollectionsProductCard 
+                    product={product} 
+                    index={index}
+                  />
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Pagination Dots */}
+          {dotCount > 1 && (
+            <div className="flex justify-center gap-2 mt-8">
+              {Array.from({ length: dotCount }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goToSlide(i)}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    i === currentIndex 
+                      ? 'bg-stone-400 w-8' 
+                      : 'bg-stone-700 hover:bg-stone-600 w-2.5'
+                  }`}
                 />
-              </div>
-            ))}
-          </motion.div>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* View All Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="flex justify-center mt-12"
+        >
+          <Link href="/products">
+            <button
+              className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-700 hover:to-stone-800 text-stone-100 px-8 py-3 rounded-lg font-bold transition-all duration-300 flex items-center gap-2 border border-stone-700/50 hover:border-stone-600"
+            >
+              View All Products
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   )

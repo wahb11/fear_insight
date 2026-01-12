@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useCallback } from "react"
+import React, { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -100,7 +100,6 @@ export default function ProductDetailPage() {
 	const [imageError, setImageError] = useState(false)
 	const [showSizeChart, setShowSizeChart] = useState(false)
 	
-	const carouselRef = useRef<HTMLDivElement>(null)
 	const fallbackImage = "/download.png"
 
 	// Set initial color and size when product loads
@@ -160,15 +159,6 @@ export default function ProductDetailPage() {
 		return sizeData?.inStock ?? false
 	}, [availableSizes, selectedSize])
 	
-	// Scroll carousel
-	const scrollCarousel = (direction: "left" | "right") => {
-		if (!carouselRef.current) return
-		const scrollAmount = 120
-		carouselRef.current.scrollBy({
-			left: direction === "left" ? -scrollAmount : scrollAmount,
-			behavior: "smooth",
-		})
-	}
 	
 	// Handle add to cart
 	const handleAddToCart = async () => {
@@ -285,55 +275,27 @@ export default function ProductDetailPage() {
 								</div>
 							</motion.div>
 
-							{/* Thumbnail Carousel */}
-							<div className="relative">
-								<div
-									ref={carouselRef}
-									className="flex gap-3 overflow-x-auto pb-2 scroll-smooth"
-									style={{ scrollBehavior: "smooth" }}
-								>
-									{product.images.map((image: string, index: number) => (
-										<motion.button
-											key={index}
-											onClick={() => setSelectedImage(index)}
-											whileHover={{ scale: 1.05 }}
-											whileTap={{ scale: 0.95 }}
-											className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-												selectedImage === index
-													? "border-stone-100"
-													: "border-stone-700 hover:border-stone-500"
-											}`}
-										>
-											<img
-												src={image}
-												alt={`${product.name} ${index}`}
-												className="w-full h-full object-cover"
-											/>
-										</motion.button>
-									))}
-								</div>
-
-								{/* Carousel Controls */}
-								{product.images.length > 4 && (
-									<>
-										<motion.button
-											onClick={() => scrollCarousel("left")}
-											whileHover={{ scale: 1.1 }}
-											whileTap={{ scale: 0.9 }}
-											className="absolute -left-4 top-1/2 transform -translate-y-1/2 bg-stone-800/80 hover:bg-stone-700 p-2 rounded-full text-stone-100 z-10"
-										>
-											<ChevronLeft className="w-5 h-5" />
-										</motion.button>
-										<motion.button
-											onClick={() => scrollCarousel("right")}
-											whileHover={{ scale: 1.1 }}
-											whileTap={{ scale: 0.9 }}
-											className="absolute -right-4 top-1/2 transform -translate-y-1/2 bg-stone-800/80 hover:bg-stone-700 p-2 rounded-full text-stone-100 z-10"
-										>
-											<ChevronRight className="w-5 h-5" />
-										</motion.button>
-									</>
-								)}
+							{/* Thumbnail Grid */}
+							<div className="flex flex-wrap gap-2">
+								{product.images.map((image: string, index: number) => (
+									<motion.button
+										key={index}
+										onClick={() => setSelectedImage(index)}
+										whileHover={{ scale: 1.05 }}
+										whileTap={{ scale: 0.95 }}
+										className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all ${
+											selectedImage === index
+												? "border-stone-100 ring-2 ring-stone-400/50"
+												: "border-stone-700 hover:border-stone-500"
+										}`}
+									>
+										<img
+											src={image}
+											alt={`${product.name} ${index}`}
+											className="w-full h-full object-cover"
+										/>
+									</motion.button>
+								))}
 							</div>
 						</motion.div>
 
