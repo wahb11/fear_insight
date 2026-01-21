@@ -20,6 +20,8 @@ export async function createOrder(orderData: {
   payment?: boolean
   tax?: number
   shipping?: number
+  discount?: number
+  promo_code?: string | null
   grand_total: number
 }) {
   const { data, error } = await supabase
@@ -30,4 +32,3 @@ export async function createOrder(orderData: {
   if (error) throw error
   return data?.[0]
 }
-

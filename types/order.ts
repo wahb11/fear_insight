@@ -13,6 +13,8 @@ export type Order = {
   payment: boolean | null
   tax: number | null
   shipping: number | null
+  discount: number | null
+  promo_code: string | null
   grand_total: number
   created_at: string
   products: {

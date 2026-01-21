@@ -12,18 +12,9 @@ import { createOrder } from '@/functions/createOrder'
 import { notifyNewOrderNonPayment } from '@/functions/notifyNewOrderNonPayment'
 
 export default function CheckoutPage() {
-
-
-
-
-
-  const { items, subtotal, shipping, total, shippingType, setShippingType } = useCart()
+  const { items, subtotal, shipping, total, discount, promoCode, shippingType, setShippingType } = useCart()
   const zeroTax = 0
   const finalTotal = total
-
-
-
-
 
   const [formData, setFormData] = useState({
     // Shipping Details
@@ -84,6 +75,8 @@ export default function CheckoutPage() {
           payment: false,
           tax: zeroTax,
           shipping: shipping,
+          discount: discount,
+          promo_code: promoCode,
           grand_total: finalTotal
         })
 
@@ -97,6 +90,7 @@ export default function CheckoutPage() {
             customer: { email: formData.email },
             tax: zeroTax,
             shipping: shipping,
+            discount: discount,
           }),
         })
 
@@ -465,6 +459,15 @@ export default function CheckoutPage() {
                       <span>Subtotal:</span>
                       <span className="font-semibold">${subtotal.toFixed(2)}</span>
                     </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-green-400">
+                        <span className="flex items-center gap-1">
+                          Promo Discount
+                          <span className="text-xs text-green-500">({promoCode})</span>
+                        </span>
+                        <span className="font-semibold">-${discount.toFixed(2)}</span>
+                      </div>
+                    )}
                   </motion.div>
 
                   {/* Shipping Selection */}

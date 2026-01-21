@@ -6,13 +6,27 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft, Trash2, Plus, Minus, Package, CreditCard, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Trash2, Plus, Minus, Package, CreditCard, ShieldCheck, X, Check } from 'lucide-react'
 import { useCart } from '@/app/context/CartContext'
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity, subtotal, tax, shipping, total, shippingType, setShippingType } = useCart()
-  const [promoCode, setPromoCode] = useState('')
-  const [discount, setDiscount] = useState(0)
+  const { 
+    items, 
+    removeFromCart, 
+    updateQuantity, 
+    subtotal, 
+    shipping, 
+    total, 
+    discount,
+    promoCode,
+    shippingType, 
+    setShippingType,
+    applyPromoCode,
+    clearPromoCode
+  } = useCart()
+  
+  const [promoInput, setPromoInput] = useState('')
+  const [promoError, setPromoError] = useState<string | null>(null)
 
   // Pick the first image whose query param color matches the selected color; fall back to the first image
   const getImageForColor = (images: string[], selectedColor: string) => {
@@ -34,15 +48,20 @@ export default function CartPage() {
   }
 
   const handleApplyPromo = () => {
-    // Simple promo code logic (example: "SAVE10" = 10% off)
-    if (promoCode === 'SAVE10') {
-      setDiscount(subtotal * 0.1)
+    const result = applyPromoCode(promoInput)
+    if (result.success) {
+      setPromoError(null)
+      setPromoInput('')
     } else {
-      setDiscount(0)
+      setPromoError(result.message)
     }
   }
 
-  const finalTotal = total - discount
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleApplyPromo()
+    }
+  }
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
@@ -329,7 +348,10 @@ export default function CartPage() {
                       </div>
                       {discount > 0 && (
                         <div className="flex justify-between text-green-400">
-                          <span className="text-sm">Discount</span>
+                          <span className="text-sm flex items-center gap-1">
+                            Promo Discount
+                            <span className="text-xs text-green-500">({promoCode})</span>
+                          </span>
                           <span className="font-semibold">-${discount.toFixed(2)}</span>
                         </div>
                       )}
@@ -390,28 +412,53 @@ export default function CartPage() {
 
                   <div className="flex justify-between items-center mb-6 p-4 bg-stone-950/80 rounded-lg border border-stone-500/60">
                     <span className="font-bold text-stone-50 uppercase tracking-wide">TOTAL</span>
-                    <span className="text-2xl font-bold text-stone-50">${finalTotal.toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-stone-50">${total.toFixed(2)}</span>
                   </div>
 
                   {/* Promo Code */}
                   <div className="mb-6">
-                    <div className="flex gap-2">
-                      <Input
-                        type="text"
-                        placeholder="Promo code"
-                        value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value)}
-                        className="bg-stone-950/60 border-stone-600 text-stone-100 placeholder:text-stone-500 focus:border-stone-300 text-sm"
-                      />
-                      <button
-                        onClick={handleApplyPromo}
-                        className="p-2 text-stone-300 hover:text-stone-100 transition-colors hover:bg-stone-800 rounded"
-                      >
-                        <ArrowLeft className="w-5 h-5 rotate-180" />
-                      </button>
-                    </div>
-                    {promoCode && discount === 0 && (
-                      <p className="text-xs text-stone-400 mt-2">Code not found (try "SAVE10")</p>
+                    {promoCode ? (
+                      // Show applied promo code
+                      <div className="flex items-center justify-between p-3 bg-green-900/20 border border-green-700/50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-400" />
+                          <span className="text-green-400 text-sm font-semibold">{promoCode}</span>
+                          <span className="text-green-500/70 text-xs">10% off applied</span>
+                        </div>
+                        <button
+                          onClick={clearPromoCode}
+                          className="p-1 hover:bg-red-900/30 rounded transition-colors"
+                          title="Remove promo code"
+                        >
+                          <X className="w-4 h-4 text-red-400" />
+                        </button>
+                      </div>
+                    ) : (
+                      // Show promo code input
+                      <>
+                        <div className="flex gap-2">
+                          <Input
+                            type="text"
+                            placeholder="Promo code"
+                            value={promoInput}
+                            onChange={(e) => {
+                              setPromoInput(e.target.value)
+                              setPromoError(null)
+                            }}
+                            onKeyPress={handleKeyPress}
+                            className="bg-stone-950/60 border-stone-600 text-stone-100 placeholder:text-stone-500 focus:border-stone-300 text-sm uppercase"
+                          />
+                          <button
+                            onClick={handleApplyPromo}
+                            className="p-2 text-stone-300 hover:text-stone-100 transition-colors hover:bg-stone-800 rounded"
+                          >
+                            <ArrowLeft className="w-5 h-5 rotate-180" />
+                          </button>
+                        </div>
+                        {promoError && (
+                          <p className="text-xs text-red-400 mt-2">{promoError}</p>
+                        )}
+                      </>
                     )}
                   </div>
 

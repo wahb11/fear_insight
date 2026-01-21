@@ -17,14 +17,22 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     console.log('[DEBUG] Incoming request body:', JSON.stringify(body, null, 2))
 
-    const { orderId, items, customer, tax = 0, shipping = 0 } = body
+    const { orderId, items, customer, tax = 0, shipping = 0, discount = 0 } = body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       console.error('[ERROR] No items provided in the request')
       return NextResponse.json({ error: 'No items provided' }, { status: 400 })
     }
 
-    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = []
+    // Calculate total product value to determine discount ratio
+    let totalProductValue = 0
+    const productDetails: Array<{
+      product: any
+      quantity: number
+      selectedColor: string
+      selectedSize: string
+      discountedPrice: number
+    }> = []
 
     for (let i = 0; i < items.length; i++) {
       const { product, quantity = 1, selectedColor, selectedSize } = items[i]
@@ -35,31 +43,59 @@ export async function POST(req: NextRequest) {
       }
 
       const price = Number(product.price)
-      const discount = Number(product.discount || 0)
-
-      console.log(`[DEBUG] Product #${i} price:`, price, 'discount:', discount, 'quantity:', quantity)
+      const productDiscount = Number(product.discount || 0)
 
       if (isNaN(price) || price <= 0) {
         console.error(`[ERROR] Invalid price for product: ${product.name}`)
         return NextResponse.json({ error: `Invalid price for product: ${product.name}` }, { status: 400 })
       }
 
-      const discountedPrice = price * (1 - discount / 100)
-      const unitAmount = Math.round(discountedPrice * 100) // Stripe requires cents
+      const discountedPrice = price * (1 - productDiscount / 100)
+      totalProductValue += discountedPrice * quantity
+
+      productDetails.push({
+        product,
+        quantity,
+        selectedColor: selectedColor || '',
+        selectedSize: selectedSize || '',
+        discountedPrice,
+      })
+    }
+
+    // Calculate the discount ratio (promo code discount as a percentage of product total)
+    const promoDiscountAmount = Number(discount) || 0
+    const discountRatio = promoDiscountAmount > 0 && totalProductValue > 0 
+      ? promoDiscountAmount / totalProductValue 
+      : 0
+
+    console.log('[DEBUG] Total product value:', totalProductValue, 'Promo discount:', promoDiscountAmount, 'Discount ratio:', discountRatio)
+
+    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = []
+
+    // Add products with promo discount applied proportionally
+    for (const detail of productDetails) {
+      const { product, quantity, selectedColor, selectedSize, discountedPrice } = detail
+      const productDiscount = Number(product.discount || 0)
+      
+      // Apply promo code discount proportionally to each product
+      const finalPrice = discountedPrice * (1 - discountRatio)
+      const unitAmount = Math.round(finalPrice * 100) // Stripe requires cents
+
+      console.log(`[DEBUG] Product: ${product.name}, Original: $${discountedPrice.toFixed(2)}, After promo: $${finalPrice.toFixed(2)}, quantity: ${quantity}`)
 
       line_items.push({
         price_data: {
           currency: 'usd',
           product_data: {
-            name: product.name,
+            name: promoDiscountAmount > 0 ? `${product.name} (10% promo applied)` : product.name,
             description: product.description || '',
             images: product.images || [],
             metadata: {
               product_id: product.id,
               category_id: product.category_id,
-              selectedColor: selectedColor || '',
-              selectedSize: selectedSize || '',
-              discount: discount.toString(),
+              selectedColor,
+              selectedSize,
+              discount: productDiscount.toString(),
               featured: (product.featured || false).toString(),
               best_seller: (product.best_seller || false).toString(),
             },

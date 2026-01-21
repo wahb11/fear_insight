@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Package, Mail, MapPin, Calendar, DollarSign, User, ShoppingBag } from "lucide-react"
+import { Loader2, Package, Mail, MapPin, Calendar, DollarSign, User, ShoppingBag, Tag } from "lucide-react"
 import { Order } from "@/types/order"
 
 export default function OrdersTab() {
@@ -90,6 +90,12 @@ export default function OrdersTab() {
                     >
                       {order.payment ? "✓ Paid" : "⏳ Pending"}
                     </Badge>
+                    {order.promo_code && (
+                      <Badge className="text-xs bg-purple-600/20 text-purple-400 border border-purple-600/30">
+                        <Tag className="w-3 h-3 mr-1" />
+                        {order.promo_code}
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </CardHeader>
@@ -119,6 +125,11 @@ export default function OrdersTab() {
                       <p className="text-stone-100 font-bold text-base">
                         ${order.grand_total.toFixed(2)}
                       </p>
+                      {order.discount && order.discount > 0 && (
+                        <p className="text-green-400 text-xs">
+                          -${order.discount.toFixed(2)} discount
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-start gap-2">

@@ -107,4 +107,3 @@ export function SizeChart({ isOpen, onClose }: SizeChartProps) {
     </AnimatePresence>
   )
 }
-

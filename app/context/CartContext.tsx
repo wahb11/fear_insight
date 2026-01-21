@@ -5,6 +5,15 @@ import { useAllProducts } from '@/hooks/useAllProducts'
 import { Product } from '@/types/products'
 import { Toast } from '@/components/ui/toast'
 
+// Valid influencer promo codes - all give 10% off
+// Add or remove codes here as needed
+const VALID_PROMO_CODES = [
+  'INFLUENCER10',
+  'PARTNER10',
+  'SAVE10',
+  // Add more influencer codes here
+]
+
 export interface CartItem {
   product: Product
   quantity: number
@@ -19,6 +28,11 @@ interface StoredCartItem {
   selectedSize: string
 }
 
+interface StoredCartData {
+  items: StoredCartItem[]
+  promoCode: string | null
+}
+
 interface CartContextType {
   items: CartItem[]
   addToCart: (product: Product, quantity: number, color: string, size: string) => void
@@ -28,9 +42,13 @@ interface CartContextType {
   subtotal: number
   tax: number
   shipping: number
+  discount: number
+  promoCode: string | null
   total: number
   shippingType: 'standard' | 'express' | 'overnight'
   setShippingType: (type: 'standard' | 'express' | 'overnight') => void
+  applyPromoCode: (code: string) => { success: boolean; message: string }
+  clearPromoCode: () => void
   showToast: (message: string) => void
 }
 
@@ -41,6 +59,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [subtotal, setSubtotal] = useState(0)
   const [tax, setTax] = useState(0)
   const [shipping, setShipping] = useState(0)
+  const [discount, setDiscount] = useState(0)
+  const [promoCode, setPromoCode] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   const [shippingType, setShippingType] = useState<'standard' | 'express' | 'overnight'>('standard')
   const [isHydrated, setIsHydrated] = useState(false)
@@ -63,8 +83,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
     
     try {
-      const parsed: StoredCartItem[] = JSON.parse(stored)
-      const validated = parsed
+      const parsed = JSON.parse(stored)
+      
+      // Handle both old format (array) and new format (object with items and promoCode)
+      let storedItems: StoredCartItem[] = []
+      let storedPromoCode: string | null = null
+      
+      if (Array.isArray(parsed)) {
+        // Old format - just items array
+        storedItems = parsed
+      } else {
+        // New format - object with items and promoCode
+        storedItems = parsed.items || []
+        storedPromoCode = parsed.promoCode || null
+      }
+      
+      const validated = storedItems
         .map(storedItem => {
           const product = products.find((p: Product) => p.id === storedItem.productId)
           if (!product) return null
@@ -96,6 +130,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         })
         .filter(Boolean) as CartItem[]
       setItems(validated)
+      
+      // Restore promo code if it's still valid
+      if (storedPromoCode && VALID_PROMO_CODES.includes(storedPromoCode.toUpperCase())) {
+        setPromoCode(storedPromoCode.toUpperCase())
+      }
     } catch (error) {
       console.error('Error loading cart from localStorage:', error)
     }
@@ -103,7 +142,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsHydrated(true)
   }, [isSuccess, products, isHydrated])
 
-  // Save to localStorage and calculate totals whenever items change
+  // Save to localStorage and calculate totals whenever items, shippingType, or promoCode change
   useEffect(() => {
     if (!isHydrated) return
     
@@ -116,20 +155,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     )
     const newTax = 0
     const newShipping = shippingType === 'standard' ? 0 : shippingType === 'express' ? 12.99 : 24.99
-    const newTotal = newSubtotal + newShipping
+    
+    // Calculate 10% discount if promo code is applied
+    const newDiscount = promoCode ? newSubtotal * 0.1 : 0
+    
+    const newTotal = newSubtotal - newDiscount + newShipping
+    
     setSubtotal(newSubtotal)
     setTax(newTax)
     setShipping(newShipping)
+    setDiscount(newDiscount)
     setTotal(newTotal)
 
-    const stored: StoredCartItem[] = items.map(i => ({
-      productId: i.product.id,
-      quantity: i.quantity,
-      selectedColor: i.selectedColor,
-      selectedSize: i.selectedSize,
-    }))
-    localStorage.setItem('cart', JSON.stringify(stored))
-  }, [items, isHydrated, shippingType])
+    // Save to localStorage with new format
+    const storedData: StoredCartData = {
+      items: items.map(i => ({
+        productId: i.product.id,
+        quantity: i.quantity,
+        selectedColor: i.selectedColor,
+        selectedSize: i.selectedSize,
+      })),
+      promoCode: promoCode
+    }
+    localStorage.setItem('cart', JSON.stringify(storedData))
+  }, [items, isHydrated, shippingType, promoCode])
 
   const addToCart = (product: Product, quantity: number, color: string, size: string) => {
     // Check if color exists in product (handles string arrays)
@@ -187,11 +236,56 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     ))
   }
 
-  const clearCart = () => setItems([])
+  const clearCart = () => {
+    setItems([])
+    setPromoCode(null)
+  }
+
+  const applyPromoCode = (code: string): { success: boolean; message: string } => {
+    const upperCode = code.trim().toUpperCase()
+    
+    if (!upperCode) {
+      return { success: false, message: 'Please enter a promo code' }
+    }
+    
+    if (promoCode === upperCode) {
+      return { success: false, message: 'This code is already applied' }
+    }
+    
+    if (VALID_PROMO_CODES.includes(upperCode)) {
+      setPromoCode(upperCode)
+      showToast('Promo code applied! 10% off your order')
+      return { success: true, message: 'Promo code applied! 10% off your order' }
+    }
+    
+    return { success: false, message: 'Invalid promo code' }
+  }
+
+  const clearPromoCode = () => {
+    setPromoCode(null)
+    showToast('Promo code removed')
+  }
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, subtotal, tax, shipping, total, shippingType, setShippingType, showToast }}
+      value={{ 
+        items, 
+        addToCart, 
+        removeFromCart, 
+        updateQuantity, 
+        clearCart, 
+        subtotal, 
+        tax, 
+        shipping, 
+        discount,
+        promoCode,
+        total, 
+        shippingType, 
+        setShippingType, 
+        applyPromoCode,
+        clearPromoCode,
+        showToast 
+      }}
     >
       {children}
       <Toast
