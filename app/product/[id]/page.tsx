@@ -1,21 +1,36 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { getProductById } from '@/functions/getProductById'
 import { getAllProducts } from '@/functions/getAllProducts'
 import ProductDetailClient from '@/components/product/ProductDetailClient'
 import Script from 'next/script'
 import { generateProductSchema, generateBreadcrumbSchema, schemaToJsonLd } from '@/lib/seo/structured-data'
-import { Product } from '@/types/products'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fearinsight.com'
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://fearinsight.com').replace(/\/$/, '')
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
 
+// Pre-render all product pages at build time for faster loading
+export async function generateStaticParams() {
+  try {
+    const products = await getAllProducts()
+    return products.map((product) => ({
+      id: product.id,
+    }))
+  } catch (error) {
+    console.error('Error generating static params:', error)
+    return []
+  }
+}
+
+// Revalidate every 60 seconds for ISR (Incremental Static Regeneration)
+export const revalidate = 60
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
-  const products = await getAllProducts()
-  const product = products.find((p: Product) => p.id === id)
+  const product = await getProductById(id)
 
   if (!product) {
     return {
@@ -39,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `${product.name} | Fear Insight`,
       description: productDescription,
       url: productUrl,
-      type: 'product',
+      type: 'website',
       images: [
         {
           url: primaryImage,
@@ -66,8 +81,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductPage({ params }: PageProps) {
   const { id } = await params
-  const products = await getAllProducts()
-  const product = products.find((p: Product) => p.id === id)
+  const product = await getProductById(id)
 
   if (!product) {
     notFound()
