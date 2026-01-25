@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fearinsight.com'
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://fearinsight.com').replace(/\/$/, '')
 
 export const metadata: Metadata = {
   title: 'Checkout',
@@ -12,4 +12,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${siteUrl}/checkout`,
   },
+}
+
+export default function CheckoutLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <>{children}</>
 }

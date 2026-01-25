@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fearinsight.com'
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://fearinsight.com').replace(/\/$/, '')
 
 export const metadata: Metadata = {
   title: 'FAQ',
@@ -14,4 +14,12 @@ export const metadata: Metadata = {
     url: `${siteUrl}/faq`,
     type: 'website',
   },
+}
+
+export default function FAQLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <>{children}</>
 }
