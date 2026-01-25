@@ -80,7 +80,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             {imageUrl ? (
               <img
                 src={imageUrl}
-                alt={product.name}
+                alt={`${product.name} - Featured Collection - Fear Insight`}
                 className="w-full h-full object-cover rounded-t-lg z-10"
               />
             ) : (

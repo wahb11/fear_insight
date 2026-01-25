@@ -387,7 +387,7 @@ export default function ProductsPage() {
                         {firstImage ? (
                           <img
                             src={firstImage}
-                            alt={product.name}
+                            alt={`${product.name} - Shop at Fear Insight`}
                             className="w-full h-full object-cover"
                           />
                         ) : (

@@ -206,7 +206,7 @@ export default function BestSellers() {
                         {p.images[0] ? (
                           <img
                             src={p.images[0]}
-                            alt={p.name}
+                            alt={`${p.name} - Best Seller - Fear Insight Premium Streetwear`}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                         ) : (
