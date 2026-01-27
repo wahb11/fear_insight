@@ -28,6 +28,7 @@ export default function CheckoutPage() {
     zipCode: '',
     country: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -39,6 +40,10 @@ export default function CheckoutPage() {
 
   const handleShippingSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Prevent double submission
+    if (isSubmitting) return
+    
     if (
       formData.firstName &&
       formData.lastName &&
@@ -51,6 +56,7 @@ export default function CheckoutPage() {
       formData.country &&
       items.length > 0
     ) {
+      setIsSubmitting(true)
       try {
         const order = await createOrder({
           first_name: formData.firstName,
@@ -94,14 +100,27 @@ export default function CheckoutPage() {
           }),
         })
 
-
         const data = await res.json()
-        if (data.url) window.location.href = data.url
+        
+        if (!res.ok) {
+          console.error('Stripe session error:', data)
+          alert(`Error: ${data.error || 'Failed to create checkout session'}`)
+          setIsSubmitting(false)
+          return
+        }
+        
+        if (data.url) {
+          window.location.href = data.url
+        } else {
+          console.error('No URL in response:', data)
+          alert('Failed to redirect to payment. Please try again.')
+          setIsSubmitting(false)
+        }
 
-        //   alert(`Order placed successfully! Thank you ${formData.firstName} ${formData.lastName}. We'll send confirmation to ${formData.email}`)
-
-      } catch {
+      } catch (error) {
+        console.error('Checkout error:', error)
         alert('There was an error placing your order. Please try again.')
+        setIsSubmitting(false)
       }
 
     } else {
@@ -394,10 +413,11 @@ export default function CheckoutPage() {
                   </Button>
                 </Link>
                 <Button
-                  onClick={handleShippingSubmit}
-                  className="w-full sm:w-auto bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Place Order
+                  {isSubmitting ? 'Processing...' : 'Place Order'}
                 </Button>
               </motion.div>
             </motion.form>
