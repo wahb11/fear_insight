@@ -18,6 +18,14 @@ export async function POST(req: NextRequest) {
     console.log('[DEBUG] Incoming request body:', JSON.stringify(body, null, 2))
 
     const { orderId, items, customer, tax = 0, shipping = 0, discount = 0 } = body
+    
+    // Get base URL from environment or request origin
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL 
+      || process.env.NEXT_PUBLIC_URL 
+      || req.headers.get('origin') 
+      || `https://${req.headers.get('host')}`
+    
+    console.log('[DEBUG] Using base URL:', baseUrl)
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       console.error('[ERROR] No items provided in the request')
@@ -137,8 +145,8 @@ export async function POST(req: NextRequest) {
       line_items,
       mode: 'payment',
       customer_email: customer.email,
-      success_url: `${process.env.NEXT_PUBLIC_URL}/checkout-success?order_id=${orderId}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout-cancel?order_id=${orderId}`,
+      success_url: `${baseUrl}/checkout-success?order_id=${orderId}`,
+      cancel_url: `${baseUrl}/checkout-cancel?order_id=${orderId}`,
       metadata: { orderId },
     })
 
