@@ -63,7 +63,7 @@ export default function Collections() {
         return prev >= maxIndex ? 0 : prev + 1
       })
     }, 5000)
-
+    
     return () => {
       if (autoPlayRef.current) {
         clearInterval(autoPlayRef.current)
@@ -196,26 +196,26 @@ export default function Collections() {
 
           {/* Cards Container */}
           <div ref={containerRef} className="overflow-hidden">
-            <motion.div
+          <motion.div
               className="flex"
               style={{ gap: `${gap}px` }}
               animate={{ x: -translateX }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
+          >
               {products.map((product, index) => (
-                <div 
+              <div 
                   key={product.id} 
-                  className="flex-shrink-0 h-full"
+                className="flex-shrink-0 h-full"
                   style={{ width: cardWidth > 0 ? `${cardWidth}px` : `calc(${100 / cardsToShow}% - ${(cardsToShow - 1) * gap / cardsToShow}px)` }}
-                >
-                  <CollectionsProductCard 
-                    product={product} 
+              >
+                <CollectionsProductCard 
+                  product={product} 
                     index={index}
-                  />
-                </div>
-              ))}
-            </motion.div>
-          </div>
+                />
+              </div>
+            ))}
+          </motion.div>
+        </div>
 
           {/* Pagination Dots */}
           {dotCount > 1 && (

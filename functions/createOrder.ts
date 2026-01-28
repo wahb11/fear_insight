@@ -16,7 +16,7 @@ export async function createOrder(orderData: {
   state?: string
   zip_code?: string
   country?: string
-  products: { product_id: string; size: string; color: string; quantity: number }[]
+  products: { product_id: string; name: string; size: string; color: string; quantity: number }[]
   payment?: boolean
   tax?: number
   shipping?: number

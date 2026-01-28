@@ -19,6 +19,7 @@ export type Order = {
   created_at: string
   products: {
     product_id: string
+    name: string
     size: string
     color: string
     quantity: number

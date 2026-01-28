@@ -425,16 +425,16 @@ export default function ProductsTab() {
                         {/* Product Image */}
                         <div className="flex-shrink-0 mx-auto sm:mx-0">
                           {product.images && product.images[0] ? (
-                            <img
-                              src={product.images[0]}
-                              alt={product.name}
+                          <img
+                            src={product.images[0]}
+                            alt={product.name}
                               className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-stone-700"
-                            />
+                          />
                           ) : (
                             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-stone-700 rounded-lg flex items-center justify-center">
                               <Package className="w-8 h-8 text-stone-500" />
                             </div>
-                          )}
+                        )}
                         </div>
                         
                         {/* Product Info */}
@@ -637,36 +637,36 @@ export default function ProductsTab() {
                 {/* Image Previews */}
                 {previews.length > 0 && (
                   <div className="flex flex-wrap gap-3">
-                    {previews.map((preview, index) => (
+                  {previews.map((preview, index) => (
                       <div key={index} className="relative group">
-                        <img
-                          src={preview}
-                          alt={`Preview ${index + 1}`}
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
                           className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-stone-700"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
                           className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full p-1 shadow-lg transition-colors"
-                        >
+                      >
                           <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                      </button>
+                    </div>
+                  ))}
+                </div>
                 )}
                 
                 {/* Upload Input */}
                 <div className="relative">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageChange}
+                <Input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageChange}
                     className="bg-stone-800 border-stone-700 text-stone-100 h-10 file:bg-stone-700 file:text-stone-100 file:border-0 file:mr-3 file:px-3 file:h-10 file:cursor-pointer"
-                  />
-                </div>
-                
+                />
+              </div>
+
                 {previews.length === 0 && (
                   <p className="text-xs text-stone-500 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
@@ -830,19 +830,19 @@ export default function ProductsTab() {
                   {editingProduct.images?.length > 0 ? (
                     editingProduct.images.map((img, idx) => (
                       <div key={idx} className="relative group">
-                        <img
-                          src={img}
-                          alt={`Product image ${idx + 1}`}
+                      <img
+                        src={img}
+                        alt={`Product image ${idx + 1}`}
                           className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-stone-700"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(editingProduct.id, img)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(editingProduct.id, img)}
                           className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full p-1 shadow-lg transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
                     ))
                   ) : (
                     <p className="text-stone-500 text-sm">No images</p>
@@ -919,23 +919,23 @@ export default function ProductsTab() {
             {/* New Image Previews */}
             {newImagePreviews.length > 0 && (
               <div className="flex flex-wrap gap-3">
-                {newImagePreviews.map((preview, index) => (
+              {newImagePreviews.map((preview, index) => (
                   <div key={index} className="relative group">
-                    <img
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
+                  <img
+                    src={preview}
+                    alt={`Preview ${index + 1}`}
                       className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-stone-700"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeNewImage(index)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeNewImage(index)}
                       className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full p-1 shadow-lg transition-colors"
-                    >
+                  >
                       <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+                  </button>
+                </div>
+              ))}
+            </div>
             )}
             
             {/* File Input */}

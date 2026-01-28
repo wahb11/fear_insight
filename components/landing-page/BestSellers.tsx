@@ -23,7 +23,7 @@ export default function BestSellers() {
 
   const { data, isLoading, error } = useAllProducts()
   const products = data ? data.filter(product => product.best_seller) : []
-
+  
   // Calculate cards to show and card width based on screen size
   useEffect(() => {
     const updateLayout = () => {
@@ -68,7 +68,7 @@ export default function BestSellers() {
         return prev >= maxIndex ? 0 : prev + 1
       })
     }, 4000)
-
+    
     return () => {
       if (autoPlayRef.current) {
         clearInterval(autoPlayRef.current)
@@ -79,9 +79,9 @@ export default function BestSellers() {
   const scrollTo = useCallback((direction: 'left' | 'right') => {
     const maxIndex = products.length - cardsToShow
     setCurrentIndex((prev) => {
-      if (direction === 'right') {
+    if (direction === 'right') {
         return prev >= maxIndex ? 0 : prev + 1
-      } else {
+    } else {
         return prev <= 0 ? maxIndex : prev - 1
       }
     })
@@ -162,54 +162,54 @@ export default function BestSellers() {
           {/* Navigation Arrows */}
           {products.length > cardsToShow && (
             <>
-              <motion.button
+          <motion.button
                 onClick={() => scrollTo('left')}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-amber-500/50 transition-colors group"
-              >
+          >
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-amber-400 transition-colors" />
-              </motion.button>
-              <motion.button
+          </motion.button>
+          <motion.button
                 onClick={() => scrollTo('right')}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-amber-500/50 transition-colors group"
-              >
+          >
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-amber-400 transition-colors" />
-              </motion.button>
+          </motion.button>
             </>
           )}
 
           {/* Cards Container */}
           <div ref={containerRef} className="overflow-hidden">
-            <motion.div
+          <motion.div
               className="flex"
               style={{ gap: `${gap}px` }}
               animate={{ x: -translateX }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
+          >
               {products.map((p: Product, i: number) => (
-                <motion.div 
+              <motion.div 
                   key={p.id}
-                  className="flex-shrink-0"
+                className="flex-shrink-0"
                   style={{ width: cardWidth > 0 ? `${cardWidth}px` : `calc(${100 / cardsToShow}% - ${(cardsToShow - 1) * gap / cardsToShow}px)` }}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   viewport={{ once: true }}
-                >
+              >
                   <Card className="bg-gradient-to-b from-stone-900/90 to-stone-950/90 border border-stone-700/50 hover:border-amber-500/30 transition-all duration-500 h-full flex flex-col group overflow-hidden shadow-lg shadow-black/20">
                     <CardContent className="p-0 flex flex-col flex-1">
                       {/* Image Container */}
                       <div className="relative w-full aspect-[4/5] overflow-hidden">
-                        {p.images[0] ? (
-                          <img
-                            src={p.images[0]}
+                      {p.images[0] ? (
+                        <img
+                          src={p.images[0]}
                             alt={`${p.name} - Best Seller - Fear Insight Premium Streetwear`}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                          />
-                        ) : (
+                        />
+                      ) : (
                           <div className="w-full h-full bg-gradient-to-br from-stone-800 to-stone-900 flex items-center justify-center">
                             <ShoppingBag className="w-12 h-12 text-stone-600" />
                           </div>
@@ -259,26 +259,26 @@ export default function BestSellers() {
                           <span className="text-xl sm:text-2xl font-bold text-stone-100">${p.price.toFixed(2)}</span>
                           {p.discount > 0 && (
                             <span className="text-sm text-stone-500 line-through">${(p.price * (1 + p.discount / 100)).toFixed(2)}</span>
-                          )}
-                        </div>
+                      )}
+                    </div>
 
-                        <Link 
-                          href={`/product/${p.id}`} 
+                      <Link 
+                        href={`/product/${p.id}`} 
                           className="mt-auto w-full"
-                        >
+                      >
                           <button
                             className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-amber-600 hover:to-amber-700 text-stone-100 px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 border border-stone-700/50 hover:border-amber-500/50"
-                          >
+                        >
                             <ShoppingBag className="w-4 h-4" />
                             Shop Now
                           </button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
           </div>
 
           {/* Pagination Dots */}
@@ -303,37 +303,37 @@ export default function BestSellers() {
       {/* Zoom Modal */}
       <AnimatePresence>
         {zoomImage && zoomProduct && (
-          <motion.div
+        <motion.div
             className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => {
-              setZoomImage(null)
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => {
+            setZoomImage(null)
               setZoomProduct(null)
-            }}
-          >
-            <motion.div
+          }}
+        >
+          <motion.div
               className="relative max-w-4xl w-full mx-4 bg-stone-900 rounded-2xl overflow-hidden border border-stone-700/50 shadow-2xl"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
                 onClick={() => {
                   setZoomImage(null)
                   setZoomProduct(null)
                 }}
                 className="absolute top-4 right-4 bg-stone-800/90 hover:bg-stone-700 rounded-full p-2 transition-colors z-10 shadow-lg border border-stone-600/50"
-              >
+            >
                 <X className="w-5 h-5 text-stone-100" />
-              </button>
+            </button>
               
               <div className="flex flex-col md:flex-row">
                 <div className="md:w-1/2">
-                  <img
-                    src={zoomImage}
+            <img
+              src={zoomImage}
                     alt={zoomProduct.name}
                     className="w-full h-64 md:h-full object-cover"
                   />
@@ -359,9 +359,9 @@ export default function BestSellers() {
                   </Link>
                 </div>
               </div>
-            </motion.div>
           </motion.div>
-        )}
+        </motion.div>
+      )}
       </AnimatePresence>
     </section>
   )

@@ -94,7 +94,7 @@ export default function OrdersTab() {
                       <Badge className="text-xs bg-purple-600/20 text-purple-400 border border-purple-600/30">
                         <Tag className="w-3 h-3 mr-1" />
                         {order.promo_code}
-                      </Badge>
+                    </Badge>
                     )}
                   </div>
                 </div>
@@ -104,12 +104,12 @@ export default function OrdersTab() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-sm">
                   <div className="flex items-start gap-2">
                     <User className="w-4 h-4 text-stone-500 mt-0.5 flex-shrink-0" />
-                    <div>
+                  <div>
                       <p className="text-stone-500 text-xs">Customer</p>
-                      <p className="text-stone-100 font-medium">
-                        {order.first_name} {order.last_name}
-                      </p>
-                    </div>
+                    <p className="text-stone-100 font-medium">
+                      {order.first_name} {order.last_name}
+                    </p>
+                  </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <Mail className="w-4 h-4 text-stone-500 mt-0.5 flex-shrink-0" />
@@ -120,11 +120,11 @@ export default function OrdersTab() {
                   </div>
                   <div className="flex items-start gap-2">
                     <DollarSign className="w-4 h-4 text-stone-500 mt-0.5 flex-shrink-0" />
-                    <div>
+                  <div>
                       <p className="text-stone-500 text-xs">Total</p>
                       <p className="text-stone-100 font-bold text-base">
-                        ${order.grand_total.toFixed(2)}
-                      </p>
+                      ${order.grand_total.toFixed(2)}
+                    </p>
                       {order.discount && order.discount > 0 && (
                         <p className="text-green-400 text-xs">
                           -${order.discount.toFixed(2)} discount
@@ -134,11 +134,11 @@ export default function OrdersTab() {
                   </div>
                   <div className="flex items-start gap-2">
                     <Calendar className="w-4 h-4 text-stone-500 mt-0.5 flex-shrink-0" />
-                    <div>
+                  <div>
                       <p className="text-stone-500 text-xs">Date</p>
-                      <p className="text-stone-100 font-medium">
-                        {new Date(order.created_at).toLocaleDateString()}
-                      </p>
+                    <p className="text-stone-100 font-medium">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </p>
                     </div>
                   </div>
                 </div>
@@ -150,8 +150,8 @@ export default function OrdersTab() {
                     <div>
                       <p className="text-stone-500 text-xs mb-1">Shipping Address</p>
                       <p className="text-stone-200">
-                        {order.address}, {order.city}, {order.state} {order.zip_code}
-                      </p>
+                      {order.address}, {order.city}, {order.state} {order.zip_code}
+                    </p>
                     </div>
                   </div>
                 )}
@@ -169,7 +169,10 @@ export default function OrdersTab() {
                           {product.quantity}
                         </span>
                         <span className="flex-1">
-                          {product.color} - Size {product.size}
+                          <span className="text-stone-100 font-medium">{product.name || 'Unknown Product'}</span>
+                          <span className="text-stone-400 text-xs ml-2">
+                            {product.color} • Size {product.size}
+                          </span>
                         </span>
                       </div>
                     ))}
