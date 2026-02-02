@@ -381,9 +381,9 @@ export default function ProductsPage() {
                     whileHover={{ scale: 1.02 }}
                     className="group cursor-pointer h-full"
                   >
-                    <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300 flex flex-col">
+                    <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300 flex flex-col rounded-lg">
                       {/* Product Image */}
-                      <div className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden">
+                      <div className="relative aspect-square overflow-hidden">
                         {firstImage ? (
                           <img
                             src={firstImage}
@@ -391,36 +391,23 @@ export default function ProductsPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div
-                            className="w-full h-full flex items-center justify-center rounded-t-lg relative bg-stone-800"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-br from-stone-950/20 to-transparent" />
-                            <div className="text-stone-100 text-center z-10">
-                              <div className="w-32 h-32 mx-auto mb-4 relative">
-                                {/* Simple hoodie shape */}
-                                <div className="absolute inset-0 bg-stone-100/90 rounded-t-full" />
-                                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-stone-100/90 rounded-full" />
-                                <div className="absolute top-8 left-2 w-8 h-16 bg-stone-100/90 rounded-full transform -rotate-12" />
-                                <div className="absolute top-8 right-2 w-8 h-16 bg-stone-100/90 rounded-full transform rotate-12" />
-                                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-stone-100/70 rounded" />
-                              </div>
-                              <div className="text-sm font-medium text-stone-100">Premium Product</div>
-                            </div>
+                          <div className="w-full h-full flex items-center justify-center bg-stone-800">
+                            <ShoppingBag className="w-12 h-12 text-stone-600" />
                           </div>
                         )}
 
-                        {/* Single Badge - Priority: discount > bestseller > featured */}
-                        <div className="absolute top-4 right-4 z-20">
+                        {/* Badge - smaller on mobile */}
+                        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20">
                           {product.discount > 0 ? (
-                            <Pill color="green">SALE</Pill>
+                            <span className="bg-stone-100 text-stone-950 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">SALE</span>
                           ) : product.best_seller ? (
-                            <Pill color="yellow">BESTSELLER</Pill>
+                            <span className="bg-stone-300 text-stone-950 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">BEST</span>
                           ) : product.featured ? (
-                            <Pill color="green">FEATURED</Pill>
+                            <span className="bg-stone-100 text-stone-950 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">NEW</span>
                           ) : null}
                         </div>
 
-                        {/* Hover Actions - Hidden on mobile to prevent click interference */}
+                        {/* Hover Actions - Desktop only */}
                         <div className="hidden md:flex absolute inset-0 bg-stone-950/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center gap-4 pointer-events-none group-hover:pointer-events-auto z-30">
                           <motion.button
                             whileHover={{ scale: 1.1 }}
@@ -451,83 +438,70 @@ export default function ProductsPage() {
                         </div>
                       </div>
 
-                      <CardContent className="p-3 sm:p-4 md:p-6 flex flex-col flex-grow">
-                        {/* Product Info - grows to fill space */}
-                        <div className="flex-grow">
-                          <h3 className="text-sm sm:text-base md:text-lg font-bold text-stone-100 group-hover:text-stone-300 transition-colors mb-2 sm:mb-3 line-clamp-2">
-                            {product.name}
-                          </h3>
+                      {/* Product Info - Compact */}
+                      <CardContent className="p-2.5 sm:p-3 md:p-4 flex flex-col flex-grow">
+                        {/* Product Name */}
+                        <h3 className="text-xs sm:text-sm md:text-base font-semibold text-stone-100 group-hover:text-stone-300 transition-colors line-clamp-1 mb-1.5">
+                          {product.name}
+                        </h3>
 
-                          {/* Colors - clean swatches only */}
-                          {colorList.length > 0 && (
-                            <div className="flex items-center gap-1 sm:gap-1.5 mb-2 sm:mb-3">
-                              {colorList.slice(0, 4).map((colorName, idx) => (
-                                <span
-                                  key={`${colorName}-${idx}`}
-                                  className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-stone-600 hover:border-stone-400 transition-colors"
-                                  style={{ backgroundColor: getColorValue(colorName) }}
-                                  title={colorName}
-                                />
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Price */}
-                          <div className="flex items-center mb-2 sm:mb-3">
-                            <span className="text-lg sm:text-xl md:text-2xl font-bold text-stone-100">${finalPrice.toFixed(2)}</span>
+                        {/* Price and Rating Row */}
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-sm sm:text-base md:text-lg font-bold text-stone-100">${finalPrice.toFixed(2)}</span>
                             {product.discount > 0 && (
-                              <span className="text-stone-500 line-through ml-2 text-xs sm:text-sm">${product.price.toFixed(2)}</span>
+                              <span className="text-stone-500 line-through text-[10px] sm:text-xs">${product.price.toFixed(2)}</span>
                             )}
                           </div>
-
-                          {/* Rating */}
-                          <div className="flex items-center mb-2 sm:mb-3 md:mb-4">
-                            <div className="flex items-center space-x-0.5 sm:space-x-1 mr-1 sm:mr-2">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.ratings)
-                                    ? "fill-stone-400 text-stone-400"
-                                    : "text-stone-600"
-                                    }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-xs sm:text-sm text-stone-400">({product.ratings.toFixed(1)})</span>
+                          <div className="flex items-center">
+                            <Star className="w-3 h-3 fill-stone-400 text-stone-400" />
+                            <span className="text-[10px] sm:text-xs text-stone-400 ml-0.5">{product.ratings.toFixed(1)}</span>
                           </div>
-
-                          {/* Sizes */}
-                          {availableSizes.length > 0 && (
-                            <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-2 sm:mb-3 md:mb-4">
-                              {availableSizes.slice(0, 3).map((size, idx) => (
-                                <span
-                                  key={`${size}-${idx}`}
-                                  className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-stone-800 text-stone-200 rounded text-[10px] sm:text-xs border border-stone-700"
-                                >
-                                  {size.toUpperCase()}
-                                </span>
-                              ))}
-                            </div>
-                          )}
                         </div>
 
-                        {/* Add to Cart Button - always at bottom */}
-                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mt-auto">
-                          <Button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              if (colorList.length > 0 && availableSizes.length > 0) {
-                                addToCart(product, 1, firstColor, availableSizes[0])
-                              }
-                            }}
-                            className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25 text-xs sm:text-sm py-2 sm:py-2.5"
-                          >
-                            <span className="hidden sm:inline">Add to Cart</span>
-                            <span className="sm:hidden">Add</span>
-                            <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform" />
-                          </Button>
-                        </motion.div>
+                        {/* Colors - Compact row */}
+                        {colorList.length > 0 && (
+                          <div className="flex items-center gap-1 mb-2">
+                            {colorList.slice(0, 3).map((colorName, idx) => (
+                              <span
+                                key={`${colorName}-${idx}`}
+                                className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-stone-600"
+                                style={{ backgroundColor: getColorValue(colorName) }}
+                                title={colorName}
+                              />
+                            ))}
+                            {colorList.length > 3 && (
+                              <span className="text-[10px] text-stone-500">+{colorList.length - 3}</span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Sizes - Hidden on very small screens, shown on sm+ */}
+                        <div className="hidden sm:flex flex-wrap gap-1 mb-2">
+                          {availableSizes.slice(0, 4).map((size, idx) => (
+                            <span
+                              key={`${size}-${idx}`}
+                              className="px-1.5 py-0.5 bg-stone-800 text-stone-300 rounded text-[10px] border border-stone-700"
+                            >
+                              {size.toUpperCase()}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Add to Cart Button */}
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            if (colorList.length > 0 && availableSizes.length > 0) {
+                              addToCart(product, 1, firstColor, availableSizes[0])
+                            }
+                          }}
+                          className="w-full mt-auto bg-stone-800 hover:bg-stone-700 text-stone-100 text-[11px] sm:text-xs py-1.5 sm:py-2 h-auto"
+                        >
+                          <ShoppingBag className="w-3 h-3 mr-1" />
+                          Add
+                        </Button>
                       </CardContent>
                     </Card>
                   </motion.div>
