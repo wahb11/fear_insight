@@ -16,7 +16,7 @@ export default function BestSellers() {
   const [zoomImage, setZoomImage] = useState<string | null>(null)
   const [zoomProduct, setZoomProduct] = useState<Product | null>(null)
   const [isPaused, setIsPaused] = useState(false)
-  const [cardsToShow, setCardsToShow] = useState(4)
+  const [cardsToShow, setCardsToShow] = useState(2) // Start with 2 for mobile
   const [cardWidth, setCardWidth] = useState(0)
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null)
   const gap = 16 // gap-4 = 16px
@@ -29,14 +29,15 @@ export default function BestSellers() {
     const updateLayout = () => {
       const width = window.innerWidth
       let cards = 4
+      // Show 2 products on mobile (even small screens), 2 on tablet, 3 on desktop, 4 on large screens
       if (width < 640) {
-        cards = 2
+        cards = 2  // Mobile: 2 products side by side
       } else if (width < 768) {
-        cards = 2
+        cards = 2  // Small tablet: 2 products
       } else if (width < 1024) {
-        cards = 3
+        cards = 3  // Tablet: 3 products
       } else {
-        cards = 4
+        cards = 4  // Desktop: 4 products
       }
       setCardsToShow(cards)
       
@@ -182,7 +183,7 @@ export default function BestSellers() {
           )}
 
           {/* Cards Container */}
-          <div ref={containerRef} className="overflow-hidden">
+          <div ref={containerRef} className="overflow-hidden w-full">
           <motion.div
               className="flex"
               style={{ gap: `${gap}px` }}
@@ -193,7 +194,12 @@ export default function BestSellers() {
               <motion.div 
                   key={p.id}
                 className="flex-shrink-0"
-                  style={{ width: cardWidth > 0 ? `${cardWidth}px` : `calc(${100 / cardsToShow}% - ${(cardsToShow - 1) * gap / cardsToShow}px)` }}
+                  style={{ 
+                    width: cardWidth > 0 
+                      ? `${cardWidth}px` 
+                      : `calc((100% - ${(cardsToShow - 1) * gap}px) / ${cardsToShow})`,
+                    minWidth: cardWidth > 0 ? `${cardWidth}px` : `calc((100% - ${(cardsToShow - 1) * gap}px) / ${cardsToShow})`
+                  }}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}

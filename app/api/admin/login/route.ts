@@ -7,13 +7,14 @@ export async function POST(req: NextRequest) {
     const adminPassword = process.env.ADMIN_PASSWORD || "admin123" // Change this in production!
 
     if (password === adminPassword) {
-      // Set a secure cookie for admin session
+      // Set a session-only cookie - expires when browser closes, requires password every time
       const cookieStore = await cookies()
       cookieStore.set("admin_session", "authenticated", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        // No maxAge = session cookie that expires when browser closes
+        // This requires password entry every time the browser is opened
       })
 
       return NextResponse.json({ success: true })
