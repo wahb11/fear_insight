@@ -360,7 +360,7 @@ export default function ProductsPage() {
       {/* Products Grid */}
       <section className="py-12 px-4 bg-stone-950">
         <div className="container mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
             {sortedProducts.map((product: Product, index: number) => {
               const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
               const firstImage = product.images?.[0] || ""
@@ -383,7 +383,7 @@ export default function ProductsPage() {
                   >
                     <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300 flex flex-col">
                       {/* Product Image */}
-                      <div className="relative h-80 overflow-hidden">
+                      <div className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden">
                         {firstImage ? (
                           <img
                             src={firstImage}
@@ -451,20 +451,20 @@ export default function ProductsPage() {
                         </div>
                       </div>
 
-                      <CardContent className="p-6 flex flex-col flex-grow">
+                      <CardContent className="p-3 sm:p-4 md:p-6 flex flex-col flex-grow">
                         {/* Product Info - grows to fill space */}
                         <div className="flex-grow">
-                          <h3 className="text-lg font-bold text-stone-100 group-hover:text-stone-300 transition-colors mb-3">
+                          <h3 className="text-sm sm:text-base md:text-lg font-bold text-stone-100 group-hover:text-stone-300 transition-colors mb-2 sm:mb-3 line-clamp-2">
                             {product.name}
                           </h3>
 
                           {/* Colors - clean swatches only */}
                           {colorList.length > 0 && (
-                            <div className="flex items-center gap-1.5 mb-3">
-                              {colorList.map((colorName, idx) => (
+                            <div className="flex items-center gap-1 sm:gap-1.5 mb-2 sm:mb-3">
+                              {colorList.slice(0, 4).map((colorName, idx) => (
                                 <span
                                   key={`${colorName}-${idx}`}
-                                  className="w-5 h-5 rounded-full border-2 border-stone-600 hover:border-stone-400 transition-colors"
+                                  className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-stone-600 hover:border-stone-400 transition-colors"
                                   style={{ backgroundColor: getColorValue(colorName) }}
                                   title={colorName}
                                 />
@@ -473,36 +473,36 @@ export default function ProductsPage() {
                           )}
 
                           {/* Price */}
-                          <div className="flex items-center mb-3">
-                            <span className="text-2xl font-bold text-stone-100">${finalPrice.toFixed(2)}</span>
+                          <div className="flex items-center mb-2 sm:mb-3">
+                            <span className="text-lg sm:text-xl md:text-2xl font-bold text-stone-100">${finalPrice.toFixed(2)}</span>
                             {product.discount > 0 && (
-                              <span className="text-stone-500 line-through ml-2">${product.price.toFixed(2)}</span>
+                              <span className="text-stone-500 line-through ml-2 text-xs sm:text-sm">${product.price.toFixed(2)}</span>
                             )}
                           </div>
 
                           {/* Rating */}
-                          <div className="flex items-center mb-4">
-                            <div className="flex items-center space-x-1 mr-2">
+                          <div className="flex items-center mb-2 sm:mb-3 md:mb-4">
+                            <div className="flex items-center space-x-0.5 sm:space-x-1 mr-1 sm:mr-2">
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
-                                  className={`w-4 h-4 ${i < Math.floor(product.ratings)
+                                  className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.ratings)
                                     ? "fill-stone-400 text-stone-400"
                                     : "text-stone-600"
                                     }`}
                                 />
                               ))}
                             </div>
-                            <span className="text-sm text-stone-400">({product.ratings.toFixed(1)})</span>
+                            <span className="text-xs sm:text-sm text-stone-400">({product.ratings.toFixed(1)})</span>
                           </div>
 
                           {/* Sizes */}
                           {availableSizes.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 mb-4">
-                              {availableSizes.map((size, idx) => (
+                            <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-2 sm:mb-3 md:mb-4">
+                              {availableSizes.slice(0, 3).map((size, idx) => (
                                 <span
                                   key={`${size}-${idx}`}
-                                  className="px-2 py-1 bg-stone-800 text-stone-200 rounded text-xs border border-stone-700"
+                                  className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-stone-800 text-stone-200 rounded text-[10px] sm:text-xs border border-stone-700"
                                 >
                                   {size.toUpperCase()}
                                 </span>
@@ -521,10 +521,11 @@ export default function ProductsPage() {
                                 addToCart(product, 1, firstColor, availableSizes[0])
                               }
                             }}
-                            className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
+                            className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25 text-xs sm:text-sm py-2 sm:py-2.5"
                           >
-                            Add to Cart
-                            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                            <span className="hidden sm:inline">Add to Cart</span>
+                            <span className="sm:hidden">Add</span>
+                            <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                           </Button>
                         </motion.div>
                       </CardContent>
