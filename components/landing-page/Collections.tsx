@@ -14,7 +14,7 @@ export default function Collections() {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
-  const [cardsToShow, setCardsToShow] = useState(2) // Start with 2 for mobile
+  const [cardsToShow, setCardsToShow] = useState(4)
   const [cardWidth, setCardWidth] = useState(0)
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null)
   const gap = 16 // gap-4 = 16px
@@ -24,15 +24,14 @@ export default function Collections() {
     const updateLayout = () => {
       const width = window.innerWidth
       let cards = 4
-      // Show 2 products on mobile (even small screens), 2 on tablet, 3 on desktop, 4 on large screens
       if (width < 640) {
-        cards = 2  // Mobile: 2 products side by side
+        cards = 1
       } else if (width < 768) {
-        cards = 2  // Small tablet: 2 products
+        cards = 2
       } else if (width < 1024) {
-        cards = 3  // Tablet: 3 products
+        cards = 3
       } else {
-        cards = 4  // Desktop: 4 products
+        cards = 4
       }
       setCardsToShow(cards)
       
@@ -196,7 +195,7 @@ export default function Collections() {
           )}
 
           {/* Cards Container */}
-          <div ref={containerRef} className="overflow-hidden w-full">
+          <div ref={containerRef} className="overflow-hidden">
           <motion.div
               className="flex"
               style={{ gap: `${gap}px` }}
@@ -207,12 +206,7 @@ export default function Collections() {
               <div 
                   key={product.id} 
                 className="flex-shrink-0 h-full"
-                  style={{ 
-                    width: cardWidth > 0 
-                      ? `${cardWidth}px` 
-                      : `calc((100% - ${(cardsToShow - 1) * gap}px) / ${cardsToShow})`,
-                    minWidth: cardWidth > 0 ? `${cardWidth}px` : `calc((100% - ${(cardsToShow - 1) * gap}px) / ${cardsToShow})`
-                  }}
+                  style={{ width: cardWidth > 0 ? `${cardWidth}px` : `calc(${100 / cardsToShow}% - ${(cardsToShow - 1) * gap / cardsToShow}px)` }}
               >
                 <CollectionsProductCard 
                   product={product} 

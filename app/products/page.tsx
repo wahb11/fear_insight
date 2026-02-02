@@ -360,7 +360,7 @@ export default function ProductsPage() {
       {/* Products Grid */}
       <section className="py-12 px-4 bg-stone-950">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
             {sortedProducts.map((product: Product, index: number) => {
               const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
               const firstImage = product.images?.[0] || ""
