@@ -30,7 +30,7 @@ export default function BestSellers() {
       const width = window.innerWidth
       let cards = 4
       if (width < 640) {
-        cards = 1
+        cards = 2
       } else if (width < 768) {
         cards = 2
       } else if (width < 1024) {
