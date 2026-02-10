@@ -5,7 +5,7 @@ import { useAllProducts } from '@/hooks/useAllProducts'
 import { Product } from '@/types/products'
 import { Toast } from '@/components/ui/toast'
 
-// Valid influencer promo codes - all give 10% off
+// Valid influencer promo codes - all give 20% off
 // Add or remove codes here as needed
 const VALID_PROMO_CODES = [
   'INFLUENCER10',
@@ -156,7 +156,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const newTax = 0
     const newShipping = shippingType === 'standard' ? 0 : shippingType === 'express' ? 12.99 : 24.99
     
-    // Calculate 10% discount if promo code is applied
+    // Calculate 20% discount if promo code is applied
     const newDiscount = promoCode ? newSubtotal * 0.2 : 0
     
     const newTotal = newSubtotal - newDiscount + newShipping
@@ -254,8 +254,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     
     if (VALID_PROMO_CODES.includes(upperCode)) {
       setPromoCode(upperCode)
-      showToast('Promo code applied! 10% off your order')
-      return { success: true, message: 'Promo code applied! 10% off your order' }
+      showToast('Promo code applied! 20% off your order')
+      return { success: true, message: 'Promo code applied! 20% off your order' }
     }
     
     return { success: false, message: 'Invalid promo code' }
