@@ -11,7 +11,7 @@ const VALID_PROMO_CODES = [
   'INFLUENCER10',
   'PARTNER10',
   'SAVE10',
-  // Add more influencer codes here
+  'Kandry20',// Add more influencer codes here
 ]
 
 export interface CartItem {
@@ -157,7 +157,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const newShipping = shippingType === 'standard' ? 0 : shippingType === 'express' ? 12.99 : 24.99
     
     // Calculate 10% discount if promo code is applied
-    const newDiscount = promoCode ? newSubtotal * 0.1 : 0
+    const newDiscount = promoCode ? newSubtotal * 0.2 : 0
     
     const newTotal = newSubtotal - newDiscount + newShipping
     
