@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: promoDiscountAmount > 0 ? `${product.name} (10% promo applied)` : product.name,
+            name: promoDiscountAmount > 0 ? `${product.name} (20% promo applied)` : product.name,
             description: product.description || '',
             images: product.images || [],
             metadata: {

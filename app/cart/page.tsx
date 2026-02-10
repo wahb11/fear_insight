@@ -423,7 +423,7 @@ export default function CartPage() {
                         <div className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-green-400" />
                           <span className="text-green-400 text-sm font-semibold">{promoCode}</span>
-                          <span className="text-green-500/70 text-xs">10% off applied</span>
+                          <span className="text-green-500/70 text-xs">20% off applied</span>
                         </div>
                         <button
                           onClick={clearPromoCode}
