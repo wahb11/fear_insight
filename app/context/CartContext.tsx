@@ -11,7 +11,7 @@ const VALID_PROMO_CODES = [
   'INFLUENCER10',
   'PARTNER10',
   'SAVE10',
-  'Kandry20',// Add more influencer codes here
+  'KANDRY20',// Add more influencer codes here
 ]
 
 export interface CartItem {
