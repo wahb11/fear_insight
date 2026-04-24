@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
 import { getProductById } from '@/functions/getProductById'
 import { getAllProducts } from '@/functions/getAllProducts'
-import ProductDetailClient from '@/components/product/ProductDetailClient'
+import ProductPageClient from '@/components/product/ProductPageClient'
 import Script from 'next/script'
 import { generateProductSchema, generateBreadcrumbSchema, schemaToJsonLd } from '@/lib/seo/structured-data'
 
@@ -81,37 +80,48 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductPage({ params }: PageProps) {
   const { id } = await params
-  const product = await getProductById(id)
 
-  if (!product) {
-    notFound()
+  // Try to fetch product server-side for SEO and fast initial render
+  // If this fails, ProductPageClient will fetch client-side as fallback
+  let product = null
+  let productSchema = null
+  let breadcrumbSchema = null
+
+  try {
+    product = await getProductById(id)
+    if (product) {
+      productSchema = generateProductSchema(product, id)
+      breadcrumbSchema = generateBreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Products', url: '/products' },
+        { name: product.name, url: `/product/${id}` },
+      ])
+    }
+  } catch (error) {
+    console.error('Server-side product fetch failed, will fallback to client-side:', error)
   }
-
-  // Generate structured data
-  const productSchema = generateProductSchema(product, id)
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: '/' },
-    { name: 'Products', url: '/products' },
-    { name: product.name, url: `/product/${id}` },
-  ])
 
   return (
     <>
-      <Script
-        id="product-structured-data"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: schemaToJsonLd(productSchema),
-        }}
-      />
-      <Script
-        id="breadcrumb-structured-data"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: schemaToJsonLd(breadcrumbSchema),
-        }}
-      />
-      <ProductDetailClient product={product} />
+      {productSchema && (
+        <Script
+          id="product-structured-data"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: schemaToJsonLd(productSchema),
+          }}
+        />
+      )}
+      {breadcrumbSchema && (
+        <Script
+          id="breadcrumb-structured-data"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: schemaToJsonLd(breadcrumbSchema),
+          }}
+        />
+      )}
+      <ProductPageClient serverProduct={product} />
     </>
   )
 }
