@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { getProductById } from '@/functions/getProductById'
 import { getAllProducts } from '@/functions/getAllProducts'
 import ProductPageClient from '@/components/product/ProductPageClient'
@@ -24,16 +25,27 @@ export async function generateStaticParams() {
   }
 }
 
-// Revalidate every 60 seconds for ISR (Incremental Static Regeneration)
-export const revalidate = 60
+// Revalidate every hour for ISR — keeps pages cached longer to avoid cold starts
+export const revalidate = 3600
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
-  const product = await getProductById(id)
+
+  // Use a short timeout for metadata generation to avoid blocking navigation
+  let product = null
+  try {
+    product = await Promise.race([
+      getProductById(id),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000)),
+    ])
+  } catch {
+    // Metadata generation failure shouldn't block the page
+  }
 
   if (!product) {
     return {
-      title: 'Product Not Found',
+      title: 'Fear Insight | Premium Streetwear',
+      description: 'Premium streetwear designed with purpose. Each piece tells a story of faith, courage, and divine inspiration.',
     }
   }
 
@@ -78,50 +90,55 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function ProductPage({ params }: PageProps) {
-  const { id } = await params
-
-  // Try to fetch product server-side for SEO and fast initial render
-  // If this fails, ProductPageClient will fetch client-side as fallback
+// Async component that loads structured data without blocking page render
+async function StructuredData({ id }: { id: string }) {
   let product = null
-  let productSchema = null
-  let breadcrumbSchema = null
-
   try {
     product = await getProductById(id)
-    if (product) {
-      productSchema = generateProductSchema(product, id)
-      breadcrumbSchema = generateBreadcrumbSchema([
-        { name: 'Home', url: '/' },
-        { name: 'Products', url: '/products' },
-        { name: product.name, url: `/product/${id}` },
-      ])
-    }
-  } catch (error) {
-    console.error('Server-side product fetch failed, will fallback to client-side:', error)
+  } catch {
+    return null
   }
+
+  if (!product) return null
+
+  const productSchema = generateProductSchema(product, id)
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Products', url: '/products' },
+    { name: product.name, url: `/product/${id}` },
+  ])
 
   return (
     <>
-      {productSchema && (
-        <Script
-          id="product-structured-data"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: schemaToJsonLd(productSchema),
-          }}
-        />
-      )}
-      {breadcrumbSchema && (
-        <Script
-          id="breadcrumb-structured-data"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: schemaToJsonLd(breadcrumbSchema),
-          }}
-        />
-      )}
-      <ProductPageClient serverProduct={product} />
+      <Script
+        id="product-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: schemaToJsonLd(productSchema),
+        }}
+      />
+      <Script
+        id="breadcrumb-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: schemaToJsonLd(breadcrumbSchema),
+        }}
+      />
+    </>
+  )
+}
+
+export default async function ProductPage({ params }: PageProps) {
+  const { id } = await params
+
+  return (
+    <>
+      {/* Structured data loads async without blocking the page */}
+      <Suspense fallback={null}>
+        <StructuredData id={id} />
+      </Suspense>
+      {/* Client component renders immediately using cached data */}
+      <ProductPageClient />
     </>
   )
 }

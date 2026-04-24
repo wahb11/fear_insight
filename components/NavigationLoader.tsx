@@ -23,28 +23,20 @@ export function NavigationLoaderProvider({ children }: { children: React.ReactNo
   const [isLoading, setIsLoading] = useState(false)
   const pathname = usePathname()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const safetyTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const startLoading = useCallback(() => {
     // Small delay to avoid flash on fast navigations
     timeoutRef.current = setTimeout(() => {
       setIsLoading(true)
     }, 80)
-
-    // Safety timeout: auto-hide after 3 seconds to prevent stuck overlays on mobile
-    safetyTimeoutRef.current = setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
+    // No safety timeout — loading persists until pathname changes
+    // (i.e. navigation actually completes)
   }, [])
 
   const stopLoading = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
-    }
-    if (safetyTimeoutRef.current) {
-      clearTimeout(safetyTimeoutRef.current)
-      safetyTimeoutRef.current = null
     }
     setIsLoading(false)
   }, [])
@@ -58,7 +50,6 @@ export function NavigationLoaderProvider({ children }: { children: React.ReactNo
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
-      if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current)
     }
   }, [])
 

@@ -5,15 +5,13 @@ import { useProductById } from "@/hooks/useProductById"
 import ProductDetailClient from "@/components/product/ProductDetailClient"
 import ProductLoading from "@/app/product/[id]/loading"
 
-export default function ProductPageClient({ serverProduct }: { serverProduct?: any }) {
+export default function ProductPageClient() {
   const params = useParams()
   const id = params?.id as string
 
-  // If server already provided the product, use it directly
-  // Otherwise, fetch client-side (handles the case where RSC payload fails)
-  const { data: clientProduct, isLoading, error } = useProductById(id)
-
-  const product = serverProduct || clientProduct
+  // Fetches product data — uses cached allProducts data if available
+  // (instant render when coming from products page), otherwise fetches from API
+  const { data: product, isLoading, error } = useProductById(id)
 
   if (isLoading && !product) {
     return <ProductLoading />
