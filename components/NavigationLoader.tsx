@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
+import ProductLoading from "@/app/product/[id]/loading"
 
 interface NavigationLoaderContextType {
   startLoading: () => void
@@ -63,35 +64,8 @@ export function NavigationLoaderProvider({ children }: { children: React.ReactNo
 
 function NavigationOverlay() {
   return (
-    <>
-      {/* Non-blocking top progress bar - does not cover the page */}
-      <div className="fixed top-0 left-0 right-0 z-[9999] h-[3px] sm:h-[3px] overflow-hidden">
-        <div
-          className="h-full rounded-r-full"
-          style={{
-            background: "linear-gradient(90deg, #78716c, #d6d3d1, #78716c)",
-            animation: "navProgressBar 1.5s ease-in-out infinite",
-          }}
-        />
-      </div>
-
-      {/* Keyframes */}
-      <style>{`
-        @keyframes navProgressBar {
-          0% {
-            width: 0%;
-            margin-left: 0%;
-          }
-          50% {
-            width: 70%;
-            margin-left: 15%;
-          }
-          100% {
-            width: 0%;
-            margin-left: 100%;
-          }
-        }
-      `}</style>
-    </>
+    <div className="fixed inset-0 z-[9999] bg-stone-950 overflow-y-auto">
+      <ProductLoading />
+    </div>
   )
 }
