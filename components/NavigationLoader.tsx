@@ -31,10 +31,10 @@ export function NavigationLoaderProvider({ children }: { children: React.ReactNo
       setIsLoading(true)
     }, 80)
 
-    // Safety timeout: auto-hide after 8 seconds in case something goes wrong
+    // Safety timeout: auto-hide after 3 seconds to prevent stuck overlays on mobile
     safetyTimeoutRef.current = setTimeout(() => {
       setIsLoading(false)
-    }, 8000)
+    }, 3000)
   }, [])
 
   const stopLoading = useCallback(() => {
@@ -80,7 +80,6 @@ function NavigationOverlay() {
           backgroundColor: "rgba(12, 10, 9, 0.88)",
           backdropFilter: "blur(8px)",
           WebkitBackdropFilter: "blur(8px)",
-          touchAction: "none",
         }}
       >
         <div className="flex flex-col items-center gap-4 sm:gap-5 px-4">
