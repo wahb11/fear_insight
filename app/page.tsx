@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { motion, useScroll, useTransform,  useAnimation } from "framer-motion"
+import { motion, useScroll, useTransform, useAnimation } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
@@ -103,36 +103,36 @@ export default function FearInsightLanding() {
     <>
       <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
         {/* Navigation */}
-       
+
         {/* Hero Section with Video Background */}
         <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
           {/* Video Background */}
           <div className="absolute inset-0 z-0">
             {/* Fallback background */}
             <div className="w-full h-full bg-gradient-to-br from-stone-900 via-stone-950 to-stone-800" />
-            
+
             {/* Clothing/fashion video background */}
             <video
               autoPlay
               loop
               muted
               playsInline
-              preload="auto"
+              preload="none"
               className="w-full h-full object-cover absolute inset-0"
-              style={{ 
-                filter: "brightness(0.7) contrast(1.2) saturate(1.0)", // Even brighter for testing
+              style={{
+                filter: "brightness(0.7) contrast(1.2) saturate(1.0)",
                 transform: "scale(1.05)",
-                zIndex: 1 // Above background but below overlay
+                zIndex: 1
               }}
-              onLoadStart={() => console.log('Video loading...')}
-              onLoadedData={() => console.log('Video loaded successfully')}
+              onLoadedData={(e) => {
+                // Only play once loaded to avoid blocking
+                e.currentTarget.play().catch(() => { })
+              }}
               onError={(e) => {
-                console.log('Video failed to load:', e)
-                // Show fallback background
                 e.currentTarget.style.display = 'none'
               }}
             >
-              
+
               <source
                 src="https://www.pexels.com/download/video/4622341/"
                 type="video/mp4"
@@ -218,8 +218,8 @@ export default function FearInsightLanding() {
               transition={{ duration: 0.8, delay: 1.3 }}
               style={{ willChange: "opacity" }}
             >
-              <motion.div 
-                whileHover={{ scale: 1.02 }} 
+              <motion.div
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
               >
@@ -231,21 +231,21 @@ export default function FearInsightLanding() {
 
 
 
-                    
+
                     Explore Collection
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>
                 </Link>
               </motion.div>
             </motion.div>
-            </motion.div>
+          </motion.div>
 
         </section>
 
-            <Collections/>
+        <Collections />
 
 
-        
+
         {/* About Section */}
         <section
           id="about"
@@ -540,15 +540,15 @@ export default function FearInsightLanding() {
                   viewport={{ once: true }}
                   className="text-center p-6 bg-stone-900/60 border border-stone-800 rounded-lg hover:border-stone-600/80 transition-colors duration-300"
                 >
-                      <div className="text-3xl font-bold text-stone-100 mb-2">
-                        {highlight.value}
-                      </div>
-                      <h4 className="text-sm font-semibold text-stone-200 mb-1">
-                        {highlight.label}
-                      </h4>
-                      <p className="text-xs text-stone-400">
-                        {highlight.description}
-                      </p>
+                  <div className="text-3xl font-bold text-stone-100 mb-2">
+                    {highlight.value}
+                  </div>
+                  <h4 className="text-sm font-semibold text-stone-200 mb-1">
+                    {highlight.label}
+                  </h4>
+                  <p className="text-xs text-stone-400">
+                    {highlight.description}
+                  </p>
                 </motion.div>
               ))}
             </motion.div>
@@ -556,7 +556,7 @@ export default function FearInsightLanding() {
         </section>
 
         {/* Our Best Sellers (carousel) - replaces the Newsletter block */}
-       <BestSellers/>
+        <BestSellers />
 
         {/* Hoodie Highlight / Story */}
         <section className="py-12 px-4 bg-stone-900/60 relative overflow-hidden">
