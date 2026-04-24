@@ -9,6 +9,7 @@ import { ArrowRight, ArrowLeft, X, Eye, ShoppingBag, Star, Sparkles } from "luci
 
 import { Product } from "@/types/products"
 import { useAllProducts } from "@/hooks/useAllProducts"
+import { useNavigationLoader } from "@/components/NavigationLoader"
 
 export default function BestSellers() {
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -23,6 +24,7 @@ export default function BestSellers() {
 
   const { data, isLoading, error } = useAllProducts()
   const products = data ? data.filter(product => product.best_seller) : []
+  const { startLoading } = useNavigationLoader()
   
   // Calculate cards to show and card width based on screen size
   useEffect(() => {
@@ -208,6 +210,8 @@ export default function BestSellers() {
                           src={p.images[0]}
                             alt={`${p.name} - Best Seller - Fear Insight Premium Streetwear`}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
+                            decoding="async"
                         />
                       ) : (
                           <div className="w-full h-full bg-gradient-to-br from-stone-800 to-stone-900 flex items-center justify-center">
@@ -265,6 +269,7 @@ export default function BestSellers() {
                       <Link 
                         href={`/product/${p.id}`} 
                           className="mt-auto w-full"
+                          onClick={startLoading}
                       >
                           <button
                             className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-amber-600 hover:to-amber-700 text-stone-100 px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 border border-stone-700/50 hover:border-amber-500/50"
@@ -351,7 +356,7 @@ export default function BestSellers() {
                     ))}
                   </div>
                   <p className="text-3xl font-bold text-stone-100 mb-6">${zoomProduct.price.toFixed(2)}</p>
-                  <Link href={`/product/${zoomProduct.id}`}>
+                  <Link href={`/product/${zoomProduct.id}`} onClick={startLoading}>
                     <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 font-bold py-3">
                       View Full Details
                       <ArrowRight className="w-4 h-4 ml-2" />

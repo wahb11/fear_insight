@@ -12,6 +12,7 @@ import { useAllProducts } from "@/hooks/useAllProducts"
 import { Product } from "@/types/products"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useNavigationLoader } from "@/components/NavigationLoader"
 
 
 
@@ -49,6 +50,7 @@ export default function ProductsPage() {
   const { data: products, isLoading, error } = useAllProducts()
   const containerRef = useRef<HTMLDivElement>(null)
   const { addToCart } = useCart()
+  const { startLoading } = useNavigationLoader()
 
   const [selectedColor, setSelectedColor] = useState("All")
   const [selectedSize, setSelectedSize] = useState("All")
@@ -216,7 +218,63 @@ export default function ProductsPage() {
   }, [filteredProducts, sortBy])
 
 
-  if (isLoading) return <p>Loading...</p>
+  if (isLoading) return (
+    <div className="bg-stone-950 text-stone-100 min-h-screen">
+      {/* Hero Skeleton */}
+      <section className="relative h-72 sm:h-96 flex items-center justify-center overflow-hidden pt-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
+        <div className="relative z-10 text-center px-4 w-full max-w-2xl mx-auto space-y-4">
+          <div className="h-10 sm:h-14 w-3/4 mx-auto bg-stone-800 rounded animate-pulse" />
+          <div className="h-1 w-16 sm:w-24 mx-auto bg-stone-800 rounded animate-pulse" />
+          <div className="h-4 sm:h-5 w-full bg-stone-900 rounded animate-pulse" style={{ animationDelay: "100ms" }} />
+          <div className="h-4 sm:h-5 w-2/3 mx-auto bg-stone-900 rounded animate-pulse" style={{ animationDelay: "200ms" }} />
+        </div>
+      </section>
+
+      {/* Filter Bar Skeleton */}
+      <section className="py-6 sm:py-8 px-4 bg-stone-900/50">
+        <div className="container mx-auto space-y-4">
+          <div className="h-9 sm:h-10 w-full bg-stone-800/60 rounded animate-pulse" />
+          <div className="hidden md:grid md:grid-cols-4 gap-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-9 sm:h-10 bg-stone-800/40 rounded animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
+            ))}
+          </div>
+          <div className="h-4 w-40 bg-stone-800/30 rounded animate-pulse" />
+        </div>
+      </section>
+
+      {/* Product Grid Skeleton */}
+      <section className="py-8 sm:py-12 px-4 bg-stone-950">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className="bg-stone-900/50 border border-stone-700 rounded-lg overflow-hidden">
+                {/* Image placeholder */}
+                <div className="relative aspect-square bg-stone-800/50 overflow-hidden">
+                  <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-stone-800/30 to-stone-900" style={{ animationDelay: `${index * 80}ms` }} />
+                </div>
+                {/* Content placeholder */}
+                <div className="p-2.5 sm:p-3 md:p-4 space-y-2 sm:space-y-3">
+                  <div className="h-3.5 sm:h-4 w-3/4 bg-stone-800 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 50}ms` }} />
+                  <div className="flex items-center justify-between">
+                    <div className="h-4 sm:h-5 w-16 bg-stone-800 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 100}ms` }} />
+                    <div className="h-3 w-10 bg-stone-800/50 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 150}ms` }} />
+                  </div>
+                  <div className="flex gap-1">
+                    {[1, 2, 3].map((c) => (
+                      <div key={c} className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-stone-800 animate-pulse" />
+                    ))}
+                  </div>
+                  <div className="h-7 sm:h-8 w-full bg-stone-800 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 200}ms` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
   if (error) return <p className="bg-stone-950 text-stone-100 min-h-screen flex items-center justify-center">Error fetching products</p>
 
   return (
@@ -371,7 +429,7 @@ export default function ProductsPage() {
               const availableSizes = extractValues(product.sizes)
 
               return (
-                <Link href={`/product/${product.id}`} key={product.id} className="block">
+                <Link href={`/product/${product.id}`} key={product.id} className="block" onClick={startLoading}>
                   <motion.div
                     custom={index}
                     initial="hidden"
@@ -389,6 +447,8 @@ export default function ProductsPage() {
                             src={firstImage}
                             alt={`${product.name} - Shop at Fear Insight`}
                             className="w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-stone-800">

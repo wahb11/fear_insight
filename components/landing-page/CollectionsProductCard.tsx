@@ -6,6 +6,7 @@ import { motion, useInView } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { ShoppingBag, Star } from "lucide-react"
 import { Product } from "@/types/products"
+import { useNavigationLoader } from "@/components/NavigationLoader"
 
 // Map color names to valid CSS colors
 const getColorValue = (colorName: string): string => {
@@ -45,6 +46,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
   const [isHovered, setIsHovered] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(cardRef, { once: true, margin: "-100px" })
+  const { startLoading } = useNavigationLoader()
   // Handle both string array and object array formats for colors
   const firstColor = Array.isArray(product.colors) && product.colors[0]
     ? (typeof product.colors[0] === 'string' ? product.colors[0] : Object.keys(product.colors[0])[0])
@@ -54,7 +56,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
 
   return (
     <>
-      <Link href={`/product/${product.id}`}>
+      <Link href={`/product/${product.id}`} onClick={startLoading}>
       <motion.div
         ref={cardRef}
         initial={{ opacity: 0, y: 100 }}
@@ -82,6 +84,8 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
                 src={imageUrl}
                 alt={`${product.name} - Featured Collection - Fear Insight`}
                 className="w-full h-full object-cover rounded-t-lg z-10"
+                loading="lazy"
+                decoding="async"
               />
             ) : (
               <div className="text-stone-100 text-center z-10">

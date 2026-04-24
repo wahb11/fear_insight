@@ -8,6 +8,7 @@ import './globals.css'
 import QueryProvider from '@/providers/query-provider'
 import VisitorTracker from '@/components/VisitorTracker'
 import ConditionalLayout from '@/components/ConditionalLayout'
+import { NavigationLoaderProvider } from '@/components/NavigationLoader'
 import Script from 'next/script'
 import { generateOrganizationSchema, generateWebSiteSchema, schemaToJsonLd } from '@/lib/seo/structured-data'
 
@@ -87,11 +88,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${montserrat.className}`} suppressHydrationWarning>
-     <QueryProvider>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
+        <QueryProvider>
         <Script
           id="organization-structured-data"
           type="application/ld+json"
@@ -108,13 +109,15 @@ export default function RootLayout({
         />
         <VisitorTracker />
         <CartProvider>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
+          <NavigationLoaderProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+          </NavigationLoaderProvider>
         </CartProvider>
         <Analytics />
+        </QueryProvider>
       </body>
-      </QueryProvider>
     </html>
   )
 }
