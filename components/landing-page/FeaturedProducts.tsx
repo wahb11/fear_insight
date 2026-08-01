@@ -10,29 +10,26 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 /**
- * PLACEHOLDER PRODUCTS — swap `name`, `image`, and `href` for real product data.
- * One product per category (Fear / Oversize / Signature). Images currently point to `/public/images`.
+ * Featured products — one look per category.
+ * Images: /public/images/slider1–3.png
  */
 const PRODUCTS = [
   {
     category: 'Fear',
     name: 'Fear Hoodie',
-    // TODO: replace with real product photo
-    image: '/images/carousel-fear.jpg',
+    image: '/images/slider1.png',
     href: '/products?category=fear',
   },
   {
     category: 'Oversize',
-    name: 'Oversize Tee',
-    // TODO: replace with real product photo
-    image: '/images/carousel-oversize.jpg',
+    name: 'Oversize Hoodie',
+    image: '/images/slider2.png',
     href: '/products?category=oversize',
   },
   {
     category: 'Signature',
-    name: 'Signature Crew',
-    // TODO: replace with real product photo
-    image: '/images/carousel-signature.jpg',
+    name: 'Signature Hoodie',
+    image: '/images/slider3.png',
     href: '/products?category=signature',
   },
 ] as const
@@ -403,7 +400,11 @@ export default function FeaturedProducts() {
                 ref={ghostLeftImgRef}
                 src={previousProduct.image}
                 alt=""
-                className="h-auto w-full select-none mix-blend-multiply blur-[1px] sm:blur-[2px]"
+                className="h-auto w-full select-none rounded-sm"
+                style={{
+                  filter:
+                    'blur(1.5px) drop-shadow(0 12px 24px rgba(0,0,0,0.28)) drop-shadow(0 4px 8px rgba(0,0,0,0.18))',
+                }}
                 draggable={false}
               />
             </div>
@@ -418,19 +419,32 @@ export default function FeaturedProducts() {
                 ref={ghostRightImgRef}
                 src={nextProduct.image}
                 alt=""
-                className="h-auto w-full select-none mix-blend-multiply blur-[1px] sm:blur-[2px]"
+                className="h-auto w-full select-none rounded-sm"
+                style={{
+                  filter:
+                    'blur(1.5px) drop-shadow(0 12px 24px rgba(0,0,0,0.28)) drop-shadow(0 4px 8px rgba(0,0,0,0.18))',
+                }}
                 draggable={false}
               />
             </div>
 
             <div className="relative z-10 flex w-full max-w-[180px] flex-col items-center sm:max-w-[320px] md:max-w-[400px] lg:max-w-[460px]">
-              <div ref={mainProductRef} className="w-full will-change-transform">
+              <div ref={mainProductRef} className="relative w-full will-change-transform">
+                {/* Soft ground shadow under product */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute bottom-[2%] left-1/2 h-[12%] w-[72%] -translate-x-1/2 rounded-[100%] bg-black/35 blur-xl sm:blur-2xl"
+                />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   ref={mainImgRef}
                   src={product.image}
                   alt={`${product.name} — Fear Insight ${product.category} collection`}
-                  className="h-auto w-full select-none mix-blend-multiply drop-shadow-[0_24px_48px_rgba(0,0,0,0.12)]"
+                  className="relative z-10 h-auto w-full select-none rounded-sm"
+                  style={{
+                    filter:
+                      'drop-shadow(0 28px 50px rgba(0,0,0,0.38)) drop-shadow(0 12px 20px rgba(0,0,0,0.22)) drop-shadow(0 2px 6px rgba(0,0,0,0.16))',
+                  }}
                   draggable={false}
                 />
               </div>
