@@ -46,7 +46,7 @@ export default function Footer() {
 
   return (
     <>
-      <footer id="contact" className="py-12 px-4 bg-stone-950 border-t border-stone-800">
+      <footer id="contact" className="py-12 px-4 bg-white border-t border-neutral-200">
             <div className="container mx-auto">
               <motion.div
                 className="grid grid-cols-1 md:grid-cols-4 gap-8"
@@ -62,18 +62,18 @@ export default function Footer() {
                   transition={{ duration: 0.8 }}
                   viewport={{ once: true }}
                 >
-                  <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent">
+                  <h3 className="text-2xl font-bold mb-4 text-black">
                     FEAR INSIGHT
                   </h3>
-                  <p className="text-stone-400 mb-4 max-w-md">
+                  <p className="text-neutral-600 mb-4 max-w-md">
                     DIRECTED BY GOD - Premium streetwear that speaks to your soul and inspires fearless faith. Every piece
                     is designed to empower your spiritual journey and express your divine purpose.
                   </p>
                   <div className="mb-4">
-                    <p className="text-stone-300 mb-2">Get in touch:</p>
+                    <p className="text-neutral-800 mb-2">Get in touch:</p>
                     <a
                       href="mailto:info@fearinsight.com"
-                      className="text-stone-100 hover:text-stone-300 transition-colors flex items-center gap-2"
+                      className="text-neutral-800 hover:text-black transition-colors flex items-center gap-2"
                     >
                       <Mail className="w-4 h-4" />
                       info@fearinsight.com
@@ -92,7 +92,7 @@ export default function Footer() {
                         href={item.href}
                         target={item.href.startsWith('http') ? "_blank" : undefined}
                         rel={item.href.startsWith('http') ? "noopener noreferrer" : undefined}
-                        className="text-stone-400 hover:text-stone-300 transition-colors"
+                        className="text-neutral-800 hover:text-black transition-colors"
                       >
                         <item.Icon className="w-6 h-6" />
                       </motion.a>
@@ -127,8 +127,8 @@ export default function Footer() {
                     transition={{ duration: 0.8, delay: sectionIndex * 0.2 }}
                     viewport={{ once: true }}
                   >
-                    <h4 className="text-lg font-semibold mb-4 text-stone-100">{section.title}</h4>
-                    <ul className="space-y-2 text-stone-400">
+                    <h4 className="text-lg font-semibold mb-4 text-neutral-800">{section.title}</h4>
+                    <ul className="space-y-2 text-neutral-600">
                       {section.items.map((item, itemIndex) => (
                         <motion.li
                           key={item.name}
@@ -145,7 +145,7 @@ export default function Footer() {
                                   e.preventDefault()
                                   setShowSizeChart(true)
                                 }}
-                                className="hover:text-stone-300 transition-colors cursor-pointer"
+                                className="hover:text-black transition-colors cursor-pointer"
                               >
                                 {item.name}
                               </a>
@@ -153,12 +153,12 @@ export default function Footer() {
                               <a
                                 href={item.href}
                                 onClick={(e) => handleAnchorClick(e, item.href)}
-                                className="hover:text-stone-300 transition-colors cursor-pointer"
+                                className="hover:text-black transition-colors cursor-pointer"
                               >
                                 {item.name}
                               </a>
                             ) : (
-                              <Link href={item.href} className="hover:text-stone-300 transition-colors">
+                              <Link href={item.href} className="hover:text-black transition-colors">
                                 {item.name}
                               </Link>
                             )}
@@ -171,7 +171,7 @@ export default function Footer() {
               </motion.div>
   
               <motion.div
-                className="border-t border-stone-800 mt-8 pt-8 text-center text-stone-400"
+                className="border-t border-neutral-200 mt-8 pt-8 text-center text-neutral-600"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.5 }}

@@ -88,12 +88,12 @@ export default function Collections() {
 
   if (isLoading) {
     return (
-      <section className="py-20 px-4 bg-stone-900">
+      <section className="py-20 px-4 bg-white">
         <div className="container mx-auto">
           <div className="flex justify-center items-center h-64">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-stone-700 border-t-stone-400 rounded-full animate-spin" />
-              <Flame className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-stone-400" />
+              <div className="w-16 h-16 border-4 border-neutral-200 border-t-black rounded-full animate-spin" />
+              <Flame className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-black" />
             </div>
           </div>
         </div>
@@ -103,8 +103,8 @@ export default function Collections() {
 
   if (error) {
     return (
-      <section className="py-20 px-4 bg-stone-900">
-        <div className="container mx-auto text-center text-stone-300">
+      <section className="py-20 px-4 bg-white">
+        <div className="container mx-auto text-center text-neutral-600">
           Error loading products
         </div>
       </section>
@@ -118,13 +118,7 @@ export default function Collections() {
   const translateX = currentIndex * (cardWidth + gap)
 
   return (
-    <section id="products" className="py-20 px-4 relative bg-gradient-to-b from-stone-900 via-stone-950 to-stone-900 overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-stone-800/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-stone-700/10 rounded-full blur-3xl" />
-      </div>
-
+    <section id="products" className="py-20 px-4 relative bg-white overflow-hidden">
       <div className="container mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -138,14 +132,14 @@ export default function Collections() {
             whileInView={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-stone-700/40 to-stone-800/40 px-4 py-2 rounded-full mb-4 border border-stone-600/30"
+            className="inline-flex items-center gap-2 bg-neutral-100 px-4 py-2 rounded-full mb-4 border border-neutral-200"
           >
-            <Sparkles className="w-4 h-4 text-stone-400" />
-            <span className="text-sm font-medium text-stone-300">Handpicked Selection</span>
+            <Sparkles className="w-4 h-4 text-black" />
+            <span className="text-sm font-medium text-neutral-700">Handpicked Selection</span>
           </motion.div>
 
           <motion.h2
-            className="text-4xl md:text-6xl font-black mb-4 bg-gradient-to-r from-stone-100 via-stone-300 to-stone-500 bg-clip-text text-transparent"
+            className="text-4xl md:text-6xl font-black mb-4 text-black"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -155,7 +149,7 @@ export default function Collections() {
           </motion.h2>
 
           <motion.p
-            className="text-base md:text-lg text-stone-400 max-w-2xl mx-auto"
+            className="text-base md:text-lg text-neutral-600 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -179,17 +173,17 @@ export default function Collections() {
                 onClick={() => scrollTo('left')}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-stone-500 transition-colors group"
+                className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-40 bg-white p-2 sm:p-3 rounded-full border border-black shadow-sm hover:bg-black transition-colors group"
               >
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-stone-100 transition-colors" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-black group-hover:text-white transition-colors" />
               </motion.button>
               <motion.button
                 onClick={() => scrollTo('right')}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-stone-500 transition-colors group"
+                className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-40 bg-white p-2 sm:p-3 rounded-full border border-black shadow-sm hover:bg-black transition-colors group"
               >
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-stone-100 transition-colors" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-black group-hover:text-white transition-colors" />
               </motion.button>
             </>
           )}
@@ -226,8 +220,8 @@ export default function Collections() {
                   onClick={() => goToSlide(i)}
                   className={`h-2.5 rounded-full transition-all duration-300 ${
                     i === currentIndex 
-                      ? 'bg-stone-400 w-8' 
-                      : 'bg-stone-700 hover:bg-stone-600 w-2.5'
+                      ? 'bg-black w-8' 
+                      : 'bg-neutral-300 hover:bg-neutral-400 w-2.5'
                   }`}
                 />
               ))}
@@ -245,7 +239,7 @@ export default function Collections() {
         >
           <Link href="/products">
             <button
-              className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-700 hover:to-stone-800 text-stone-100 px-8 py-3 rounded-lg font-bold transition-all duration-300 flex items-center gap-2 border border-stone-700/50 hover:border-stone-600"
+              className="bg-black hover:bg-neutral-800 text-white px-8 py-3 rounded-lg font-bold transition-all duration-300 flex items-center gap-2"
             >
               View All Products
               <ArrowRight className="w-5 h-5" />

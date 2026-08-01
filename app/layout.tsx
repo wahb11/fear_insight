@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
-import { Montserrat } from 'next/font/google'
+import { Montserrat, Bebas_Neue, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from './context/CartContext'
 import './globals.css'
@@ -13,6 +13,21 @@ import Script from 'next/script'
 import { generateOrganizationSchema, generateWebSiteSchema, schemaToJsonLd } from '@/lib/seo/structured-data'
 
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800', '900'] })
+
+/** Closest free stand-in for Nike’s Futura Extra Bold Condensed display face */
+const bebasNeue = Bebas_Neue({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-nike-display',
+  display: 'swap',
+})
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-editorial',
+  display: 'swap',
+})
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fearinsight.com'
 
@@ -77,7 +92,7 @@ export const metadata: Metadata = {
     canonical: siteUrl,
   },
   other: {
-    'theme-color': '#1a1a1a',
+    'theme-color': '#ffffff',
   },
 }
 
@@ -87,7 +102,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${montserrat.className}`} suppressHydrationWarning>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${bebasNeue.variable} ${cormorantGaramond.variable} ${montserrat.className}`} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>

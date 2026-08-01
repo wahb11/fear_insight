@@ -177,21 +177,21 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 	const isOutOfStock = hasRequiredSelections ? (!isColorInStock() || !isSizeInStock()) : false
 	
 	return (
-		<div className="bg-stone-950 text-stone-100 overflow-hidden">
+		<div className="bg-white text-neutral-900 overflow-hidden">
 		
 			{/* Breadcrumb */}
 			<motion.div
 				initial={{ opacity: 0, y: -20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.6, delay: 0.2 }}
-				className="pt-24 px-4 bg-stone-950"
+				className="pt-24 px-4 bg-white"
 			>
-				<div className="container mx-auto flex items-center gap-2 text-sm text-stone-400">
-					<Link href="/" className="hover:text-stone-300 transition-colors">Home</Link>
+				<div className="container mx-auto flex items-center gap-2 text-sm text-neutral-600">
+					<Link href="/" className="hover:text-neutral-900 transition-colors">Home</Link>
 					<span>/</span>
-					<Link href="/products" className="hover:text-stone-300 transition-colors">Products</Link>
+					<Link href="/products" className="hover:text-neutral-900 transition-colors">Products</Link>
 					<span>/</span>
-					<span className="text-stone-200">{product.name}</span>
+					<span className="text-neutral-900">{product.name}</span>
 				</div>
 			</motion.div>
 
@@ -208,7 +208,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 						>
 							{/* Main Image */}
 							<motion.div
-								className="relative h-96 sm:h-[500px] overflow-hidden rounded-lg bg-stone-900/50 border border-stone-800"
+								className="relative h-96 sm:h-[500px] overflow-hidden rounded-lg bg-neutral-50 border border-neutral-200"
 								whileHover={{ scale: 1.02 }}
 								transition={{ duration: 0.3 }}
 							>
@@ -217,13 +217,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 									<>
 										<button
 											onClick={() => setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length)}
-											className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 p-2 rounded-full text-stone-100"
+											className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 p-2 rounded-full text-white"
 										>
 											<ChevronLeft className="w-5 h-5" />
 										</button>
 										<button
 											onClick={() => setSelectedImage((prev) => (prev + 1) % product.images.length)}
-											className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 p-2 rounded-full text-stone-100"
+											className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 p-2 rounded-full text-white"
 										>
 											<ChevronRight className="w-5 h-5" />
 										</button>
@@ -245,7 +245,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 								</AnimatePresence>
 								
 								{/* Image Counter */}
-								<div className="absolute bottom-4 right-4 bg-black/70 px-3 py-1 rounded text-sm text-stone-200">
+								<div className="absolute bottom-4 right-4 bg-black/70 px-3 py-1 rounded text-sm text-white">
 									{selectedImage + 1} / {product.images.length}
 								</div>
 							</motion.div>
@@ -260,8 +260,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 										whileTap={{ scale: 0.95 }}
 										className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all ${
 											selectedImage === index
-												? "border-stone-100 ring-2 ring-stone-400/50"
-												: "border-stone-700 hover:border-stone-500"
+												? "border-black ring-2 ring-neutral-400/50"
+												: "border-neutral-200 hover:border-neutral-400"
 										}`}
 									>
 										<img
@@ -287,7 +287,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 					<motion.span
 						initial={{ scale: 0 }}
 						animate={{ scale: 1 }}
-						className="bg-stone-100 text-stone-950 text-xs font-bold px-3 py-1 rounded-full"
+						className="bg-black text-white text-xs font-bold px-3 py-1 rounded-full"
 					>
 						FEATURED
 					</motion.span>
@@ -297,43 +297,43 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 						initial={{ scale: 0 }}
 						animate={{ scale: 1 }}
 						transition={{ delay: 0.1 }}
-						className="bg-stone-800 text-stone-100 text-xs font-bold px-3 py-1 rounded-full border border-stone-600"
+						className="bg-neutral-100 text-neutral-900 text-xs font-bold px-3 py-1 rounded-full border border-neutral-200"
 					>
 						BESTSELLER
 					</motion.span>
 				)}
 			</div>							{/* name */}
 							<div>
-								<h1 className="text-4xl font-black text-stone-100 mb-2">
+								<h1 className="text-4xl font-black text-neutral-900 mb-2">
 									{product.name}
 								</h1>
-								<p className="text-stone-400">{product.description}</p>
+								<p className="text-neutral-600">{product.description}</p>
 							</div>
 
 			{/* Rating */}
-			<div className="flex items-center gap-4 pb-4 border-b border-stone-800">
+			<div className="flex items-center gap-4 pb-4 border-b border-neutral-200">
 				<div className="flex items-center gap-1">
 					{[...Array(5)].map((_, i) => (
 						<Star
 							key={i}
 							className={`w-5 h-5 ${
 								i < Math.floor(product.ratings)
-									? "fill-stone-400 text-stone-400"
-									: "text-stone-600"
+									? "fill-neutral-900 text-neutral-900"
+									: "text-neutral-300"
 							}`}
 						/>
 					))}
 				</div>
-				<span className="text-stone-100 font-semibold">{product.ratings.toFixed(1)}</span>
+				<span className="text-neutral-900 font-semibold">{product.ratings.toFixed(1)}</span>
 			</div>							{/* Price */}
 							<div className="space-y-2">
 								<div className="flex items-center gap-4">
-									<span className="text-4xl font-black text-stone-100">
+									<span className="text-4xl font-black text-neutral-900">
 										${discountedPrice.toFixed(2)}
 									</span>
 									{product.discount > 0 && (
 										<>
-											<span className="text-xl text-stone-400 line-through">
+											<span className="text-xl text-neutral-600 line-through">
 												${product.price.toFixed(2)}
 											</span>
 											<motion.span
@@ -347,7 +347,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 									)}
 								</div>
 								{product.discount > 0 && (
-									<p className="text-sm text-stone-400">
+									<p className="text-sm text-neutral-600">
 										You save ${(product.price - discountedPrice).toFixed(2)}
 									</p>
 								)}
@@ -356,7 +356,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 			{/* Color Selection */}
 			{availableColors.length > 0 && (
 				<div>
-					<label className="block text-sm font-semibold text-stone-200 mb-3">
+					<label className="block text-sm font-semibold text-neutral-900 mb-3">
 						COLOR
 					</label>
 					<div className="flex flex-wrap gap-3">
@@ -368,12 +368,12 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 								whileTap={{ scale: 0.95 }}
 								className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all capitalize ${
 									selectedColor === color.name
-										? "border-stone-100 bg-stone-800/50"
-										: "border-stone-700 hover:border-stone-500"
+										? "border-black bg-neutral-50"
+										: "border-neutral-200 hover:border-neutral-400"
 								}`}
 							>
 								<span 
-									className="w-4 h-4 rounded-full border border-stone-500"
+									className="w-4 h-4 rounded-full border border-neutral-300"
 									style={{ backgroundColor: getColorValue(color.name) }}
 								/>
 								<span className="text-sm font-medium">{color.name}</span>
@@ -386,7 +386,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 			{/* Size Selection */}
 			{availableSizes.length > 0 && (
 				<div>
-					<label className="block text-sm font-semibold text-stone-200 mb-3">
+					<label className="block text-sm font-semibold text-neutral-900 mb-3">
 						SIZE
 					</label>
 					<div className="grid grid-cols-5 gap-2">
@@ -398,8 +398,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 								whileTap={{ scale: 0.95 }}
 								className={`py-3 rounded-lg font-semibold transition-all ${
 									selectedSize === size.name
-										? "bg-stone-100 text-stone-950"
-										: "bg-stone-800 text-stone-100 hover:bg-stone-700"
+										? "bg-black text-white"
+										: "bg-neutral-100 text-neutral-900 hover:bg-neutral-200"
 								}`}
 							>
 								{size.name}
@@ -411,7 +411,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
 							{/* Quantity */}
 							<div>
-								<label className="block text-sm font-semibold text-stone-200 mb-3">
+								<label className="block text-sm font-semibold text-neutral-900 mb-3">
 									QUANTITY
 								</label>
 								<div className="flex items-center gap-4">
@@ -419,18 +419,18 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 										onClick={() => setQuantity(Math.max(1, quantity - 1))}
 										whileHover={{ scale: 1.05 }}
 										whileTap={{ scale: 0.95 }}
-										className="w-12 h-12 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-100 font-semibold"
+										className="w-12 h-12 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold border border-neutral-200"
 									>
 										−
 									</motion.button>
-									<span className="text-2xl font-bold text-stone-100 w-8 text-center">
+									<span className="text-2xl font-bold text-neutral-900 w-8 text-center">
 										{quantity}
 									</span>
 									<motion.button
 										onClick={() => setQuantity(quantity + 1)}
 										whileHover={{ scale: 1.05 }}
 										whileTap={{ scale: 0.95 }}
-										className="w-12 h-12 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-100 font-semibold"
+										className="w-12 h-12 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold border border-neutral-200"
 									>
 										+
 									</motion.button>
@@ -448,7 +448,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 									<Button
 										onClick={handleAddToCart}
 										disabled={!selectedColor || !selectedSize || isAdding}
-										className="w-full bg-gradient-to-r from-stone-800 via-stone-700 to-stone-900 hover:from-stone-700 hover:via-stone-600 hover:to-stone-800 text-stone-50 h-14 font-semibold text-lg group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-black/30"
+										className="w-full bg-black text-white hover:bg-neutral-800 h-14 font-semibold text-lg group disabled:opacity-50 disabled:cursor-not-allowed"
 									>
 										{isAdding ? (
 											<motion.span
@@ -471,33 +471,33 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.95 }}
 									onClick={() => setShowSizeChart(true)}
-									className="w-14 h-14 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-100 flex items-center justify-center"
+									className="w-14 h-14 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-900 flex items-center justify-center border border-neutral-200"
 								>
 									<Ruler className="w-5 h-5" />
 								</motion.button>
 							</div>
 
 							{/* Product Details */}
-							<div className="space-y-3 pt-4 border-t border-stone-800">
+							<div className="space-y-3 pt-4 border-t border-neutral-200">
 								<div className="flex items-start gap-3">
-									<Truck className="w-5 h-5 text-stone-400 mt-1 flex-shrink-0" />
+									<Truck className="w-5 h-5 text-neutral-600 mt-1 flex-shrink-0" />
 									<div>
-										<p className="font-semibold text-stone-200">Free Shipping</p>
-										<p className="text-sm text-stone-400">On orders over $75</p>
+										<p className="font-semibold text-neutral-900">Free Shipping</p>
+										<p className="text-sm text-neutral-600">On orders over $75</p>
 									</div>
 								</div>
 								<div className="flex items-start gap-3">
-									<RotateCcw className="w-5 h-5 text-stone-400 mt-1 flex-shrink-0" />
+									<RotateCcw className="w-5 h-5 text-neutral-600 mt-1 flex-shrink-0" />
 									<div>
-										<p className="font-semibold text-stone-200">30-Day Returns</p>
-										<p className="text-sm text-stone-400">Easy returns & exchanges</p>
+										<p className="font-semibold text-neutral-900">30-Day Returns</p>
+										<p className="text-sm text-neutral-600">Easy returns & exchanges</p>
 									</div>
 								</div>
 								<div className="flex items-start gap-3">
-									<Shield className="w-5 h-5 text-stone-400 mt-1 flex-shrink-0" />
+									<Shield className="w-5 h-5 text-neutral-600 mt-1 flex-shrink-0" />
 									<div>
-										<p className="font-semibold text-stone-200">Secure Checkout</p>
-										<p className="text-sm text-stone-400">100% encrypted transactions</p>
+										<p className="font-semibold text-neutral-900">Secure Checkout</p>
+										<p className="text-sm text-neutral-600">100% encrypted transactions</p>
 									</div>
 								</div>
 							</div>
@@ -513,22 +513,22 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 						className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6"
 					>
 						<div className="lg:col-span-2 space-y-4">
-							<Card className="bg-stone-900/70 border-stone-800 shadow-2xl shadow-black/20">
+							<Card className="bg-white border-neutral-200 shadow-sm">
 								<CardContent className="p-6 space-y-3">
-									<h2 className="text-2xl font-bold text-stone-100">Product Description</h2>
-									<p className="text-stone-300 leading-relaxed">
+									<h2 className="text-2xl font-bold text-neutral-900">Product Description</h2>
+									<p className="text-neutral-600 leading-relaxed">
 										{product.fullDescription}
 									</p>
 								</CardContent>
 							</Card>
 
-							<Card className="bg-stone-900/70 border-stone-800 shadow-2xl shadow-black/20">
+							<Card className="bg-white border-neutral-200 shadow-sm">
 								<CardContent className="p-6 space-y-3">
-									<h3 className="text-xl font-semibold text-stone-100">Material & Care</h3>
-									<p className="text-stone-300">
+									<h3 className="text-xl font-semibold text-neutral-900">Material & Care</h3>
+									<p className="text-neutral-600">
 										<strong>Material:</strong> 80% premium cotton, 20% polyester
 									</p>
-									<p className="text-stone-300">
+									<p className="text-neutral-600">
 										<strong>Care Instructions:</strong> {product.care}
 									</p>
 								</CardContent>
@@ -536,13 +536,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 						</div>
 
 						<div>
-							<Card className="bg-stone-900/70 border-stone-800 shadow-2xl shadow-black/20">
+							<Card className="bg-white border-neutral-200 shadow-sm">
 								<CardContent className="p-6 space-y-4">
-									<h3 className="font-bold text-stone-100">Shipping Info</h3>
-									<p className="text-sm text-stone-300">
+									<h3 className="font-bold text-neutral-900">Shipping Info</h3>
+									<p className="text-sm text-neutral-600">
 										{product.shipping}
 									</p>
-									<Button className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50">
+									<Button className="w-full bg-black text-white hover:bg-neutral-800">
 										<Link href="/shipping-returns">Learn More</Link>
 									</Button>
 								</CardContent>

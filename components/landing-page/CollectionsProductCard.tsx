@@ -72,13 +72,13 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
         onHoverEnd={() => setIsHovered(false)}
         className="group cursor-pointer"
       >
-      <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full">
+      <Card className="bg-white border border-neutral-200 overflow-hidden h-full">
         <div className="relative h-80">
           <div
             className="w-full h-full flex items-center justify-center rounded-t-lg relative overflow-hidden"
             style={{ backgroundColor: colorValue }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-stone-950/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-transparent" />
             {imageUrl ? (
               <img
                 src={imageUrl}
@@ -88,32 +88,32 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
                 decoding="async"
               />
             ) : (
-              <div className="text-stone-100 text-center z-10">
+              <div className="text-neutral-900 text-center z-10">
                 <div className="w-32 h-32 mx-auto mb-4 relative">
-                  <div className="absolute inset-0 bg-stone-100/90 rounded-t-full" />
-                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-stone-100/90 rounded-full" />
-                  <div className="absolute top-8 left-2 w-8 h-16 bg-stone-100/90 rounded-full transform -rotate-12" />
-                  <div className="absolute top-8 right-2 w-8 h-16 bg-stone-100/90 rounded-full transform rotate-12" />
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-stone-100/70 rounded" />
+                  <div className="absolute inset-0 bg-neutral-200 rounded-t-full" />
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-neutral-200 rounded-full" />
+                  <div className="absolute top-8 left-2 w-8 h-16 bg-neutral-200 rounded-full transform -rotate-12" />
+                  <div className="absolute top-8 right-2 w-8 h-16 bg-neutral-200 rounded-full transform rotate-12" />
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-neutral-300 rounded" />
                 </div>
-                <div className="text-sm font-medium text-stone-100">{product.name}</div>
+                <div className="text-sm font-medium text-neutral-900">{product.name}</div>
               </div>
             )}
           </div>
 
           <motion.div
-            className="absolute top-4 right-4 bg-stone-900/70 backdrop-blur-sm rounded-full p-2 pointer-events-none z-20"
+            className="absolute top-4 right-4 bg-white border border-neutral-200 rounded-full p-2 pointer-events-none z-20"
             initial={{ scale: 0 }}
             animate={{ scale: isInView ? 1 : 0 }}
             transition={{ delay: index * 0.03 + 0.05 }}
           >
-            <ShoppingBag className="w-5 h-5 text-stone-100" />
+            <ShoppingBag className="w-5 h-5 text-black" />
           </motion.div>
         </div>
 
         <CardContent className="p-6">
           <motion.h3
-            className="text-xl font-bold mb-3 text-stone-100"
+            className="text-xl font-bold mb-3 text-neutral-900"
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: index * 0.03 + 0.05 }}
@@ -126,7 +126,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: index * 0.03 + 0.07 }}
           >
-            <span className="text-2xl font-bold text-stone-100">
+            <span className="text-2xl font-bold text-neutral-900">
               ${product.price.toFixed(2)}
             </span>
             <div className="flex items-center space-x-1">
@@ -137,7 +137,7 @@ export function CollectionsProductCard({ product, index }: CollectionsProductCar
                   animate={isInView ? { opacity: 1, scale: 1 } : {}}
                   transition={{ delay: index * 0.03 + 0.08 + i * 0.02 }}
                 >
-                  <Star className={`w-4 h-4 ${i < Math.floor(product.ratings) ? "fill-stone-400 text-stone-400" : "text-stone-600"}`} />
+                  <Star className={`w-4 h-4 ${i < Math.floor(product.ratings) ? "fill-black text-black" : "text-neutral-300"}`} />
                 </motion.div>
               ))}
             </div>

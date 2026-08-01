@@ -19,12 +19,12 @@ export default function ProductPageClient() {
 
   if (error && !product) {
     return (
-      <div className="bg-stone-950 text-stone-100 min-h-screen flex items-center justify-center">
+      <div className="bg-white text-neutral-900 min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <p className="text-stone-400 text-lg">Unable to load product</p>
+          <p className="text-neutral-600 text-lg">Unable to load product</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg text-stone-200 transition-colors"
+            className="px-6 py-2 bg-black hover:bg-neutral-800 rounded-lg text-white transition-colors"
           >
             Try Again
           </button>
@@ -35,8 +35,8 @@ export default function ProductPageClient() {
 
   if (!product) {
     return (
-      <div className="bg-stone-950 text-stone-100 min-h-screen flex items-center justify-center">
-        <p className="text-stone-400 text-lg">Product not found</p>
+      <div className="bg-white text-neutral-900 min-h-screen flex items-center justify-center">
+        <p className="text-neutral-600 text-lg">Product not found</p>
       </div>
     )
   }

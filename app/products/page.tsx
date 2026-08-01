@@ -36,8 +36,8 @@ const Pill = ({ children, color = "green" }: { children: React.ReactNode; color?
   <span
     className={
       color === "green"
-        ? "bg-stone-100 text-stone-950 text-xs font-bold px-2 py-1 rounded-full"
-        : "bg-stone-300 text-stone-950 text-xs font-bold px-2 py-1 rounded-full"
+        ? "bg-neutral-100 text-neutral-900 text-xs font-bold px-2 py-1 rounded-full"
+        : "bg-neutral-300 text-neutral-900 text-xs font-bold px-2 py-1 rounded-full"
     }
   >
     {children}
@@ -219,54 +219,53 @@ export default function ProductsPage() {
 
 
   if (isLoading) return (
-    <div className="bg-stone-950 text-stone-100 min-h-screen">
+    <div className="bg-white text-neutral-900 min-h-screen">
       {/* Hero Skeleton */}
-      <section className="relative h-72 sm:h-96 flex items-center justify-center overflow-hidden pt-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
+      <section className="relative h-72 sm:h-96 flex items-center justify-center overflow-hidden pt-20 bg-neutral-50">
         <div className="relative z-10 text-center px-4 w-full max-w-2xl mx-auto space-y-4">
-          <div className="h-10 sm:h-14 w-3/4 mx-auto bg-stone-800 rounded animate-pulse" />
-          <div className="h-1 w-16 sm:w-24 mx-auto bg-stone-800 rounded animate-pulse" />
-          <div className="h-4 sm:h-5 w-full bg-stone-900 rounded animate-pulse" style={{ animationDelay: "100ms" }} />
-          <div className="h-4 sm:h-5 w-2/3 mx-auto bg-stone-900 rounded animate-pulse" style={{ animationDelay: "200ms" }} />
+          <div className="h-10 sm:h-14 w-3/4 mx-auto bg-neutral-200 rounded animate-pulse" />
+          <div className="h-1 w-16 sm:w-24 mx-auto bg-neutral-200 rounded animate-pulse" />
+          <div className="h-4 sm:h-5 w-full bg-neutral-200 rounded animate-pulse" style={{ animationDelay: "100ms" }} />
+          <div className="h-4 sm:h-5 w-2/3 mx-auto bg-neutral-200 rounded animate-pulse" style={{ animationDelay: "200ms" }} />
         </div>
       </section>
 
       {/* Filter Bar Skeleton */}
-      <section className="py-6 sm:py-8 px-4 bg-stone-900/50">
+      <section className="py-6 sm:py-8 px-4 bg-neutral-50 border-b border-neutral-200">
         <div className="container mx-auto space-y-4">
-          <div className="h-9 sm:h-10 w-full bg-stone-800/60 rounded animate-pulse" />
+          <div className="h-9 sm:h-10 w-full bg-neutral-200 rounded animate-pulse" />
           <div className="hidden md:grid md:grid-cols-4 gap-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-9 sm:h-10 bg-stone-800/40 rounded animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
+              <div key={i} className="h-9 sm:h-10 bg-neutral-200 rounded animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
             ))}
           </div>
-          <div className="h-4 w-40 bg-stone-800/30 rounded animate-pulse" />
+          <div className="h-4 w-40 bg-neutral-200 rounded animate-pulse" />
         </div>
       </section>
 
       {/* Product Grid Skeleton */}
-      <section className="py-8 sm:py-12 px-4 bg-stone-950">
+      <section className="py-8 sm:py-12 px-4 bg-white">
         <div className="container mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
             {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="bg-stone-900/50 border border-stone-700 rounded-lg overflow-hidden">
+              <div key={index} className="bg-white border border-neutral-200 rounded-lg overflow-hidden">
                 {/* Image placeholder */}
-                <div className="relative aspect-square bg-stone-800/50 overflow-hidden">
-                  <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-stone-800/30 to-stone-900" style={{ animationDelay: `${index * 80}ms` }} />
+                <div className="relative aspect-square bg-neutral-100 overflow-hidden">
+                  <div className="absolute inset-0 animate-pulse bg-neutral-200" style={{ animationDelay: `${index * 80}ms` }} />
                 </div>
                 {/* Content placeholder */}
                 <div className="p-2.5 sm:p-3 md:p-4 space-y-2 sm:space-y-3">
-                  <div className="h-3.5 sm:h-4 w-3/4 bg-stone-800 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 50}ms` }} />
+                  <div className="h-3.5 sm:h-4 w-3/4 bg-neutral-200 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 50}ms` }} />
                   <div className="flex items-center justify-between">
-                    <div className="h-4 sm:h-5 w-16 bg-stone-800 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 100}ms` }} />
-                    <div className="h-3 w-10 bg-stone-800/50 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 150}ms` }} />
+                    <div className="h-4 sm:h-5 w-16 bg-neutral-200 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 100}ms` }} />
+                    <div className="h-3 w-10 bg-neutral-200 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 150}ms` }} />
                   </div>
                   <div className="flex gap-1">
                     {[1, 2, 3].map((c) => (
-                      <div key={c} className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-stone-800 animate-pulse" />
+                      <div key={c} className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-neutral-200 animate-pulse" />
                     ))}
                   </div>
-                  <div className="h-7 sm:h-8 w-full bg-stone-800 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 200}ms` }} />
+                  <div className="h-7 sm:h-8 w-full bg-neutral-200 rounded animate-pulse" style={{ animationDelay: `${index * 80 + 200}ms` }} />
                 </div>
               </div>
             ))}
@@ -275,18 +274,14 @@ export default function ProductsPage() {
       </section>
     </div>
   )
-  if (error) return <p className="bg-stone-950 text-stone-100 min-h-screen flex items-center justify-center">Error fetching products</p>
+  if (error) return <p className="bg-white text-neutral-900 min-h-screen flex items-center justify-center">Error fetching products</p>
 
   return (
-    <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
+    <div ref={containerRef} className="bg-white text-neutral-900 overflow-hidden">
 
 
       {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
-
+      <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20 bg-neutral-50">
         <motion.div
           className="relative z-10 text-center px-4"
           initial={{ opacity: 0, y: 50 }}
@@ -294,7 +289,7 @@ export default function ProductsPage() {
           transition={{ duration: 0.25, delay: 0.05 }}
         >
           <motion.h1
-            className="text-5xl md:text-7xl font-black mb-4 bg-gradient-to-r from-stone-100 via-stone-400 to-stone-600 bg-clip-text text-transparent"
+            className="text-5xl md:text-7xl font-black mb-4 text-neutral-900"
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.25, delay: 0.02 }}
@@ -302,13 +297,13 @@ export default function ProductsPage() {
             COLLECTION
           </motion.h1>
           <motion.div
-            className="w-24 h-1 bg-gradient-to-r from-stone-700 to-stone-900 mx-auto mb-6"
+            className="w-24 h-1 bg-black mx-auto mb-6"
             initial={{ width: 0 }}
             animate={{ width: 96 }}
             transition={{ duration: 0.25, delay: 0.08 }}
           />
           <motion.p
-            className="text-xl text-stone-300 max-w-2xl mx-auto"
+            className="text-xl text-neutral-600 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, delay: 0.1 }}
@@ -319,7 +314,7 @@ export default function ProductsPage() {
       </section>
 
       {/* Filters and Search */}
-      <section className="py-8 px-4 bg-stone-900/50">
+      <section className="py-8 px-4 bg-neutral-50 border-b border-neutral-200">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -330,13 +325,13 @@ export default function ProductsPage() {
           >
             {/* Search */}
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-stone-950/50 border-stone-700 text-stone-100 placeholder:text-stone-400 focus:border-stone-300 transition-colors"
+                className="pl-10 bg-white border-neutral-200 text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 transition-colors"
               />
             </div>
 
@@ -344,17 +339,17 @@ export default function ProductsPage() {
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => setShowFilters((prev) => !prev)}
-                className="md:hidden w-full text-left text-sm text-stone-200 bg-stone-900/70 border border-stone-800 rounded px-3 py-2 flex items-center justify-between"
+                className="md:hidden w-full text-left text-sm text-neutral-900 bg-white border border-neutral-200 rounded px-3 py-2 flex items-center justify-between"
               >
                 <span>Filters & Sort</span>
-                <span className="text-xs text-stone-400">{showFilters ? "Hide" : "Show"}</span>
+                <span className="text-xs text-neutral-500">{showFilters ? "Hide" : "Show"}</span>
               </button>
 
               <div className={`grid gap-3 ${showFilters ? "grid-cols-1 sm:grid-cols-2" : "hidden md:grid md:grid-cols-4"}`}>
                 <select
                   value={selectedColor}
                   onChange={(e) => setSelectedColor(e.target.value)}
-                  className="w-full bg-stone-950/70 border border-stone-800 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
+                  className="w-full bg-white border border-neutral-200 text-neutral-900 rounded px-3 py-2 text-sm focus:border-neutral-400 transition-colors"
                 >
                   {dynamicFilters.colors.map((color) => (
                     <option key={color} value={color}>
@@ -366,7 +361,7 @@ export default function ProductsPage() {
                 <select
                   value={selectedSize}
                   onChange={(e) => setSelectedSize(e.target.value)}
-                  className="w-full bg-stone-950/70 border border-stone-800 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
+                  className="w-full bg-white border border-neutral-200 text-neutral-900 rounded px-3 py-2 text-sm focus:border-neutral-400 transition-colors"
                 >
                   {dynamicFilters.sizes.map((size) => (
                     <option key={size} value={size}>
@@ -378,7 +373,7 @@ export default function ProductsPage() {
                 <select
                   value={selectedPrice}
                   onChange={(e) => setSelectedPrice(e.target.value)}
-                  className="w-full bg-stone-950/70 border border-stone-800 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
+                  className="w-full bg-white border border-neutral-200 text-neutral-900 rounded px-3 py-2 text-sm focus:border-neutral-400 transition-colors"
                 >
                   {dynamicFilters.priceRanges.map((price) => (
                     <option key={price} value={price}>
@@ -390,7 +385,7 @@ export default function ProductsPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full bg-stone-950/70 border border-stone-800 text-stone-100 rounded px-3 py-2 text-sm focus:border-stone-300 transition-colors"
+                  className="w-full bg-white border border-neutral-200 text-neutral-900 rounded px-3 py-2 text-sm focus:border-neutral-400 transition-colors"
                 >
                   {["Featured", "Price: Low to High", "Price: High to Low", "Best Selling", "Highest Rated"].map((sort) => (
                     <option key={sort} value={sort}>
@@ -408,7 +403,7 @@ export default function ProductsPage() {
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.2, delay: 0.1 }}
             viewport={{ once: true }}
-            className="text-stone-400 text-sm mb-6"
+            className="text-neutral-600 text-sm mb-6"
           >
             Showing {sortedProducts.length} of {products?.length || 0} products
           </motion.div>
@@ -416,7 +411,7 @@ export default function ProductsPage() {
       </section>
 
       {/* Products Grid */}
-      <section className="py-12 px-4 bg-stone-950">
+      <section className="py-12 px-4 bg-white">
         <div className="container mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
             {sortedProducts.map((product: Product, index: number) => {
@@ -439,7 +434,7 @@ export default function ProductsPage() {
                     whileHover={{ scale: 1.02 }}
                     className="group cursor-pointer h-full"
                   >
-                    <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 overflow-hidden h-full hover:border-stone-400/50 transition-all duration-300 flex flex-col rounded-lg">
+                    <Card className="bg-white border-neutral-200 overflow-hidden h-full hover:border-neutral-400 transition-all duration-300 flex flex-col rounded-lg">
                       {/* Product Image */}
                       <div className="relative aspect-square overflow-hidden">
                         {firstImage ? (
@@ -451,24 +446,24 @@ export default function ProductsPage() {
                             decoding="async"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-stone-800">
-                            <ShoppingBag className="w-12 h-12 text-stone-600" />
+                          <div className="w-full h-full flex items-center justify-center bg-neutral-100">
+                            <ShoppingBag className="w-12 h-12 text-neutral-400" />
                           </div>
                         )}
 
                         {/* Badge - smaller on mobile */}
                         <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20">
                           {product.discount > 0 ? (
-                            <span className="bg-stone-100 text-stone-950 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">SALE</span>
+                            <span className="bg-neutral-100 text-neutral-900 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">SALE</span>
                           ) : product.best_seller ? (
-                            <span className="bg-stone-300 text-stone-950 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">BEST</span>
+                            <span className="bg-neutral-300 text-neutral-900 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">BEST</span>
                           ) : product.featured ? (
-                            <span className="bg-stone-100 text-stone-950 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">NEW</span>
+                            <span className="bg-neutral-100 text-neutral-900 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">NEW</span>
                           ) : null}
                         </div>
 
                         {/* Hover Actions - Desktop only */}
-                        <div className="hidden md:flex absolute inset-0 bg-stone-950/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center gap-4 pointer-events-none group-hover:pointer-events-auto z-30">
+                        <div className="hidden md:flex absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center gap-4 pointer-events-none group-hover:pointer-events-auto z-30">
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
@@ -479,7 +474,7 @@ export default function ProductsPage() {
                                 addToCart(product, 1, firstColor, availableSizes[0])
                               }
                             }}
-                            className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors pointer-events-auto"
+                            className="bg-white text-black p-3 rounded-full hover:bg-neutral-100 transition-colors pointer-events-auto"
                           >
                             <ShoppingBag className="w-5 h-5" />
                           </motion.button>
@@ -491,7 +486,7 @@ export default function ProductsPage() {
                               e.stopPropagation()
                               setShowSizeChart(true)
                             }}
-                            className="bg-stone-100 text-stone-950 p-3 rounded-full hover:bg-stone-200 transition-colors pointer-events-auto"
+                            className="bg-white text-black p-3 rounded-full hover:bg-neutral-100 transition-colors pointer-events-auto"
                           >
                             <Ruler className="w-5 h-5" />
                           </motion.button>
@@ -501,21 +496,21 @@ export default function ProductsPage() {
                       {/* Product Info - Compact */}
                       <CardContent className="p-2.5 sm:p-3 md:p-4 flex flex-col flex-grow">
                         {/* Product Name */}
-                        <h3 className="text-xs sm:text-sm md:text-base font-semibold text-stone-100 group-hover:text-stone-300 transition-colors line-clamp-1 mb-1.5">
+                        <h3 className="text-xs sm:text-sm md:text-base font-semibold text-neutral-900 group-hover:text-neutral-700 transition-colors line-clamp-1 mb-1.5">
                           {product.name}
                         </h3>
 
                         {/* Price and Rating Row */}
                         <div className="flex items-center justify-between mb-1.5">
                           <div className="flex items-baseline gap-1">
-                            <span className="text-sm sm:text-base md:text-lg font-bold text-stone-100">${finalPrice.toFixed(2)}</span>
+                            <span className="text-sm sm:text-base md:text-lg font-bold text-neutral-900">${finalPrice.toFixed(2)}</span>
                             {product.discount > 0 && (
-                              <span className="text-stone-500 line-through text-[10px] sm:text-xs">${product.price.toFixed(2)}</span>
+                              <span className="text-neutral-500 line-through text-[10px] sm:text-xs">${product.price.toFixed(2)}</span>
                             )}
                           </div>
                           <div className="flex items-center">
-                            <Star className="w-3 h-3 fill-stone-400 text-stone-400" />
-                            <span className="text-[10px] sm:text-xs text-stone-400 ml-0.5">{product.ratings.toFixed(1)}</span>
+                            <Star className="w-3 h-3 fill-neutral-400 text-neutral-400" />
+                            <span className="text-[10px] sm:text-xs text-neutral-500 ml-0.5">{product.ratings.toFixed(1)}</span>
                           </div>
                         </div>
 
@@ -525,13 +520,13 @@ export default function ProductsPage() {
                             {colorList.slice(0, 3).map((colorName, idx) => (
                               <span
                                 key={`${colorName}-${idx}`}
-                                className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-stone-600"
+                                className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-neutral-300"
                                 style={{ backgroundColor: getColorValue(colorName) }}
                                 title={colorName}
                               />
                             ))}
                             {colorList.length > 3 && (
-                              <span className="text-[10px] text-stone-500">+{colorList.length - 3}</span>
+                              <span className="text-[10px] text-neutral-500">+{colorList.length - 3}</span>
                             )}
                           </div>
                         )}
@@ -541,7 +536,7 @@ export default function ProductsPage() {
                           {availableSizes.slice(0, 4).map((size, idx) => (
                             <span
                               key={`${size}-${idx}`}
-                              className="px-1.5 py-0.5 bg-stone-800 text-stone-300 rounded text-[10px] border border-stone-700"
+                              className="px-1.5 py-0.5 bg-neutral-100 text-neutral-700 rounded text-[10px] border border-neutral-200"
                             >
                               {size.toUpperCase()}
                             </span>
@@ -557,7 +552,7 @@ export default function ProductsPage() {
                               addToCart(product, 1, firstColor, availableSizes[0])
                             }
                           }}
-                          className="w-full mt-auto bg-stone-800 hover:bg-stone-700 text-stone-100 text-[11px] sm:text-xs py-1.5 sm:py-2 h-auto"
+                          className="w-full mt-auto bg-black hover:bg-neutral-800 text-white text-[11px] sm:text-xs py-1.5 sm:py-2 h-auto"
                         >
                           <ShoppingBag className="w-3 h-3 mr-1" />
                           Add

@@ -8,6 +8,15 @@
   }
 }
 
+/* Nike.com UI stack: Helvetica Neue (system). Display: Bebas Neue ≈ Futura Condensed */
+.font-nike {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.font-nike-display {
+  font-family: var(--font-nike-display), "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 @layer base {
   :root {
     --font-sans: var(--font-geist-sans);

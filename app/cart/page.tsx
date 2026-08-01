@@ -64,7 +64,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100">
+    <div className="min-h-screen bg-white text-neutral-900">
     
 
       <div className="pt-24 md:pt-28 container mx-auto px-4 sm:px-6 pb-12">
@@ -73,13 +73,13 @@ export default function CartPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="mb-4 md:mb-6 flex items-center gap-2 text-stone-400 text-sm"
+          className="mb-4 md:mb-6 flex items-center gap-2 text-neutral-500 text-sm"
         >
-          <Link href="/" className="hover:text-stone-200 transition-colors">
+          <Link href="/" className="hover:text-neutral-900 transition-colors">
             Home
           </Link>
           <span>/</span>
-          <span className="text-stone-100">Cart</span>
+          <span className="text-neutral-900">Cart</span>
         </motion.div>
 
         {/* Page Title */}
@@ -87,7 +87,7 @@ export default function CartPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-3xl md:text-5xl font-bold mb-6 md:mb-10 text-center bg-gradient-to-r from-stone-100 to-stone-400 bg-clip-text text-transparent italic"
+          className="text-3xl md:text-5xl font-bold mb-6 md:mb-10 text-center text-neutral-900 italic"
         >
           Your Bag
         </motion.h1>
@@ -99,9 +99,9 @@ export default function CartPage() {
             transition={{ duration: 0.6 }}
             className="text-center py-20"
           >
-            <p className="text-stone-300 mb-6">Your cart is empty</p>
+            <p className="text-neutral-600 mb-6">Your cart is empty</p>
             <Link href="/products">
-              <Button className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50">
+              <Button className="bg-black hover:bg-neutral-800 text-white">
                 Continue Shopping
               </Button>
             </Link>
@@ -117,7 +117,7 @@ export default function CartPage() {
             >
               <div className="space-y-4">
                 {/* Table Header - Hidden on mobile */}
-                <div className="hidden md:grid grid-cols-4 gap-4 pb-4 border-b border-stone-700 text-sm font-semibold text-stone-200">
+                <div className="hidden md:grid grid-cols-4 gap-4 pb-4 border-b border-neutral-200 text-sm font-semibold text-neutral-700">
                   <div>Product</div>
                   <div>Price</div>
                   <div>Quantity</div>
@@ -133,18 +133,18 @@ export default function CartPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
-                      className="hidden md:grid grid-cols-4 gap-4 items-center pb-6 border-b border-stone-800"
+                      className="hidden md:grid grid-cols-4 gap-4 items-center pb-6 border-b border-neutral-200"
                     >
                       {/* Product Image and Name */}
                       <div className="flex gap-3 items-center">
                         <img
                           src={getImageForColor(item.product.images, item.selectedColor)}
                           alt={item.product.name}
-                          className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border border-stone-700"
+                          className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border border-neutral-200"
                         />
                         <div>
-                          <h3 className="font-semibold text-stone-100">{item.product.name}</h3>
-                          <p className="text-xs text-stone-400">
+                          <h3 className="font-semibold text-neutral-900">{item.product.name}</h3>
+                          <p className="text-xs text-neutral-500">
                             Color: {item.selectedColor} | Size: {item.selectedSize}
                           </p>
                         </div>
@@ -154,34 +154,34 @@ export default function CartPage() {
                       <div>
                         {item.product.discount > 0 ? (
                           <div className="flex flex-col">
-                            <span className="font-semibold text-stone-100">${discountedPrice.toFixed(2)}</span>
-                            <span className="text-xs text-stone-500 line-through">${item.product.price.toFixed(2)}</span>
+                            <span className="font-semibold text-neutral-900">${discountedPrice.toFixed(2)}</span>
+                            <span className="text-xs text-neutral-500 line-through">${item.product.price.toFixed(2)}</span>
                           </div>
                         ) : (
-                          <span className="font-semibold text-stone-100">${item.product.price.toFixed(2)}</span>
+                          <span className="font-semibold text-neutral-900">${item.product.price.toFixed(2)}</span>
                         )}
                       </div>
 
                       {/* Quantity Controls */}
-                      <div className="flex items-center gap-2 bg-stone-900/80 rounded-lg p-1 w-fit border border-stone-700">
+                      <div className="flex items-center gap-2 bg-white rounded-lg p-1 w-fit border border-neutral-200">
                         <button
                           onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity - 1)}
-                          className="p-1 hover:bg-stone-800 rounded transition-colors"
+                          className="p-1 hover:bg-neutral-100 rounded transition-colors"
                         >
-                          <Minus className="w-4 h-4 text-stone-300" />
+                          <Minus className="w-4 h-4 text-neutral-600" />
                         </button>
-                        <span className="w-6 text-center text-stone-100 font-semibold">{item.quantity}</span>
+                        <span className="w-6 text-center text-neutral-900 font-semibold">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity + 1)}
-                          className="p-1 hover:bg-stone-800 rounded transition-colors"
+                          className="p-1 hover:bg-neutral-100 rounded transition-colors"
                         >
-                          <Plus className="w-4 h-4 text-stone-300" />
+                          <Plus className="w-4 h-4 text-neutral-600" />
                         </button>
                       </div>
 
                       {/* Total */}
                       <div className="flex items-center justify-between">
-                        <div className="font-semibold text-stone-100">${(discountedPrice * item.quantity).toFixed(2)}</div>
+                        <div className="font-semibold text-neutral-900">${(discountedPrice * item.quantity).toFixed(2)}</div>
                         <button
                           onClick={() => removeFromCart(item.product.id, item.selectedColor, item.selectedSize)}
                           className="p-2 hover:bg-red-900/30 rounded transition-colors"
@@ -203,21 +203,21 @@ export default function CartPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: index * 0.1 }}
-                        className="bg-stone-900/50 border border-stone-700 rounded-lg p-4"
+                        className="bg-white border border-neutral-200 rounded-lg p-4"
                       >
                         {/* Product Image and Name */}
                         <div className="flex gap-3 mb-4">
                           <img
                             src={getImageForColor(item.product.images, item.selectedColor)}
                             alt={item.product.name}
-                            className="w-24 h-24 rounded-lg object-cover flex-shrink-0 border border-stone-700"
+                            className="w-24 h-24 rounded-lg object-cover flex-shrink-0 border border-neutral-200"
                           />
                           <div className="flex-1">
-                            <h3 className="font-semibold text-stone-100 text-sm mb-1">{item.product.name}</h3>
-                            <p className="text-xs text-stone-400 mb-2">
+                            <h3 className="font-semibold text-neutral-900 text-sm mb-1">{item.product.name}</h3>
+                            <p className="text-xs text-neutral-500 mb-2">
                               Color: {item.selectedColor}
                             </p>
-                            <p className="text-xs text-stone-400">
+                            <p className="text-xs text-neutral-500">
                               Size: {item.selectedSize}
                             </p>
                           </div>
@@ -234,33 +234,33 @@ export default function CartPage() {
                           <div>
                             {item.product.discount > 0 ? (
                               <div className="flex flex-col">
-                                <span className="font-semibold text-stone-100">${discountedPrice.toFixed(2)}</span>
-                                <span className="text-xs text-stone-500 line-through">${item.product.price.toFixed(2)}</span>
+                                <span className="font-semibold text-neutral-900">${discountedPrice.toFixed(2)}</span>
+                                <span className="text-xs text-neutral-500 line-through">${item.product.price.toFixed(2)}</span>
                               </div>
                             ) : (
-                              <span className="font-semibold text-stone-100">${item.product.price.toFixed(2)}</span>
+                              <span className="font-semibold text-neutral-900">${item.product.price.toFixed(2)}</span>
                             )}
                           </div>
 
                           {/* Quantity Controls */}
-                          <div className="flex items-center gap-2 bg-stone-900/80 rounded-lg p-1 border border-stone-700">
+                          <div className="flex items-center gap-2 bg-white rounded-lg p-1 border border-neutral-200">
                             <button
                               onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity - 1)}
-                              className="p-1 hover:bg-stone-800 rounded transition-colors"
+                              className="p-1 hover:bg-neutral-100 rounded transition-colors"
                             >
-                              <Minus className="w-3 h-3 text-stone-300" />
+                              <Minus className="w-3 h-3 text-neutral-600" />
                             </button>
-                            <span className="w-5 text-center text-stone-100 font-semibold text-sm">{item.quantity}</span>
+                            <span className="w-5 text-center text-neutral-900 font-semibold text-sm">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item.product.id, item.selectedColor, item.selectedSize, item.quantity + 1)}
-                              className="p-1 hover:bg-stone-800 rounded transition-colors"
+                              className="p-1 hover:bg-neutral-100 rounded transition-colors"
                             >
-                              <Plus className="w-3 h-3 text-stone-300" />
+                              <Plus className="w-3 h-3 text-neutral-600" />
                             </button>
                           </div>
 
                           {/* Item Total */}
-                          <div className="font-semibold text-stone-100 text-right">
+                          <div className="font-semibold text-neutral-900 text-right">
                             ${(discountedPrice * item.quantity).toFixed(2)}
                           </div>
                         </div>
@@ -278,26 +278,26 @@ export default function CartPage() {
                 className="mt-12 space-y-6"
               >
                 {/* Delivery Info Card */}
-                <Card className="bg-stone-900/50 border-stone-700">
+                <Card className="bg-white border-neutral-200">
                   <CardContent className="p-4 sm:p-6">
-                    <h3 className="font-bold text-lg text-stone-50 mb-4 flex items-center gap-2">
+                    <h3 className="font-bold text-lg text-neutral-900 mb-4 flex items-center gap-2">
                       <Package className="w-5 h-5" /> Delivery Info
                     </h3>
                     <div className="space-y-3 text-sm">
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <span className="text-stone-300">Standard Shipping (5-7 days)</span>
-                        <span className="text-stone-100 font-semibold">FREE</span>
+                        <span className="text-neutral-600">Standard Shipping (5-7 days)</span>
+                        <span className="text-neutral-900 font-semibold">FREE</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <span className="text-stone-300">Express Shipping (2-3 days)</span>
-                        <span className="text-stone-100 font-semibold">$12.99</span>
+                        <span className="text-neutral-600">Express Shipping (2-3 days)</span>
+                        <span className="text-neutral-900 font-semibold">$12.99</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <span className="text-stone-300">Overnight (1 day)</span>
-                        <span className="text-stone-100 font-semibold">$24.99</span>
+                        <span className="text-neutral-600">Overnight (1 day)</span>
+                        <span className="text-neutral-900 font-semibold">$24.99</span>
                       </div>
                       <Link href="/shipping-returns" className="mt-3 inline-block">
-                        <p className="text-stone-400 hover:text-stone-200 transition-colors text-xs underline">
+                        <p className="text-neutral-500 hover:text-neutral-900 transition-colors text-xs underline">
                           View full shipping & returns policy →
                         </p>
                       </Link>
@@ -306,24 +306,24 @@ export default function CartPage() {
                 </Card>
 
                 {/* Payment Info Card */}
-                <Card className="bg-stone-900/50 border-stone-700">
+                <Card className="bg-white border-neutral-200">
                   <CardContent className="p-4 sm:p-6">
-                    <h3 className="font-bold text-lg text-stone-50 mb-4 flex items-center gap-2">
+                    <h3 className="font-bold text-lg text-neutral-900 mb-4 flex items-center gap-2">
                       <CreditCard className="w-5 h-5" /> Payment Methods
                     </h3>
-                    <p className="text-sm text-stone-300 mb-4">We accept the following secure payment methods:</p>
+                    <p className="text-sm text-neutral-600 mb-4">We accept the following secure payment methods:</p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                       {['VISA', 'MASTERCARD', 'AMEX', 'PAYPAL'].map((method) => (
                         <div
                           key={method}
-                          className="px-3 py-2 sm:px-4 sm:py-3 bg-stone-800/50 border border-stone-700/50 rounded-lg text-center text-xs font-semibold text-stone-200 hover:border-stone-600 transition-colors"
+                          className="px-3 py-2 sm:px-4 sm:py-3 bg-neutral-50 border border-neutral-200 rounded-lg text-center text-xs font-semibold text-neutral-700 hover:border-neutral-400 transition-colors"
                         >
                           {method}
                         </div>
                       ))}
                     </div>
-                    <p className="text-xs text-stone-400 mt-4 flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-stone-500" /> All transactions are encrypted and secure
+                    <p className="text-xs text-neutral-500 mt-4 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-neutral-400" /> All transactions are encrypted and secure
                     </p>
                   </CardContent>
                 </Card>
@@ -337,12 +337,12 @@ export default function CartPage() {
               transition={{ duration: 0.6 }}
               className="lg:col-span-1 order-1 lg:order-2"
             >
-              <Card className="bg-stone-900/95 border border-stone-600/80 lg:sticky lg:top-24">
+              <Card className="bg-white border border-neutral-200 lg:sticky lg:top-24">
                 <CardContent className="p-4 sm:p-6">
-                  <h2 className="text-lg font-bold text-stone-50 mb-6 uppercase tracking-wider">Order Summary</h2>
+                  <h2 className="text-lg font-bold text-neutral-900 mb-6 uppercase tracking-wider">Order Summary</h2>
 
                     <div className="space-y-3 mb-4">
-                      <div className="flex justify-between text-stone-100">
+                      <div className="flex justify-between text-neutral-900">
                         <span className="text-sm">Subtotal</span>
                         <span className="font-semibold">${subtotal.toFixed(2)}</span>
                       </div>
@@ -358,10 +358,10 @@ export default function CartPage() {
                     </div>
 
                     {/* Shipping Selection */}
-                    <div className="mb-6 pb-6 border-b border-stone-600/70">
-                      <label className="block text-sm font-semibold text-stone-200 mb-3">Shipping</label>
+                    <div className="mb-6 pb-6 border-b border-neutral-200">
+                      <label className="block text-sm font-semibold text-neutral-700 mb-3">Shipping</label>
                       <div className="space-y-2">
-                        <label className="flex items-center justify-between p-3 bg-stone-800/50 rounded-lg border border-stone-700 cursor-pointer hover:bg-stone-800/70 transition-colors">
+                        <label className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200 cursor-pointer hover:bg-neutral-100 transition-colors">
                           <div className="flex items-center gap-2">
                             <input
                               type="radio"
@@ -369,13 +369,13 @@ export default function CartPage() {
                               value="standard"
                               checked={shippingType === 'standard'}
                               onChange={() => setShippingType('standard')}
-                              className="w-4 h-4 text-stone-600"
+                              className="w-4 h-4 text-neutral-900"
                             />
-                            <span className="text-stone-100 text-sm">Standard (5-7 days)</span>
+                            <span className="text-neutral-900 text-sm">Standard (5-7 days)</span>
                           </div>
-                          <span className="text-stone-300 font-semibold text-sm">FREE</span>
+                          <span className="text-neutral-600 font-semibold text-sm">FREE</span>
                         </label>
-                        <label className="flex items-center justify-between p-3 bg-stone-800/50 rounded-lg border border-stone-700 cursor-pointer hover:bg-stone-800/70 transition-colors">
+                        <label className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200 cursor-pointer hover:bg-neutral-100 transition-colors">
                           <div className="flex items-center gap-2">
                             <input
                               type="radio"
@@ -383,13 +383,13 @@ export default function CartPage() {
                               value="express"
                               checked={shippingType === 'express'}
                               onChange={() => setShippingType('express')}
-                              className="w-4 h-4 text-stone-600"
+                              className="w-4 h-4 text-neutral-900"
                             />
-                            <span className="text-stone-100 text-sm">Express (2-3 days)</span>
+                            <span className="text-neutral-900 text-sm">Express (2-3 days)</span>
                           </div>
-                          <span className="text-stone-300 font-semibold text-sm">$12.99</span>
+                          <span className="text-neutral-600 font-semibold text-sm">$12.99</span>
                         </label>
-                        <label className="flex items-center justify-between p-3 bg-stone-800/50 rounded-lg border border-stone-700 cursor-pointer hover:bg-stone-800/70 transition-colors">
+                        <label className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200 cursor-pointer hover:bg-neutral-100 transition-colors">
                           <div className="flex items-center gap-2">
                             <input
                               type="radio"
@@ -397,22 +397,22 @@ export default function CartPage() {
                               value="overnight"
                               checked={shippingType === 'overnight'}
                               onChange={() => setShippingType('overnight')}
-                              className="w-4 h-4 text-stone-600"
+                              className="w-4 h-4 text-neutral-900"
                             />
-                            <span className="text-stone-100 text-sm">Overnight (1 day)</span>
+                            <span className="text-neutral-900 text-sm">Overnight (1 day)</span>
                           </div>
-                          <span className="text-stone-300 font-semibold text-sm">$24.99</span>
+                          <span className="text-neutral-600 font-semibold text-sm">$24.99</span>
                         </label>
                       </div>
-                      <div className="mt-3 flex justify-between text-stone-100">
+                      <div className="mt-3 flex justify-between text-neutral-900">
                         <span className="text-sm">Shipping Cost</span>
                         <span className="font-semibold">{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
                       </div>
                     </div>
 
-                  <div className="flex justify-between items-center mb-6 p-4 bg-stone-950/80 rounded-lg border border-stone-500/60">
-                    <span className="font-bold text-stone-50 uppercase tracking-wide">TOTAL</span>
-                    <span className="text-2xl font-bold text-stone-50">${total.toFixed(2)}</span>
+                  <div className="flex justify-between items-center mb-6 p-4 bg-neutral-50 rounded-lg border border-neutral-200">
+                    <span className="font-bold text-neutral-900 uppercase tracking-wide">TOTAL</span>
+                    <span className="text-2xl font-bold text-neutral-900">${total.toFixed(2)}</span>
                   </div>
 
                   {/* Promo Code */}
@@ -446,11 +446,11 @@ export default function CartPage() {
                               setPromoError(null)
                             }}
                             onKeyPress={handleKeyPress}
-                            className="bg-stone-950/60 border-stone-600 text-stone-100 placeholder:text-stone-500 focus:border-stone-300 text-sm uppercase"
+                            className="bg-white border-neutral-200 text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 text-sm uppercase"
                           />
                           <button
                             onClick={handleApplyPromo}
-                            className="p-2 text-stone-300 hover:text-stone-100 transition-colors hover:bg-stone-800 rounded"
+                            className="p-2 text-neutral-600 hover:text-neutral-900 transition-colors hover:bg-neutral-100 rounded"
                           >
                             <ArrowLeft className="w-5 h-5 rotate-180" />
                           </button>
@@ -465,7 +465,7 @@ export default function CartPage() {
                   {/* Checkout Buttons */}
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mb-3">
                     <Link href="/checkout" className="block">
-                      <Button className="w-full bg-gradient-to-r from-stone-700 to-stone-800 hover:from-stone-800 hover:to-stone-900 text-stone-50 font-bold py-2 uppercase tracking-wider text-sm">
+                      <Button className="w-full bg-black hover:bg-neutral-800 text-white font-bold py-2 uppercase tracking-wider text-sm">
                         Checkout
                       </Button>
                     </Link>
@@ -476,7 +476,7 @@ export default function CartPage() {
                     <Link href="/products" className="block">
                       <Button
                         variant="outline"
-                        className="w-full border-stone-600/80 text-stone-200 hover:bg-stone-800/60 hover:text-stone-50 font-bold uppercase tracking-wider text-sm bg-transparent border-2"
+                        className="w-full border-neutral-300 text-neutral-900 hover:bg-neutral-100 font-bold uppercase tracking-wider text-sm bg-white border-2"
                       >
                         Continue Shopping
                       </Button>

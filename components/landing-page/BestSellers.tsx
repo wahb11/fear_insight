@@ -94,12 +94,12 @@ export default function BestSellers() {
   }
 
   if (isLoading) return (
-    <section className="py-20 px-4 bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
+    <section className="py-20 px-4 bg-white">
       <div className="container mx-auto">
         <div className="flex justify-center items-center h-64">
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-stone-700 border-t-amber-500 rounded-full animate-spin" />
-            <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-amber-500" />
+            <div className="w-16 h-16 border-4 border-neutral-200 border-t-black rounded-full animate-spin" />
+            <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-black" />
           </div>
         </div>
       </div>
@@ -107,9 +107,9 @@ export default function BestSellers() {
   )
   
   if (error) return (
-    <section className="py-20 px-4 bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
+    <section className="py-20 px-4 bg-white">
       <div className="container mx-auto">
-        <p className="text-center text-stone-400">Error fetching best sellers</p>
+        <p className="text-center text-neutral-600">Error fetching best sellers</p>
       </div>
     </section>
   )
@@ -121,13 +121,7 @@ export default function BestSellers() {
   const translateX = currentIndex * (cardWidth + gap)
 
   return (
-    <section className="py-20 px-4 relative overflow-hidden bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-stone-500/5 rounded-full blur-3xl" />
-      </div>
-
+    <section id="bestsellers" className="py-20 px-4 relative overflow-hidden bg-white">
       <div className="container mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -141,16 +135,16 @@ export default function BestSellers() {
             whileInView={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-stone-500/20 px-4 py-2 rounded-full mb-4 border border-amber-500/20"
+            className="inline-flex items-center gap-2 bg-neutral-100 px-4 py-2 rounded-full mb-4 border border-neutral-200"
           >
-            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-            <span className="text-sm font-medium text-amber-400">Customer Favorites</span>
+            <Star className="w-4 h-4 text-black fill-black" />
+            <span className="text-sm font-medium text-neutral-700">Customer Favorites</span>
           </motion.div>
           
-          <h2 className="text-4xl md:text-6xl font-black mb-4 bg-gradient-to-r from-stone-100 via-amber-200 to-stone-400 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-6xl font-black mb-4 text-black">
             OUR BEST SELLERS
           </h2>
-          <p className="text-stone-400 max-w-2xl mx-auto text-lg">
+          <p className="text-neutral-600 max-w-2xl mx-auto text-lg">
             Explore the pieces our community wears most — heavyweight hoodies built for comfort, durability, and style.
           </p>
         </motion.div>
@@ -168,17 +162,17 @@ export default function BestSellers() {
                 onClick={() => scrollTo('left')}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-amber-500/50 transition-colors group"
+                className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-40 bg-white p-2 sm:p-3 rounded-full border border-black shadow-sm hover:bg-black transition-colors group"
           >
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-amber-400 transition-colors" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-black group-hover:text-white transition-colors" />
           </motion.button>
           <motion.button
                 onClick={() => scrollTo('right')}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-40 bg-gradient-to-r from-stone-800 to-stone-900 p-2 sm:p-3 rounded-full border border-stone-700/50 shadow-xl shadow-black/30 hover:border-amber-500/50 transition-colors group"
+                className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-40 bg-white p-2 sm:p-3 rounded-full border border-black shadow-sm hover:bg-black transition-colors group"
           >
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-stone-300 group-hover:text-amber-400 transition-colors" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-black group-hover:text-white transition-colors" />
           </motion.button>
             </>
           )}
@@ -201,7 +195,7 @@ export default function BestSellers() {
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   viewport={{ once: true }}
               >
-                  <Card className="bg-gradient-to-b from-stone-900/90 to-stone-950/90 border border-stone-700/50 hover:border-amber-500/30 transition-all duration-500 h-full flex flex-col group overflow-hidden shadow-lg shadow-black/20">
+                  <Card className="bg-white border border-neutral-200 hover:border-neutral-400 transition-all duration-500 h-full flex flex-col group overflow-hidden">
                     <CardContent className="p-0 flex flex-col flex-1">
                       {/* Image Container */}
                       <div className="relative w-full aspect-[4/5] overflow-hidden">
@@ -214,16 +208,16 @@ export default function BestSellers() {
                             decoding="async"
                         />
                       ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-stone-800 to-stone-900 flex items-center justify-center">
-                            <ShoppingBag className="w-12 h-12 text-stone-600" />
+                          <div className="w-full h-full bg-neutral-100 flex items-center justify-center">
+                            <ShoppingBag className="w-12 h-12 text-neutral-400" />
                           </div>
                         )}
                         
                         {/* Overlay on hover */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         
                         {/* Best Seller Badge */}
-                        <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                        <div className="absolute top-3 left-3 bg-black text-white text-xs font-bold px-3 py-1 rounded-full">
                           BEST SELLER
                         </div>
                         
@@ -235,7 +229,7 @@ export default function BestSellers() {
                             setZoomImage(p.images[0])
                             setZoomProduct(p)
                           }}
-                          className="absolute bottom-3 right-3 bg-stone-900/90 backdrop-blur-sm text-stone-100 px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-2 border border-stone-700/50 hover:border-amber-500/50 hover:scale-105"
+                          className="absolute bottom-3 right-3 bg-white text-black px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-2 border border-neutral-200 hover:bg-black hover:text-white hover:scale-105"
                         >
                           <Eye className="w-4 h-4" />
                           <span className="text-sm font-medium">Quick View</span>
@@ -244,7 +238,7 @@ export default function BestSellers() {
 
                       {/* Product Info */}
                       <div className="p-4 sm:p-5 flex flex-col flex-1">
-                        <h3 className="text-base sm:text-lg font-bold text-stone-100 mb-2 line-clamp-2 group-hover:text-amber-200 transition-colors">
+                        <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-2 line-clamp-2 group-hover:text-black transition-colors">
                           {p.name}
                         </h3>
                         
@@ -253,16 +247,16 @@ export default function BestSellers() {
                           {[...Array(5)].map((_, i) => (
                             <Star 
                               key={i} 
-                              className={`w-3.5 h-3.5 ${i < Math.floor(p.ratings || 4) ? 'text-amber-400 fill-amber-400' : 'text-stone-600'}`} 
+                              className={`w-3.5 h-3.5 ${i < Math.floor(p.ratings || 4) ? 'text-black fill-black' : 'text-neutral-300'}`} 
                             />
                           ))}
-                          <span className="text-stone-500 text-xs ml-1">({p.ratings || 4}.0)</span>
+                          <span className="text-neutral-500 text-xs ml-1">({p.ratings || 4}.0)</span>
                         </div>
 
                         <div className="flex items-baseline gap-2 mb-4">
-                          <span className="text-xl sm:text-2xl font-bold text-stone-100">${p.price.toFixed(2)}</span>
+                          <span className="text-xl sm:text-2xl font-bold text-neutral-900">${p.price.toFixed(2)}</span>
                           {p.discount > 0 && (
-                            <span className="text-sm text-stone-500 line-through">${(p.price * (1 + p.discount / 100)).toFixed(2)}</span>
+                            <span className="text-sm text-neutral-400 line-through">${(p.price * (1 + p.discount / 100)).toFixed(2)}</span>
                       )}
                     </div>
 
@@ -272,7 +266,7 @@ export default function BestSellers() {
                           onClick={startLoading}
                       >
                           <button
-                            className="w-full bg-gradient-to-r from-stone-800 to-stone-900 hover:from-amber-600 hover:to-amber-700 text-stone-100 px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 border border-stone-700/50 hover:border-amber-500/50"
+                            className="w-full bg-black hover:bg-neutral-800 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2"
                         >
                             <ShoppingBag className="w-4 h-4" />
                             Shop Now
@@ -295,8 +289,8 @@ export default function BestSellers() {
                   onClick={() => goToSlide(i)}
                   className={`h-2.5 rounded-full transition-all duration-300 ${
                     i === currentIndex 
-                      ? 'bg-amber-500 w-8' 
-                      : 'bg-stone-700 hover:bg-stone-600 w-2.5'
+                      ? 'bg-black w-8' 
+                      : 'bg-neutral-300 hover:bg-neutral-400 w-2.5'
                   }`}
                 />
               ))}
@@ -319,7 +313,7 @@ export default function BestSellers() {
           }}
         >
           <motion.div
-              className="relative max-w-4xl w-full mx-4 bg-stone-900 rounded-2xl overflow-hidden border border-stone-700/50 shadow-2xl"
+              className="relative max-w-4xl w-full mx-4 bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-2xl"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
@@ -330,9 +324,9 @@ export default function BestSellers() {
                   setZoomImage(null)
                   setZoomProduct(null)
                 }}
-                className="absolute top-4 right-4 bg-stone-800/90 hover:bg-stone-700 rounded-full p-2 transition-colors z-10 shadow-lg border border-stone-600/50"
+                className="absolute top-4 right-4 bg-white hover:bg-neutral-100 rounded-full p-2 transition-colors z-10 shadow-lg border border-neutral-200"
             >
-                <X className="w-5 h-5 text-stone-100" />
+                <X className="w-5 h-5 text-black" />
             </button>
               
               <div className="flex flex-col md:flex-row">
@@ -344,20 +338,20 @@ export default function BestSellers() {
                   />
                 </div>
                 <div className="md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
-                  <div className="inline-flex items-center gap-2 bg-amber-500/20 px-3 py-1 rounded-full mb-4 w-fit">
-                    <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                    <span className="text-xs font-medium text-amber-400">Best Seller</span>
+                  <div className="inline-flex items-center gap-2 bg-neutral-100 px-3 py-1 rounded-full mb-4 w-fit border border-neutral-200">
+                    <Star className="w-3 h-3 text-black fill-black" />
+                    <span className="text-xs font-medium text-neutral-700">Best Seller</span>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-stone-100 mb-3">{zoomProduct.name}</h3>
-                  <p className="text-stone-400 mb-4 line-clamp-3">{zoomProduct.description || "Premium quality streetwear designed with purpose."}</p>
+                  <h3 className="text-2xl md:text-3xl font-bold text-black mb-3">{zoomProduct.name}</h3>
+                  <p className="text-neutral-600 mb-4 line-clamp-3">{zoomProduct.description || "Premium quality streetwear designed with purpose."}</p>
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-4 h-4 ${i < Math.floor(zoomProduct.ratings || 4) ? 'text-amber-400 fill-amber-400' : 'text-stone-600'}`} />
+                      <Star key={i} className={`w-4 h-4 ${i < Math.floor(zoomProduct.ratings || 4) ? 'text-black fill-black' : 'text-neutral-300'}`} />
                     ))}
                   </div>
-                  <p className="text-3xl font-bold text-stone-100 mb-6">${zoomProduct.price.toFixed(2)}</p>
+                  <p className="text-3xl font-bold text-black mb-6">${zoomProduct.price.toFixed(2)}</p>
                   <Link href={`/product/${zoomProduct.id}`} onClick={startLoading}>
-                    <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 font-bold py-3">
+                    <Button className="w-full bg-black hover:bg-neutral-800 text-white font-bold py-3">
                       View Full Details
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>

@@ -30,7 +30,7 @@ function CheckoutSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 flex items-center justify-center">
+    <div className="min-h-screen bg-white text-neutral-900 flex items-center justify-center">
       <PaymentStatus
         status="success"
         orderId={orderId || undefined}
@@ -43,7 +43,7 @@ function CheckoutSuccessContent() {
 
 export default function CheckoutSuccessPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-stone-950" />}>
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
       <CheckoutSuccessContent />
     </Suspense>
   )

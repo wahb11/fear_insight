@@ -121,13 +121,9 @@ export default function FAQPage() {
   }
 
   return (
-    <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
+    <div ref={containerRef} className="bg-white text-neutral-900 overflow-hidden">
       {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
-
+      <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20 bg-neutral-50">
         <motion.div
           className="relative z-10 text-center px-4"
           initial={{ opacity: 0, y: 50 }}
@@ -140,32 +136,22 @@ export default function FAQPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
           >
-            <HelpCircle className="w-16 h-16 text-stone-100 mr-4" />
-            <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-stone-100 via-stone-400 to-stone-600 bg-clip-text text-transparent"
-              style={{
-                // Neutral subtle halo to keep headings visible on dark backgrounds without green tint
-                textShadow: "0 0 24px rgba(255, 255, 255, 0.06), 0 4px 8px rgba(0, 0, 0, 0.9)",
-                filter: "drop-shadow(0 8px 16px rgba(0, 0, 0, 0.9))",
-              }}
-            >
+            <HelpCircle className="w-16 h-16 text-neutral-900 mr-4" />
+            <h1 className="text-5xl md:text-7xl font-black text-neutral-900">
               FAQ
             </h1>
           </motion.div>
           <motion.div
-            className="w-24 h-1 bg-gradient-to-r from-stone-700 to-stone-900 mx-auto mb-6"
+            className="w-24 h-1 bg-black mx-auto mb-6"
             initial={{ width: 0 }}
             animate={{ width: 96 }}
             transition={{ duration: 1, delay: 0.8 }}
           />
           <motion.p
-            className="text-xl text-stone-200 max-w-2xl mx-auto"
+            className="text-xl text-neutral-600 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 1 }}
-            style={{
-              textShadow: "0 4px 8px rgba(0, 0, 0, 0.9)",
-              filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.9))",
-            }}
           >
             Find answers to commonly asked questions about Fear Insight, our products, and policies.
           </motion.p>
@@ -184,7 +170,7 @@ export default function FAQPage() {
               transition={{ duration: 0.8, delay: categoryIndex * 0.2 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-2xl md:text-3xl font-bold mb-6 bg-gradient-to-r from-stone-100 to-stone-500 bg-clip-text text-transparent border-b border-stone-700 pb-3">
+              <h2 className="text-2xl md:text-3xl font-bold mb-6 text-neutral-900 border-b border-neutral-200 pb-3">
                 {category.category}
               </h2>
 
@@ -194,17 +180,17 @@ export default function FAQPage() {
                   const isOpen = openItems.includes(itemId)
 
                   return (
-                    <Card key={index} className="bg-stone-900/50 border-stone-700 overflow-hidden">
+                    <Card key={index} className="bg-white border-neutral-200 overflow-hidden">
                       <button
                         onClick={() => toggleItem(itemId)}
-                        className="w-full text-left p-6 hover:bg-stone-800/30 transition-colors"
+                        className="w-full text-left p-6 hover:bg-neutral-50 transition-colors"
                       >
                         <div className="flex justify-between items-center">
-                          <h3 className="text-lg font-semibold text-stone-50 pr-4">{faq.question}</h3>
+                          <h3 className="text-lg font-semibold text-neutral-900 pr-4">{faq.question}</h3>
                           {isOpen ? (
-                            <ChevronUp className="w-5 h-5 text-stone-100 flex-shrink-0" />
+                            <ChevronUp className="w-5 h-5 text-neutral-900 flex-shrink-0" />
                           ) : (
-                            <ChevronDown className="w-5 h-5 text-stone-100 flex-shrink-0" />
+                            <ChevronDown className="w-5 h-5 text-neutral-900 flex-shrink-0" />
                           )}
                         </div>
                       </button>
@@ -218,7 +204,7 @@ export default function FAQPage() {
                             transition={{ duration: 0.3 }}
                           >
                             <CardContent className="px-6 pb-6 pt-0">
-                              <p className="text-stone-200 leading-relaxed">{faq.answer}</p>
+                              <p className="text-neutral-600 leading-relaxed">{faq.answer}</p>
                             </CardContent>
                           </motion.div>
                         )}
@@ -233,7 +219,7 @@ export default function FAQPage() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-stone-900/50 to-stone-900/40 relative overflow-hidden">
+      <section className="py-16 px-4 bg-neutral-50">
         <div className="container mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -241,42 +227,42 @@ export default function FAQPage() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold mb-4 text-stone-100">Still Have Questions?</h2>
-            <p className="text-xl text-stone-200 mb-8 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4 text-neutral-900">Still Have Questions?</h2>
+            <p className="text-xl text-neutral-600 mb-8 max-w-2xl mx-auto">
               Can't find what you're looking for? Our customer service team is here to help you with any questions or
               concerns.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
-              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
+              <Card className="bg-white border-neutral-200 hover:border-neutral-400 transition-all duration-300">
                 <CardContent className="p-6 text-center">
-                  <Mail className="w-8 h-8 text-stone-50 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-stone-50">Email Support</h3>
-                  <p className="text-stone-200 text-sm mb-3">Get help via email</p>
+                  <Mail className="w-8 h-8 text-neutral-900 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-neutral-900">Email Support</h3>
+                  <p className="text-neutral-600 text-sm mb-3">Get help via email</p>
                   <a
                     href="mailto:info@fearinsight.com"
-                    className="text-stone-50 hover:text-stone-100 text-sm font-semibold"
+                    className="text-neutral-900 hover:text-black text-sm font-semibold"
                   >
                     info@fearinsight.com
                   </a>
                 </CardContent>
               </Card>
 
-              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
+              <Card className="bg-white border-neutral-200 hover:border-neutral-400 transition-all duration-300">
                 <CardContent className="p-6 text-center">
-                  <MessageCircle className="w-8 h-8 text-stone-50 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-stone-50">Live Chat</h3>
-                  <p className="text-stone-200 text-sm mb-3">Chat with us in real-time</p>
-                  <span className="text-stone-400 text-sm">Coming Soon</span>
+                  <MessageCircle className="w-8 h-8 text-neutral-900 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-neutral-900">Live Chat</h3>
+                  <p className="text-neutral-600 text-sm mb-3">Chat with us in real-time</p>
+                  <span className="text-neutral-500 text-sm">Coming Soon</span>
                 </CardContent>
               </Card>
 
-              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
+              <Card className="bg-white border-neutral-200 hover:border-neutral-400 transition-all duration-300">
                 <CardContent className="p-6 text-center">
-                  <Phone className="w-8 h-8 text-stone-50 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2 text-stone-50">Phone Support</h3>
-                  <p className="text-stone-200 text-sm mb-3">Speak with our team</p>
-                  <span className="text-stone-400 text-sm">Coming Soon</span>
+                  <Phone className="w-8 h-8 text-neutral-900 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2 text-neutral-900">Phone Support</h3>
+                  <p className="text-neutral-600 text-sm mb-3">Speak with our team</p>
+                  <span className="text-neutral-500 text-sm">Coming Soon</span>
                 </CardContent>
               </Card>
             </div>
@@ -284,7 +270,7 @@ export default function FAQPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
+                className="bg-black hover:bg-neutral-800 text-white group"
               >
                 <a href="mailto:info@fearinsight.com" className="flex items-center">
                   Contact Support
@@ -295,7 +281,7 @@ export default function FAQPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-stone-300/60 text-stone-100 hover:bg-stone-100/10 bg-transparent"
+                  className="border-neutral-300 text-neutral-900 hover:bg-neutral-100 bg-white"
                 >
                   Shipping & Returns
                 </Button>

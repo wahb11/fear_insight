@@ -12,15 +12,11 @@ export default function ShippingReturnsPage() {
   const pathname = usePathname()
 
   return (
-    <div ref={containerRef} className="bg-stone-950 text-stone-100 overflow-hidden">
+    <div ref={containerRef} className="bg-white text-neutral-900 overflow-hidden">
 
 
       {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900" />
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-700/10 to-stone-900/10" />
-
+      <section className="relative h-96 flex items-center justify-center overflow-hidden pt-20 bg-neutral-50">
         <motion.div
           className="relative z-10 text-center px-4"
           initial={{ opacity: 0, y: 50 }}
@@ -28,33 +24,24 @@ export default function ShippingReturnsPage() {
           transition={{ duration: 1, delay: 0.5 }}
         >
           <motion.h1
-            className="text-5xl md:text-7xl font-black mb-4 bg-gradient-to-r from-stone-100 via-stone-400 to-stone-600 bg-clip-text text-transparent"
+            className="text-5xl md:text-7xl font-black mb-4 text-neutral-900"
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
-            style={{
-              // Neutral subtle halo instead of green glow
-              textShadow: "0 0 24px rgba(255, 255, 255, 0.06), 0 4px 8px rgba(0, 0, 0, 0.9)",
-              filter: "drop-shadow(0 8px 16px rgba(0, 0, 0, 0.9))",
-            }}
           >
             SHIPPING & RETURNS
           </motion.h1>
           <motion.div
-            className="w-24 h-1 bg-gradient-to-r from-stone-700 to-stone-900 mx-auto mb-6"
+            className="w-24 h-1 bg-black mx-auto mb-6"
             initial={{ width: 0 }}
             animate={{ width: 96 }}
             transition={{ duration: 1, delay: 0.8 }}
           />
           <motion.p
-            className="text-xl text-stone-300 max-w-2xl mx-auto"
+            className="text-xl text-neutral-600 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 1 }}
-            style={{
-              textShadow: "0 4px 8px rgba(0, 0, 0, 0.9)",
-              filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.9))",
-            }}
           >
             We're committed to getting your Fear Insight pieces to you quickly and ensuring your complete satisfaction.
           </motion.p>
@@ -62,7 +49,7 @@ export default function ShippingReturnsPage() {
       </section>
 
       {/* Shipping Information */}
-      <section className="py-16 px-4 bg-stone-900/20">
+      <section className="py-16 px-4 bg-white">
         <div className="container mx-auto">
           <motion.div
             className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16"
@@ -77,49 +64,49 @@ export default function ShippingReturnsPage() {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
+              <Card className="bg-white border-neutral-200 hover:border-neutral-400 transition-all duration-300">
                 <CardHeader>
-                  <CardTitle className="flex items-center text-stone-100">
+                  <CardTitle className="flex items-center text-neutral-900">
                     <Truck className="w-6 h-6 mr-3" />
                     SHIPPING INFORMATION
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-50">Shipping Options</h3>
-                    <div className="space-y-3 text-stone-200">
+                    <h3 className="text-lg font-semibold mb-2 text-neutral-900">Shipping Options</h3>
+                    <div className="space-y-3 text-neutral-600">
                       <div className="flex justify-between">
                         <span>Standard Shipping (5-7 business days)</span>
-                        <span className="text-stone-50 font-semibold">FREE on orders $75+</span>
+                        <span className="text-neutral-900 font-semibold">FREE on orders $75+</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Express Shipping (2-3 business days)</span>
-                        <span className="text-stone-50 font-semibold">$12.99</span>
+                        <span className="text-neutral-900 font-semibold">$12.99</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Overnight Shipping (1 business day)</span>
-                        <span className="text-stone-50 font-semibold">$24.99</span>
+                        <span className="text-neutral-900 font-semibold">$24.99</span>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-50 flex items-center">
+                    <h3 className="text-lg font-semibold mb-2 text-neutral-900 flex items-center">
                       <Clock className="w-5 h-5 mr-2" />
                       Processing Time
                     </h3>
-                    <p className="text-stone-200">
+                    <p className="text-neutral-600">
                       Orders are processed within 1-2 business days. You'll receive a tracking number once your order
                       ships.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-50 flex items-center">
+                    <h3 className="text-lg font-semibold mb-2 text-neutral-900 flex items-center">
                       <MapPin className="w-5 h-5 mr-2" />
                       Shipping Locations
                     </h3>
-                    <p className="text-stone-200">
+                    <p className="text-neutral-600">
                       We currently ship within the United States. International shipping coming soon.
                     </p>
                   </div>
@@ -133,20 +120,20 @@ export default function ShippingReturnsPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <Card className="bg-stone-900/50 backdrop-blur-sm border-stone-700 hover:border-stone-400/50 transition-all duration-300">
+              <Card className="bg-white border-neutral-200 hover:border-neutral-400 transition-all duration-300">
                 <CardHeader>
-                  <CardTitle className="flex items-center text-stone-100">
+                  <CardTitle className="flex items-center text-neutral-900">
                     <RotateCcw className="w-6 h-6 mr-3" />
                     RETURNS & EXCHANGES
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-50">Return Policy</h3>
-                    <p className="text-stone-200 mb-3">
+                    <h3 className="text-lg font-semibold mb-2 text-neutral-900">Return Policy</h3>
+                    <p className="text-neutral-600 mb-3">
                       We offer a 30-day return policy for unworn items in original condition with tags attached.
                     </p>
-                    <ul className="space-y-2 text-stone-200 text-sm">
+                    <ul className="space-y-2 text-neutral-600 text-sm">
                       <li>• Items must be unworn and unwashed</li>
                       <li>• Original tags must be attached</li>
                       <li>• Items must be in original packaging</li>
@@ -155,21 +142,21 @@ export default function ShippingReturnsPage() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-50">Exchange Process</h3>
-                    <p className="text-stone-200">
+                    <h3 className="text-lg font-semibold mb-2 text-neutral-900">Exchange Process</h3>
+                    <p className="text-neutral-600">
                       Need a different size? We offer free exchanges within 30 days. Contact us at{" "}
-                      <a href="mailto:info@fearinsight.com" className="text-stone-50 hover:text-stone-100 font-semibold">
+                      <a href="mailto:info@fearinsight.com" className="text-neutral-900 hover:text-black font-semibold">
                         info@fearinsight.com
                       </a>
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-stone-50 flex items-center">
+                    <h3 className="text-lg font-semibold mb-2 text-neutral-900 flex items-center">
                       <CreditCard className="w-5 h-5 mr-2" />
                       Refund Timeline
                     </h3>
-                    <p className="text-stone-200">
+                    <p className="text-neutral-600">
                       Refunds are processed within 5-7 business days after we receive your return.
                     </p>
                   </div>
@@ -210,11 +197,11 @@ export default function ShippingReturnsPage() {
                 transition={{ duration: 0.6, delay: index * 0.2 }}
                 viewport={{ once: true }}
               >
-                <Card className="bg-stone-900/60 backdrop-blur-sm border-stone-600 hover:border-stone-400 transition-all duration-300">
+                <Card className="bg-white border-neutral-200 hover:border-neutral-400 transition-all duration-300">
                   <CardContent className="p-6 text-center">
-                    <item.icon className="w-12 h-12 text-stone-50 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2 text-stone-50">{item.title}</h3>
-                    <p className="text-stone-200 text-sm">
+                    <item.icon className="w-12 h-12 text-neutral-900 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2 text-neutral-900">{item.title}</h3>
+                    <p className="text-neutral-600 text-sm">
                       {item.description}
                     </p>
                   </CardContent>
@@ -226,7 +213,7 @@ export default function ShippingReturnsPage() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-stone-900/50 to-stone-900/40">
+      <section className="py-16 px-4 bg-neutral-50">
         <div className="container mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -234,14 +221,14 @@ export default function ShippingReturnsPage() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold mb-4 text-stone-100">Need Help?</h2>
-            <p className="text-xl text-stone-300 mb-8 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4 text-neutral-900">Need Help?</h2>
+            <p className="text-xl text-neutral-600 mb-8 max-w-2xl mx-auto">
               Have questions about shipping or returns? Our customer service team is here to help.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-stone-800 to-stone-900 hover:from-stone-900 hover:to-stone-900 text-stone-50 group shadow-lg shadow-stone-900/25"
+                className="bg-black hover:bg-neutral-800 text-white group"
               >
                 <a href="mailto:info@fearinsight.com" className="flex items-center">
                   Contact Support
@@ -252,7 +239,7 @@ export default function ShippingReturnsPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-stone-300/60 text-stone-100 hover:bg-stone-100/10 bg-transparent"
+                  className="border-neutral-300 text-neutral-900 hover:bg-neutral-100 bg-white"
                 >
                   View FAQ
                 </Button>
