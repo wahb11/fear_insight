@@ -50,8 +50,13 @@ const CATEGORIES: CategoryFace[] = [
 
 const TOTAL = CATEGORIES.length
 const ANGLE_STEP = 360 / TOTAL
-const FRICTION = 0.92
-const DRAG_SENSITIVITY = 0.06
+const FRICTION = 0.935
+const DRAG_SENSITIVITY_DESKTOP = 0.42
+const DRAG_SENSITIVITY_MOBILE = 0.55
+const VELOCITY_BLEND = 0.28
+const SNAP_STRENGTH = 0.16
+const SNAP_THRESHOLD = 0.08
+const INERTIA_BOOST = 1.35
 
 const PANEL_W_DESKTOP = 260
 const PANEL_H_DESKTOP = 310
@@ -88,8 +93,11 @@ export default function CategoryCarousel() {
   const isDragging = useRef(false)
   const dragMoved = useRef(false)
   const dragStartX = useRef(0)
+  const lastMoveX = useRef(0)
+  const lastMoveTime = useRef(0)
   const pointerId = useRef<number | null>(null)
   const suppressClickUntil = useRef(0)
+  const sensitivityRef = useRef(DRAG_SENSITIVITY_DESKTOP)
 
   const [index, setIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
@@ -224,6 +232,7 @@ export default function CategoryCarousel() {
       const mobile = mqMobile.matches
       setIsMobile(mobile)
       spreadRef.current = mobile ? SPREAD_MOBILE : SPREAD_DESKTOP
+      sensitivityRef.current = mobile ? DRAG_SENSITIVITY_MOBILE : DRAG_SENSITIVITY_DESKTOP
     }
 
     syncMotion()
@@ -260,21 +269,44 @@ export default function CategoryCarousel() {
       isDragging.current = true
       dragMoved.current = false
       dragStartX.current = e.clientX
+      lastMoveX.current = e.clientX
+      lastMoveTime.current = performance.now()
       pointerId.current = e.pointerId
+      currentVelocity.current = 0
+      targetVelocity.current = 0
       stage.setPointerCapture(e.pointerId)
     }
 
     const onPointerMove = (e: PointerEvent) => {
       if (!isDragging.current) return
-      const deltaX = e.clientX - dragStartX.current
-      if (Math.abs(deltaX) > 2) dragMoved.current = true
-      dragStartX.current = e.clientX
-      targetVelocity.current += deltaX * DRAG_SENSITIVITY
+      const now = performance.now()
+      const deltaX = e.clientX - lastMoveX.current
+      const dt = Math.max(now - lastMoveTime.current, 1)
+
+      if (Math.abs(e.clientX - dragStartX.current) > 4) dragMoved.current = true
+
+      // Direct 1:1 tracking while dragging — feels immediate on touch
+      const sensitivity = sensitivityRef.current
+      currentRotation.current += deltaX * sensitivity
+
+      // Instantaneous velocity for release inertia (deg per frame-ish)
+      const instant = (deltaX * sensitivity) * (16.67 / dt)
+      currentVelocity.current = currentVelocity.current * (1 - VELOCITY_BLEND) + instant * VELOCITY_BLEND
+      targetVelocity.current = currentVelocity.current
+
+      lastMoveX.current = e.clientX
+      lastMoveTime.current = now
+
+      if (dragMoved.current && Math.abs(deltaX) > Math.abs(e.movementY ?? 0)) {
+        e.preventDefault()
+      }
     }
 
     const onPointerUp = (e: PointerEvent) => {
       if (pointerId.current !== null && e.pointerId === pointerId.current) {
         if (dragMoved.current) suppressClickUntil.current = Date.now() + 280
+        // Boost leftover velocity into coasting inertia
+        targetVelocity.current = currentVelocity.current * INERTIA_BOOST
         isDragging.current = false
         pointerId.current = null
         try {
@@ -286,27 +318,29 @@ export default function CategoryCarousel() {
     }
 
     const loop = () => {
-      currentVelocity.current += (targetVelocity.current - currentVelocity.current) * 0.14
-      currentRotation.current += currentVelocity.current
-      targetVelocity.current *= FRICTION
-      currentVelocity.current *= FRICTION
+      if (!isDragging.current) {
+        currentVelocity.current += (targetVelocity.current - currentVelocity.current) * VELOCITY_BLEND
+        currentRotation.current += currentVelocity.current
+        targetVelocity.current *= FRICTION
+        currentVelocity.current *= FRICTION
 
-      if (
-        Math.abs(currentVelocity.current) < 0.08 &&
-        Math.abs(targetVelocity.current) < 0.08
-      ) {
-        let normalized = -currentRotation.current % 360
-        if (normalized < 0) normalized += 360
-        const nearest = Math.round(normalized / ANGLE_STEP) * ANGLE_STEP
-        let delta = nearest - normalized
-        if (delta > 180) delta -= 360
-        if (delta < -180) delta += 360
-        if (Math.abs(delta) > 0.15) {
-          currentRotation.current -= delta * 0.14
-        } else {
-          currentRotation.current = -nearest
-          currentVelocity.current = 0
-          targetVelocity.current = 0
+        if (
+          Math.abs(currentVelocity.current) < SNAP_THRESHOLD &&
+          Math.abs(targetVelocity.current) < SNAP_THRESHOLD
+        ) {
+          let normalized = -currentRotation.current % 360
+          if (normalized < 0) normalized += 360
+          const nearest = Math.round(normalized / ANGLE_STEP) * ANGLE_STEP
+          let delta = nearest - normalized
+          if (delta > 180) delta -= 360
+          if (delta < -180) delta += 360
+          if (Math.abs(delta) > 0.12) {
+            currentRotation.current -= delta * SNAP_STRENGTH
+          } else {
+            currentRotation.current = -nearest
+            currentVelocity.current = 0
+            targetVelocity.current = 0
+          }
         }
       }
 
@@ -327,9 +361,10 @@ export default function CategoryCarousel() {
     applyFaceTransforms(0)
     section.addEventListener('keydown', onKeyDown)
     stage.addEventListener('pointerdown', onPointerDown)
-    stage.addEventListener('pointermove', onPointerMove)
+    stage.addEventListener('pointermove', onPointerMove, { passive: false })
     stage.addEventListener('pointerup', onPointerUp)
     stage.addEventListener('pointercancel', onPointerUp)
+    stage.addEventListener('lostpointercapture', onPointerUp)
     rafId.current = requestAnimationFrame(loop)
 
     return () => {
@@ -339,6 +374,7 @@ export default function CategoryCarousel() {
       stage.removeEventListener('pointermove', onPointerMove)
       stage.removeEventListener('pointerup', onPointerUp)
       stage.removeEventListener('pointercancel', onPointerUp)
+      stage.removeEventListener('lostpointercapture', onPointerUp)
     }
   }, [navigateBy, openActiveCategory, updateContent])
 
@@ -413,11 +449,12 @@ export default function CategoryCarousel() {
 
         <div
           ref={stageRef}
-          className="relative mx-auto min-h-0 w-full flex-1 cursor-grab active:cursor-grabbing"
+          className="relative mx-auto min-h-0 w-full flex-1 cursor-grab touch-pan-y select-none active:cursor-grabbing"
           style={{
             perspective: isMobile ? '800px' : '1100px',
             perspectiveOrigin: '50% 50%',
             maxHeight: panelH + 48,
+            touchAction: 'pan-y',
           }}
         >
           <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>

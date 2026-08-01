@@ -226,7 +226,7 @@ export default function Header() {
       >
         <div className="w-full px-4 md:px-8 lg:px-12 py-3 md:py-4">
           <div className="relative flex items-center justify-between w-full min-h-[40px]">
-            {/* Left: hamburger + logo */}
+            {/* Left: hamburger (mobile) + logo (desktop) */}
             <div className="z-10 flex min-w-0 flex-1 items-center gap-2 sm:gap-3 lg:basis-1/3 lg:flex-none">
               <button
                 type="button"
@@ -251,7 +251,7 @@ export default function Header() {
               <Link
                 href="/"
                 aria-label="Fear Insight home"
-                className="flex h-9 items-center focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-black"
+                className="hidden h-9 items-center focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-black lg:flex"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -262,7 +262,21 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Center: Fear / Oversize / Upcoming / Signature */}
+            {/* Center: logo on mobile, nav links on desktop */}
+            <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 lg:hidden">
+              <Link
+                href="/"
+                aria-label="Fear Insight home"
+                className="flex h-9 items-center focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-black"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/logo-mark.svg"
+                  alt="Fear Insight"
+                  className="h-8 w-auto object-contain transition-opacity hover:opacity-70"
+                />
+              </Link>
+            </div>
             <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-6 lg:flex xl:gap-9">
               {MAIN_NAV.map((item) => (
                 <MagneticLink
