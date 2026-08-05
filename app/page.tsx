@@ -7,6 +7,8 @@ import CategoryCarousel from "@/components/landing-page/CategoryCarousel"
 import BrandStatement from "@/components/landing-page/BrandStatement"
 import JourneyBanner from "@/components/landing-page/JourneyBanner"
 import FeaturedProducts from "@/components/landing-page/FeaturedProducts"
+import ProductFeatureSection from "@/components/landing-page/ProductFeatureSection"
+import LifestyleStorySection from "@/components/landing-page/LifestyleStorySection"
 import SitemapSection from "@/components/landing-page/SitemapSection"
 
 
@@ -29,7 +31,7 @@ export default function FearInsightLanding() {
       <div className="bg-white text-neutral-900">
         <Hero />
 
-        {/* Category carousel — replaces Featured Collections; keeps #about for nav anchors */}
+        {/* Category carousel — keeps #about for nav anchors */}
         <motion.div viewport={{ once: true, margin: "-12% 0px -8% 0px" }} {...sectionReveal}>
           <CategoryCarousel />
         </motion.div>
@@ -50,7 +52,7 @@ export default function FearInsightLanding() {
           <JourneyBanner />
         </motion.div>
 
-        {/* Featured products showcase (section 4) */}
+        {/* Featured products showcase */}
         <motion.div
           viewport={{ once: true, margin: "-12% 0px -8% 0px" }}
           {...sectionReveal}
@@ -59,7 +61,25 @@ export default function FearInsightLanding() {
           <FeaturedProducts />
         </motion.div>
 
-        {/* Footer-adjacent sitemap (section 5); the real Footer is rendered by ConditionalLayout */}
+        {/* Soft product feature — Apple-inspired ghost watermark + floating shot */}
+        <motion.div
+          viewport={{ once: true, margin: "-12% 0px -8% 0px" }}
+          {...sectionReveal}
+          transition={{ ...sectionReveal.transition, delay: prefersReducedMotion ? 0 : 0.08 }}
+        >
+          <ProductFeatureSection />
+        </motion.div>
+
+        {/* Lifestyle + craft alternating story blocks */}
+        <motion.div
+          viewport={{ once: true, margin: "-12% 0px -8% 0px" }}
+          {...sectionReveal}
+          transition={{ ...sectionReveal.transition, delay: prefersReducedMotion ? 0 : 0.1 }}
+        >
+          <LifestyleStorySection />
+        </motion.div>
+
+        {/* Logo + collection columns; dark Footer follows via ConditionalLayout */}
         <motion.div
           viewport={{ once: true, margin: "-8% 0px -4% 0px" }}
           {...sectionReveal}

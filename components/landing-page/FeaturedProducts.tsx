@@ -19,21 +19,21 @@ const PRODUCTS = [
     name: 'Fear Hoodie',
     detail: 'Statement weight · Fear collection',
     image: '/images/slider1.png',
-    href: '/products?category=fear',
+    href: '/fear',
   },
   {
     category: 'Oversize',
     name: 'Oversize Hoodie',
     detail: 'Relaxed volume · Oversize collection',
     image: '/images/slider2.png',
-    href: '/products?category=oversize',
+    href: '/oversize',
   },
   {
     category: 'Signature',
     name: 'Signature Hoodie',
     detail: 'Everyday core · Signature collection',
     image: '/images/slider3.png',
-    href: '/products?category=signature',
+    href: '/signature',
   },
 ] as const
 

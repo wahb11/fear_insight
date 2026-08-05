@@ -6,21 +6,21 @@ import { generateItemListSchema, schemaToJsonLd } from '@/lib/seo/structured-dat
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fearinsight.com'
 
 export const metadata: Metadata = {
-  title: 'All Products',
-  description: 'Browse our complete collection of premium streetwear. Find hoodies, t-shirts, and accessories that embody spiritual strength and fearless self-expression.',
+  title: 'Fear',
+  description: 'Shop the full Fear Insight drop — every piece, every mood.',
   alternates: {
-    canonical: `${siteUrl}/products`,
+    canonical: `${siteUrl}/fear`,
   },
   openGraph: {
-    title: 'All Products | Fear Insight',
-    description: 'Browse our complete collection of premium streetwear. Find hoodies, t-shirts, and accessories that embody spiritual strength and fearless self-expression.',
-    url: `${siteUrl}/products`,
+    title: 'Fear | Fear Insight',
+    description: 'Shop the full Fear Insight drop — every piece, every mood.',
+    url: `${siteUrl}/fear`,
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'All Products | Fear Insight',
-    description: 'Browse our complete collection of premium streetwear.',
+    title: 'Fear | Fear Insight',
+    description: 'Shop the full Fear Insight drop.',
   },
 }
 

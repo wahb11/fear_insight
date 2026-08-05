@@ -1,187 +1,102 @@
 'use client'
+
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
-import { motion } from "framer-motion"
-import { Instagram, Mail} from "lucide-react"
-import { SizeChart } from "@/components/ui/size-chart"
+import { SizeChart } from '@/components/ui/size-chart'
 
-// TikTok icon component since lucide-react may not have it
-const TikTokIcon = () => (
-  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.68v12.7a2.85 2.85 0 0 1-2.85 2.92 2.85 2.85 0 0 1-2.85-2.92 2.88 2.88 0 0 1 5.13-1.01v-3.7a6.47 6.47 0 0 0-6.85 6.67 6.56 6.56 0 0 0 6.61 6.61 6.52 6.52 0 0 0 6.56-6.4V9.5a8.25 8.25 0 0 0 3.77 1.04v-3.68a4.58 4.58 0 0 1-.96-.1z"></path>
-  </svg>
-)
-
+/**
+ * Closing brand bar — oversized wordmark + CTAs + legal.
+ * Collection columns live in SitemapSection on the landing page;
+ * this footer stays lean so the two never feel like duplicate footers.
+ */
 export default function Footer() {
-  const router = useRouter()
-  const pathname = usePathname()
   const [showSizeChart, setShowSizeChart] = useState(false)
-
-  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault()
-    
-    if (href.startsWith('#')) {
-      const id = href.replace('#', '')
-      
-      // If we're on the home page, just scroll
-      if (pathname === '/') {
-        const element = document.getElementById(id)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
-        }
-      } else {
-        // If we're on a different page, navigate to home with the anchor
-        router.push(`/#${id}`)
-        // Wait for page to load, then scroll
-        setTimeout(() => {
-          const element = document.getElementById(id)
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' })
-          }
-        }, 500)
-      }
-    }
-  }
+  const year = new Date().getFullYear()
 
   return (
     <>
-      <footer id="contact" className="py-12 px-4 bg-white border-t border-neutral-200">
-            <div className="container mx-auto">
-              <motion.div
-                className="grid grid-cols-1 md:grid-cols-4 gap-8"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, staggerChildren: 0.1 }}
-                viewport={{ once: true }}
-              >
-                <motion.div
-                  className="col-span-1 md:col-span-2"
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8 }}
-                  viewport={{ once: true }}
+      <footer id="contact" className="relative overflow-hidden bg-[#0a0a0a] text-[#e8e4dc]">
+        <div className="mx-auto max-w-7xl px-5 pt-12 sm:px-8 sm:pt-14 md:px-10 md:pt-16 lg:px-12">
+          <div className="flex flex-col gap-10 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
+            <div className="max-w-md">
+              <p className="font-nike mb-3 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-white/40">
+                Directed by God
+              </p>
+              <p className="font-nike text-sm leading-relaxed text-white/55 sm:text-[0.95rem]">
+                Premium streetwear built for conviction — shop the drop or reach out.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2.5">
+                <Link
+                  href="/fear"
+                  className="font-nike inline-flex items-center justify-center bg-[#e8e4dc] px-5 py-2.5 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-neutral-900 transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8e4dc]"
                 >
-                  <h3 className="text-2xl font-bold mb-4 text-black">
-                    FEAR INSIGHT
-                  </h3>
-                  <p className="text-neutral-600 mb-4 max-w-md">
-                    DIRECTED BY GOD - Premium streetwear that speaks to your soul and inspires fearless faith. Every piece
-                    is designed to empower your spiritual journey and express your divine purpose.
-                  </p>
-                  <div className="mb-4">
-                    <p className="text-neutral-800 mb-2">Get in touch:</p>
-                    <a
-                      href="mailto:info@fearinsight.com"
-                      className="text-neutral-800 hover:text-black transition-colors flex items-center gap-2"
-                    >
-                      <Mail className="w-4 h-4" />
-                      info@fearinsight.com
-                    </a>
-                  </div>
-                  <div className="flex space-x-4">
-                    {[
-                      { Icon: Instagram, href: "https://www.instagram.com/fear_insight?igsh=MXV4dmtxMG0zbjJ3aQ==" },
-                      { Icon: TikTokIcon, href: "https://www.tiktok.com/@fear_insight?_r=1&_t=ZS-91JlnRVRF9p" },
-                      { Icon: Mail, href: "mailto:info@fearinsight.com" },
-                    ].map((item, index) => (
-                      <motion.a
-                        key={index}
-                        whileHover={{ scale: 1.2, rotate: 5 }}
-                        whileTap={{ scale: 0.9 }}
-                        href={item.href}
-                        target={item.href.startsWith('http') ? "_blank" : undefined}
-                        rel={item.href.startsWith('http') ? "noopener noreferrer" : undefined}
-                        className="text-neutral-800 hover:text-black transition-colors"
-                      >
-                        <item.Icon className="w-6 h-6" />
-                      </motion.a>
-                    ))}
-                  </div>
-                </motion.div>
-  
-                {[
-                  {
-                    title: "Quick Links",
-                    items: [
-                      { name: "Home", href: "/" },
-                      { name: "Products", href: "/products" },
-                      { name: "About", href: "#about" },
-                      { name: "Contact", href: "#contact" },
-                    ],
-                  },
-                  {
-                    title: "Support",
-                    items: [
-                      { name: "Size Guide", href: "#size-guide", isSizeGuide: true },
-                      { name: "Shipping & Returns", href: "/shipping-returns" },
-                      { name: "FAQ", href: "/faq" },
-                      { name: "Contact Us", href: "#contact" },
-                    ],
-                  },
-                ].map((section, sectionIndex) => (
-                  <motion.div
-                    key={section.title}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: sectionIndex * 0.2 }}
-                    viewport={{ once: true }}
-                  >
-                    <h4 className="text-lg font-semibold mb-4 text-neutral-800">{section.title}</h4>
-                    <ul className="space-y-2 text-neutral-600">
-                      {section.items.map((item, itemIndex) => (
-                        <motion.li
-                          key={item.name}
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.6, delay: sectionIndex * 0.2 + itemIndex * 0.1 }}
-                          viewport={{ once: true }}
-                        >
-                          <motion.div whileHover={{ x: 5 }}>
-                            {(item as any).isSizeGuide ? (
-                              <a
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  setShowSizeChart(true)
-                                }}
-                                className="hover:text-black transition-colors cursor-pointer"
-                              >
-                                {item.name}
-                              </a>
-                            ) : item.href.startsWith('#') ? (
-                              <a
-                                href={item.href}
-                                onClick={(e) => handleAnchorClick(e, item.href)}
-                                className="hover:text-black transition-colors cursor-pointer"
-                              >
-                                {item.name}
-                              </a>
-                            ) : (
-                              <Link href={item.href} className="hover:text-black transition-colors">
-                                {item.name}
-                              </Link>
-                            )}
-                          </motion.div>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                ))}
-              </motion.div>
-  
-              <motion.div
-                className="border-t border-neutral-200 mt-8 pt-8 text-center text-neutral-600"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <p>&copy; {new Date().getFullYear()} FEAR INSIGHT. All rights reserved. DIRECTED BY GOD.</p>
-                <p className="mt-2 text-sm">Contact us: info@fearinsight.com</p>
-              </motion.div>
+                  Shop now
+                </Link>
+                <a
+                  href="mailto:info@fearinsight.com"
+                  className="font-nike inline-flex items-center justify-center border border-[#e8e4dc]/70 bg-transparent px-5 py-2.5 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-[#e8e4dc] transition-colors hover:border-white hover:bg-white hover:text-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8e4dc]"
+                >
+                  Contact us
+                </a>
+              </div>
             </div>
-          </footer>
+
+            <nav
+              aria-label="Footer utilities"
+              className="flex flex-wrap gap-x-6 gap-y-2 sm:justify-end sm:gap-x-8"
+            >
+              <button
+                type="button"
+                onClick={() => setShowSizeChart(true)}
+                className="font-nike text-[0.65rem] uppercase tracking-[0.18em] text-white/40 transition-colors hover:text-white/80"
+              >
+                Size guide
+              </button>
+              <Link
+                href="/shipping-returns"
+                className="font-nike text-[0.65rem] uppercase tracking-[0.18em] text-white/40 transition-colors hover:text-white/80"
+              >
+                Shipping &amp; returns
+              </Link>
+              <Link
+                href="/faq"
+                className="font-nike text-[0.65rem] uppercase tracking-[0.18em] text-white/40 transition-colors hover:text-white/80"
+              >
+                FAQ
+              </Link>
+              <Link
+                href="/privacy"
+                className="font-nike text-[0.65rem] uppercase tracking-[0.18em] text-white/40 transition-colors hover:text-white/80"
+              >
+                Privacy
+              </Link>
+            </nav>
+          </div>
+
+          {/* Oversized brand mark */}
+          <div className="mt-14 flex flex-col gap-4 border-t border-white/10 pt-10 sm:mt-16 sm:pt-12 md:mt-20">
+            <Link
+              href="/"
+              aria-label="Fear Insight home"
+              className="group inline-flex max-w-full items-center gap-3 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e8e4dc] sm:gap-5 md:gap-6"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/logo-mark.svg"
+                alt=""
+                className="h-9 w-auto shrink-0 brightness-0 invert opacity-90 transition-opacity group-hover:opacity-100 sm:h-12 md:h-16 lg:h-[4.5rem]"
+              />
+              <span className="font-nike-display text-[clamp(2.25rem,8.5vw,6.25rem)] uppercase leading-none tracking-[0.02em] text-[#e8e4dc] transition-colors group-hover:text-white">
+                Fear Insight
+              </span>
+            </Link>
+            <p className="font-nike pb-6 text-[0.65rem] uppercase tracking-[0.16em] text-white/30 sm:pb-8 md:pb-10">
+              © Fear Insight {year}
+            </p>
+          </div>
+        </div>
+      </footer>
+
       <SizeChart isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
     </>
   )

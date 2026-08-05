@@ -20,37 +20,29 @@ const SITEMAP_COLUMNS = [
   {
     title: 'Fear',
     links: [
-      { label: 'Directed Hoodie', href: '/products?category=fear' },
-      { label: 'Fear Statement Tee', href: '/products?category=fear' },
-      { label: 'Shadow Layer', href: '/products?category=fear' },
-      { label: 'Fear Essentials', href: '/products?category=fear' },
+      { label: 'Shop Fear', href: '/fear' },
+      { label: 'Fear collection', href: '/fear' },
     ],
   },
   {
     title: 'Signature',
     links: [
-      { label: 'Signature Hoodie', href: '/products?category=signature' },
-      { label: 'Core Crewneck', href: '/products?category=signature' },
-      { label: 'Essential Tee', href: '/products?category=signature' },
-      { label: 'Signature Collection', href: '/products?category=signature' },
+      { label: 'Shop Signature', href: '/signature' },
+      { label: 'Core essentials', href: '/signature' },
     ],
   },
   {
     title: 'Oversize',
     links: [
-      { label: 'Oversize Hoodie', href: '/products?category=oversize' },
-      { label: 'Heavyweight Tee', href: '/products?category=oversize' },
-      { label: 'Relaxed Crew', href: '/products?category=oversize' },
-      { label: 'Oversize Collection', href: '/products?category=oversize' },
+      { label: 'Shop Oversize', href: '/oversize' },
+      { label: 'One-size hoodies', href: '/oversize' },
     ],
   },
   {
     title: 'Upcoming',
     links: [
-      { label: 'Next Drop', href: '/products' },
-      { label: 'Coming Soon', href: '/products' },
-      { label: 'Join the Waitlist', href: '/products' },
-      { label: 'Drop Archive', href: '/products' },
+      { label: 'Coming soon', href: '/upcoming' },
+      { label: 'Next drop', href: '/upcoming' },
     ],
   },
 ] as const
@@ -123,7 +115,7 @@ export default function SitemapSection() {
     <section
       ref={sectionRef}
       aria-labelledby="sitemap-heading"
-      className="bg-white px-4 pb-0 pt-8 text-neutral-900 sm:px-6 sm:pt-10 lg:px-12 lg:pt-12"
+      className="bg-white px-4 pb-12 pt-8 text-neutral-900 sm:px-6 sm:pb-14 sm:pt-10 lg:px-12 lg:pb-16 lg:pt-12"
     >
       <h2 id="sitemap-heading" className="sr-only">
         Explore Fear Insight
@@ -182,8 +174,6 @@ export default function SitemapSection() {
             </div>
           ))}
         </div>
-
-        <div className="mt-16 border-t border-neutral-200 sm:mt-20 lg:mt-24" aria-hidden />
       </div>
     </section>
   )

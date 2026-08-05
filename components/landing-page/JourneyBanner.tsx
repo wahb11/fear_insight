@@ -155,7 +155,7 @@ export default function JourneyBanner() {
               className="mt-5 flex flex-wrap items-center gap-3 sm:mt-6 sm:gap-4"
             >
               <Link
-                href="/products"
+                href="/fear"
                 aria-label="Explore products"
                 className="font-nike inline-flex items-center justify-center bg-white px-6 py-3 text-[0.7rem] font-bold uppercase tracking-[0.18em] text-neutral-900 transition-all duration-300 hover:-translate-y-1 hover:bg-neutral-200 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >

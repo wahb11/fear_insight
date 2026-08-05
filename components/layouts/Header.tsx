@@ -19,16 +19,16 @@ const UTILITY_LINKS = [
 ] as const
 
 const MAIN_NAV = [
-  { label: 'Fear', href: '/products' },
-  { label: 'Oversize', href: '/products' },
-  { label: 'Upcoming', href: '/#bestsellers' },
-  { label: 'Signature', href: '/products' },
+  { label: 'Fear', href: '/fear' },
+  { label: 'Oversize', href: '/oversize' },
+  { label: 'Upcoming', href: '/upcoming' },
+  { label: 'Signature', href: '/signature' },
 ] as const
 
 /** Secondary routes — footer + mobile menu */
 const SECONDARY_NAV = [
   { label: 'Home', href: '/' },
-  { label: 'Products', href: '/products' },
+  { label: 'Fear', href: '/fear' },
   { label: 'About', href: '#about' },
   { label: 'Contact', href: '#contact' },
 ] as const
@@ -297,14 +297,14 @@ export default function Header() {
             {/* Right: search, wishlist, cart */}
             <div className="z-10 flex flex-1 items-center justify-end gap-1 md:gap-2 lg:basis-1/3 lg:flex-none">
               <Link
-                href="/products"
+                href="/fear"
                 aria-label="Search products"
                 className="hidden sm:flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full hover:bg-neutral-100 transition-all duration-200 group focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-black"
               >
                 <Search className="w-[22px] h-[22px] text-black" strokeWidth={1.75} />
               </Link>
               <Link
-                href="/products"
+                href="/fear"
                 aria-label="Wishlist"
                 className="hidden sm:flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full hover:bg-neutral-100 transition-all duration-200 group focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-black"
               >
