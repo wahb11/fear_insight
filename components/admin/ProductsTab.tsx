@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Upload, X, Edit, ImagePlus, Trash2, Package, Star, AlertCircle, Wand2 } from "lucide-react"
 import { Product } from "@/types/products"
-import { removeImageBackground } from "@/lib/remove-background"
 
 export default function ProductsTab() {
   const { toast } = useToast()
@@ -415,6 +414,7 @@ export default function ProductsTab() {
     setCutoutBusy(true)
     setCutoutProgress("Removing background… (first run may take a minute)")
     try {
+      const { removeImageBackground } = await import("@/lib/remove-background")
       const blob = await removeImageBackground(file, (msg) => setCutoutProgress(msg))
       if (cutoutPreview) URL.revokeObjectURL(cutoutPreview)
       setCutoutBlob(blob)
