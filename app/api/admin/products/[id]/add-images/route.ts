@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { cookies } from "next/headers"
 import { createClient } from "@supabase/supabase-js"
+import { requireAdmin } from "@/lib/admin-auth"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -15,15 +15,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check authentication
-    const cookieStore = await cookies()
-    const session = cookieStore.get("admin_session")
+    const auth = await requireAdmin()
+    if (!auth.ok) return auth.response
 
-    if (session?.value !== "authenticated") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    // Await params in Next.js 14+
     const { id } = await params
 
     // Validate product ID

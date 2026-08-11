@@ -5,19 +5,21 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { ShoppingBag, Star, Ruler, ArrowRight, Search } from "lucide-react"
+import { ShoppingBag, Star, Ruler, Search, SlidersHorizontal } from "lucide-react"
 import { SizeChart } from "@/components/ui/size-chart"
 import { useCart } from "@/app/context/CartContext"
 import { useAllProducts } from "@/hooks/useAllProducts"
 import { Product } from "@/types/products"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useNavigationLoader } from "@/components/NavigationLoader"
 import {
   CollectionKey,
   COLLECTION_META,
-  filterByCollection,
+  filterByCategoryTree,
 } from "@/lib/collections"
+import { FALLBACK_CATEGORY_TREE } from "@/lib/categories"
+import { useCategoryTree } from "@/hooks/useCategoryTree"
 
 
 
@@ -53,7 +55,11 @@ export default function CollectionCatalog({ collection }: { collection: Collecti
   const meta = COLLECTION_META[collection]
 
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const line = searchParams.get('line')
   const { data: products, isLoading, error } = useAllProducts()
+  const { data: categoryTreeData } = useCategoryTree()
+  const categoryTree = categoryTreeData?.length ? categoryTreeData : FALLBACK_CATEGORY_TREE
   const containerRef = useRef<HTMLDivElement>(null)
   const { addToCart } = useCart()
   const { startLoading } = useNavigationLoader()
@@ -67,10 +73,31 @@ export default function CollectionCatalog({ collection }: { collection: Collecti
   const [searchTerm, setSearchTerm] = useState("")
   const [showSizeChart, setShowSizeChart] = useState(false)
 
+  const parentCategory = useMemo(
+    () => categoryTree.find((c) => c.slug === collection),
+    [categoryTree, collection]
+  )
+
   const collectionProducts = useMemo(() => {
     if (!products || !Array.isArray(products)) return []
-    return filterByCollection(products, collection)
-  }, [products, collection])
+    return filterByCategoryTree(products, categoryTree, collection, line)
+  }, [products, categoryTree, collection, line])
+
+  const pageTitle = useMemo(() => {
+    if (line && parentCategory?.children) {
+      const sub = parentCategory.children.find((c) => c.slug === line)
+      if (sub) return sub.name
+    }
+    return parentCategory?.name || meta.title
+  }, [line, parentCategory, meta.title])
+
+  const pageSubtitle = useMemo(() => {
+    if (line && parentCategory?.children) {
+      const sub = parentCategory.children.find((c) => c.slug === line)
+      if (sub?.description) return sub.description
+    }
+    return parentCategory?.description || meta.subtitle
+  }, [line, parentCategory, meta.subtitle])
 
   // Map color names to valid CSS colors
   const getColorValue = (colorName: string): string => {
@@ -226,6 +253,36 @@ export default function CollectionCatalog({ collection }: { collection: Collecti
     })
   }, [filteredProducts, sortBy])
 
+  // When viewing the parent collection (no ?line=), group products under each subcategory
+  const productSections = useMemo(() => {
+    const children = parentCategory?.children || []
+    if (line || children.length === 0) {
+      return [{ id: 'all', name: null as string | null, description: null as string | null, products: sortedProducts }]
+    }
+
+    const subIds = new Set(children.map((c) => c.id))
+    const sections = children.map((sub) => ({
+      id: sub.id,
+      name: sub.name,
+      description: sub.description || null,
+      products: sortedProducts.filter((p) => p.category_id === sub.id),
+    }))
+
+    const ungrouped = sortedProducts.filter(
+      (p) => !p.category_id || !subIds.has(p.category_id)
+    )
+    if (ungrouped.length > 0) {
+      sections.push({
+        id: 'ungrouped',
+        name: 'More',
+        description: null,
+        products: ungrouped,
+      })
+    }
+
+    return sections
+  }, [parentCategory, line, sortedProducts])
+
 
   if (isLoading) return (
     <div className="bg-white text-neutral-900 min-h-screen">
@@ -303,7 +360,7 @@ export default function CollectionCatalog({ collection }: { collection: Collecti
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.25, delay: 0.02 }}
           >
-            {meta.title}
+            {pageTitle}
           </motion.h1>
           <motion.div
             className="w-24 h-1 bg-black mx-auto mb-6"
@@ -317,8 +374,35 @@ export default function CollectionCatalog({ collection }: { collection: Collecti
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, delay: 0.1 }}
           >
-            {meta.subtitle}
+            {pageSubtitle}
           </motion.p>
+          {parentCategory?.children && parentCategory.children.length > 0 && (
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+              <Link
+                href={meta.href}
+                className={`rounded-none border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
+                  !line
+                    ? 'border-neutral-900 bg-neutral-900 text-white'
+                    : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-900'
+                }`}
+              >
+                All
+              </Link>
+              {parentCategory.children.map((sub) => (
+                <Link
+                  key={sub.id}
+                  href={`${meta.href}?line=${sub.slug}`}
+                  className={`rounded-none border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
+                    line === sub.slug
+                      ? 'border-neutral-900 bg-neutral-900 text-white'
+                      : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-900'
+                  }`}
+                >
+                  {sub.name}
+                </Link>
+              ))}
+            </div>
+          )}
         </motion.div>
       </section>
 
@@ -332,29 +416,36 @@ export default function CollectionCatalog({ collection }: { collection: Collecti
             viewport={{ once: true }}
             className="flex flex-col gap-4 items-stretch justify-between mb-6"
           >
-            {/* Search */}
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white border-neutral-200 text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 transition-colors"
-              />
+            {/* Search + filter icon */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1 min-w-0">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                <Input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-white border-neutral-200 text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 transition-colors"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFilters((prev) => !prev)}
+                aria-label={showFilters ? "Hide filters" : "Show filters"}
+                aria-expanded={showFilters}
+                className={`shrink-0 flex items-center justify-center w-10 h-10 border transition-colors ${
+                  showFilters
+                    ? "border-neutral-900 bg-neutral-900 text-white"
+                    : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-400"
+                }`}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Filter Controls */}
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={() => setShowFilters((prev) => !prev)}
-                className="md:hidden w-full text-left text-sm text-neutral-900 bg-white border border-neutral-200 rounded px-3 py-2 flex items-center justify-between"
-              >
-                <span>Filters & Sort</span>
-                <span className="text-xs text-neutral-500">{showFilters ? "Hide" : "Show"}</span>
-              </button>
-
-              <div className={`grid gap-3 ${showFilters ? "grid-cols-1 sm:grid-cols-2" : "hidden md:grid md:grid-cols-4"}`}>
+            {/* Filter Controls — only when icon is toggled */}
+            {showFilters && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 <select
                   value={selectedColor}
                   onChange={(e) => setSelectedColor(e.target.value)}
@@ -403,7 +494,7 @@ export default function CollectionCatalog({ collection }: { collection: Collecti
                   ))}
                 </select>
               </div>
-            </div>
+            )}
           </motion.div>
 
           {/* Results Count */}
@@ -419,160 +510,171 @@ export default function CollectionCatalog({ collection }: { collection: Collecti
         </div>
       </section>
 
-      {/* Products Grid */}
+      {/* Products — grouped by subcategory when viewing the full collection */}
       <section className="py-12 px-4 bg-white">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
-            {sortedProducts.map((product: Product, index: number) => {
-              const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
-              const firstImage = product.images?.[0] || ""
-              
-              // Extract colors and sizes using the helper function
-              const colorList = extractValues(product.colors)
-              const firstColor = colorList[0] || "gray"
-              const availableSizes = extractValues(product.sizes)
+        <div className="container mx-auto space-y-16">
+          {productSections.map((section) => (
+            <div key={section.id}>
+              {section.name && (
+                <div className="mb-6 sm:mb-8">
+                  <h2 className="font-nike-display text-2xl sm:text-3xl md:text-4xl uppercase tracking-[0.08em] text-neutral-900">
+                    {section.name}
+                  </h2>
+                  {section.description && (
+                    <p className="mt-2 text-sm sm:text-base text-neutral-500 max-w-xl">
+                      {section.description}
+                    </p>
+                  )}
+                  <div className="mt-3 h-px w-12 bg-neutral-900" />
+                </div>
+              )}
 
-              return (
-                <Link href={`/product/${product.id}`} key={product.id} className="block" onClick={startLoading}>
-                  <motion.div
-                    custom={index}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
-                    variants={cardVariants}
-                    whileHover={{ scale: 1.02 }}
-                    className="group cursor-pointer h-full"
-                  >
-                    <Card className="bg-white border-neutral-200 overflow-hidden h-full hover:border-neutral-400 transition-all duration-300 flex flex-col rounded-lg">
-                      {/* Product Image */}
-                      <div className="relative aspect-square overflow-hidden">
-                        {firstImage ? (
-                          <img
-                            src={firstImage}
-                            alt={`${product.name} - Shop at Fear Insight`}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-neutral-100">
-                            <ShoppingBag className="w-12 h-12 text-neutral-400" />
-                          </div>
-                        )}
+              {section.products.length === 0 ? (
+                <p className="text-sm text-neutral-400 py-6">No products in this line yet.</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+                  {section.products.map((product: Product, index: number) => {
+                    const finalPrice = product.discount > 0 ? product.price - product.discount : product.price
+                    const firstImage = product.images?.[0] || ""
+                    const colorList = extractValues(product.colors)
+                    const firstColor = colorList[0] || "gray"
+                    const availableSizes = extractValues(product.sizes)
 
-                        {/* Badge - smaller on mobile */}
-                        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20">
-                          {product.discount > 0 ? (
-                            <span className="bg-neutral-100 text-neutral-900 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">SALE</span>
-                          ) : product.best_seller ? (
-                            <span className="bg-neutral-300 text-neutral-900 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">BEST</span>
-                          ) : product.featured ? (
-                            <span className="bg-neutral-100 text-neutral-900 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">NEW</span>
-                          ) : null}
-                        </div>
-
-                        {/* Hover Actions - Desktop only */}
-                        <div className="hidden md:flex absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center gap-4 pointer-events-none group-hover:pointer-events-auto z-30">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              if (colorList.length > 0 && availableSizes.length > 0) {
-                                addToCart(product, 1, firstColor, availableSizes[0])
-                              }
-                            }}
-                            className="bg-white text-black p-3 rounded-full hover:bg-neutral-100 transition-colors pointer-events-auto"
-                          >
-                            <ShoppingBag className="w-5 h-5" />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              setShowSizeChart(true)
-                            }}
-                            className="bg-white text-black p-3 rounded-full hover:bg-neutral-100 transition-colors pointer-events-auto"
-                          >
-                            <Ruler className="w-5 h-5" />
-                          </motion.button>
-                        </div>
-                      </div>
-
-                      {/* Product Info - Compact */}
-                      <CardContent className="p-2.5 sm:p-3 md:p-4 flex flex-col flex-grow">
-                        {/* Product Name */}
-                        <h3 className="text-xs sm:text-sm md:text-base font-semibold text-neutral-900 group-hover:text-neutral-700 transition-colors line-clamp-1 mb-1.5">
-                          {product.name}
-                        </h3>
-
-                        {/* Price and Rating Row */}
-                        <div className="flex items-center justify-between mb-1.5">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-sm sm:text-base md:text-lg font-bold text-neutral-900">${finalPrice.toFixed(2)}</span>
-                            {product.discount > 0 && (
-                              <span className="text-neutral-500 line-through text-[10px] sm:text-xs">${product.price.toFixed(2)}</span>
-                            )}
-                          </div>
-                          <div className="flex items-center">
-                            <Star className="w-3 h-3 fill-neutral-400 text-neutral-400" />
-                            <span className="text-[10px] sm:text-xs text-neutral-500 ml-0.5">{product.ratings.toFixed(1)}</span>
-                          </div>
-                        </div>
-
-                        {/* Colors - Compact row */}
-                        {colorList.length > 0 && (
-                          <div className="flex items-center gap-1 mb-2">
-                            {colorList.slice(0, 3).map((colorName, idx) => (
-                              <span
-                                key={`${colorName}-${idx}`}
-                                className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-neutral-300"
-                                style={{ backgroundColor: getColorValue(colorName) }}
-                                title={colorName}
-                              />
-                            ))}
-                            {colorList.length > 3 && (
-                              <span className="text-[10px] text-neutral-500">+{colorList.length - 3}</span>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Sizes - Hidden on very small screens, shown on sm+ */}
-                        <div className="hidden sm:flex flex-wrap gap-1 mb-2">
-                          {availableSizes.slice(0, 4).map((size, idx) => (
-                            <span
-                              key={`${size}-${idx}`}
-                              className="px-1.5 py-0.5 bg-neutral-100 text-neutral-700 rounded text-[10px] border border-neutral-200"
-                            >
-                              {size.toUpperCase()}
-                            </span>
-                          ))}
-                        </div>
-
-                        {/* Add to Cart Button */}
-                        <Button
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            if (colorList.length > 0 && availableSizes.length > 0) {
-                              addToCart(product, 1, firstColor, availableSizes[0])
-                            }
-                          }}
-                          className="w-full mt-auto bg-black hover:bg-neutral-800 text-white text-[11px] sm:text-xs py-1.5 sm:py-2 h-auto"
+                    return (
+                      <Link href={`/product/${product.id}`} key={product.id} className="block" onClick={startLoading}>
+                        <motion.div
+                          custom={index}
+                          initial="hidden"
+                          whileInView="visible"
+                          viewport={{ once: true, amount: 0.2 }}
+                          variants={cardVariants}
+                          whileHover={{ scale: 1.02 }}
+                          className="group cursor-pointer h-full"
                         >
-                          <ShoppingBag className="w-3 h-3 mr-1" />
-                          Add
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                </Link>
-              )
-            })}
-          </div>
+                          <Card className="bg-white border-neutral-200 overflow-hidden h-full hover:border-neutral-400 transition-all duration-300 flex flex-col rounded-lg">
+                            <div className="relative aspect-square overflow-hidden">
+                              {firstImage ? (
+                                <img
+                                  src={firstImage}
+                                  alt={`${product.name} - Shop at Fear Insight`}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-neutral-100">
+                                  <ShoppingBag className="w-12 h-12 text-neutral-400" />
+                                </div>
+                              )}
+
+                              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20">
+                                {product.discount > 0 ? (
+                                  <span className="bg-neutral-100 text-neutral-900 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">SALE</span>
+                                ) : product.best_seller ? (
+                                  <span className="bg-neutral-300 text-neutral-900 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">BEST</span>
+                                ) : product.featured ? (
+                                  <span className="bg-neutral-100 text-neutral-900 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">NEW</span>
+                                ) : null}
+                              </div>
+
+                              <div className="hidden md:flex absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center gap-4 pointer-events-none group-hover:pointer-events-auto z-30">
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    if (colorList.length > 0 && availableSizes.length > 0) {
+                                      addToCart(product, 1, firstColor, availableSizes[0])
+                                    }
+                                  }}
+                                  className="bg-white text-black p-3 rounded-full hover:bg-neutral-100 transition-colors pointer-events-auto"
+                                >
+                                  <ShoppingBag className="w-5 h-5" />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    setShowSizeChart(true)
+                                  }}
+                                  className="bg-white text-black p-3 rounded-full hover:bg-neutral-100 transition-colors pointer-events-auto"
+                                >
+                                  <Ruler className="w-5 h-5" />
+                                </motion.button>
+                              </div>
+                            </div>
+
+                            <CardContent className="p-2.5 sm:p-3 md:p-4 flex flex-col flex-grow">
+                              <h3 className="text-xs sm:text-sm md:text-base font-semibold text-neutral-900 group-hover:text-neutral-700 transition-colors line-clamp-1 mb-1.5">
+                                {product.name}
+                              </h3>
+
+                              <div className="flex items-center justify-between mb-1.5">
+                                <div className="flex items-baseline gap-1">
+                                  <span className="text-sm sm:text-base md:text-lg font-bold text-neutral-900">${finalPrice.toFixed(2)}</span>
+                                  {product.discount > 0 && (
+                                    <span className="text-neutral-500 line-through text-[10px] sm:text-xs">${product.price.toFixed(2)}</span>
+                                  )}
+                                </div>
+                                <div className="flex items-center">
+                                  <Star className="w-3 h-3 fill-neutral-400 text-neutral-400" />
+                                  <span className="text-[10px] sm:text-xs text-neutral-500 ml-0.5">{product.ratings.toFixed(1)}</span>
+                                </div>
+                              </div>
+
+                              {colorList.length > 0 && (
+                                <div className="flex items-center gap-1 mb-2">
+                                  {colorList.slice(0, 3).map((colorName, idx) => (
+                                    <span
+                                      key={`${colorName}-${idx}`}
+                                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-neutral-300"
+                                      style={{ backgroundColor: getColorValue(colorName) }}
+                                      title={colorName}
+                                    />
+                                  ))}
+                                  {colorList.length > 3 && (
+                                    <span className="text-[10px] text-neutral-500">+{colorList.length - 3}</span>
+                                  )}
+                                </div>
+                              )}
+
+                              <div className="hidden sm:flex flex-wrap gap-1 mb-2">
+                                {availableSizes.slice(0, 4).map((size, idx) => (
+                                  <span
+                                    key={`${size}-${idx}`}
+                                    className="px-1.5 py-0.5 bg-neutral-100 text-neutral-700 rounded text-[10px] border border-neutral-200"
+                                  >
+                                    {size.toUpperCase()}
+                                  </span>
+                                ))}
+                              </div>
+
+                              <Button
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  if (colorList.length > 0 && availableSizes.length > 0) {
+                                    addToCart(product, 1, firstColor, availableSizes[0])
+                                  }
+                                }}
+                                className="w-full mt-auto bg-black hover:bg-neutral-800 text-white text-[11px] sm:text-xs py-1.5 sm:py-2 h-auto"
+                              >
+                                <ShoppingBag className="w-3 h-3 mr-1" />
+                                Add
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </section>
 

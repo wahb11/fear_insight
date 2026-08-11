@@ -9,8 +9,16 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Next.js automatically serves files from public/ folder
-  // URLs like /product/f001.jpg will work if file exists in public/product/f001.jpg
+  // Admin Featured tab loads @imgly/background-removal (browser WASM / onnx)
+  transpilePackages: ['@imgly/background-removal'],
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      sharp$: false,
+      'onnxruntime-node$': false,
+    }
+    return config
+  },
 }
 
 export default nextConfig

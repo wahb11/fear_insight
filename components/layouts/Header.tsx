@@ -20,15 +20,18 @@ const UTILITY_LINKS = [
 
 const MAIN_NAV = [
   { label: 'Fear', href: '/fear' },
-  { label: 'Oversize', href: '/oversize' },
-  { label: 'Upcoming', href: '/upcoming' },
-  { label: 'Signature', href: '/signature' },
+  { label: 'Insignia', href: '/insignia' },
+  { label: 'Chronicles', href: '/chronicles' },
+  { label: 'Oversized', href: '/oversized' },
 ] as const
 
 /** Secondary routes — footer + mobile menu */
 const SECONDARY_NAV = [
   { label: 'Home', href: '/' },
   { label: 'Fear', href: '/fear' },
+  { label: 'Insignia', href: '/insignia' },
+  { label: 'Chronicles', href: '/chronicles' },
+  { label: 'Oversized', href: '/oversized' },
   { label: 'About', href: '#about' },
   { label: 'Contact', href: '#contact' },
 ] as const
@@ -218,7 +221,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Main nav — white; logo left, Fear / Oversize / Upcoming centered */}
+      {/* Main nav — white; logo left, collections centered */}
       <nav
         ref={navRef}
         className="w-full bg-white border-b border-neutral-200"

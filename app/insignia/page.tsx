@@ -11,10 +11,10 @@ function CatalogFallback() {
   )
 }
 
-export default function FearPage() {
+export default function InsigniaPage() {
   return (
     <Suspense fallback={<CatalogFallback />}>
-      <CollectionCatalog collection="fear" />
+      <CollectionCatalog collection="insignia" />
     </Suspense>
   )
 }

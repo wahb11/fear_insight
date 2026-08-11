@@ -24,22 +24,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${siteUrl}/oversize`,
+      url: `${siteUrl}/insignia`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.85,
     },
     {
-      url: `${siteUrl}/signature`,
+      url: `${siteUrl}/chronicles`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.85,
     },
     {
-      url: `${siteUrl}/upcoming`,
+      url: `${siteUrl}/oversized`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
+      changeFrequency: 'daily',
+      priority: 0.85,
     },
     {
       url: `${siteUrl}/faq`,

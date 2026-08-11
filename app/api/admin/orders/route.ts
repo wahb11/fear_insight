@@ -1,38 +1,103 @@
-import { NextRequest, NextResponse } from "next/server"
-import { cookies } from "next/headers"
-import { createClient } from "@supabase/supabase-js"
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '@/lib/admin-auth'
+import {
+  FulfillmentStatus,
+  readFulfillmentMap,
+  setOrderFulfillment,
+} from '@/lib/order-status'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-// Use service role key for admin operations to bypass RLS if needed
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-export async function GET(req: NextRequest) {
+const VALID_FULFILLMENT: FulfillmentStatus[] = [
+  'pending',
+  'processing',
+  'shipped',
+  'delivered',
+  'cancelled',
+]
+
+export async function GET() {
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
+
   try {
-    // Check authentication
-    const cookieStore = await cookies()
-    const session = cookieStore.get("admin_session")
-
-    if (session?.value !== "authenticated") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    // Fetch all orders
     const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .order("created_at", { ascending: false })
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ orders: data || [] })
+    const fulfillmentMap = await readFulfillmentMap().catch(() => ({} as Record<string, FulfillmentStatus>))
+    const orders = (data || []).map((order) => ({
+      ...order,
+      fulfillment_status: fulfillmentMap[order.id] || 'pending',
+    }))
+
+    return NextResponse.json({ orders })
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "An error occurred" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message || 'An error occurred' }, { status: 500 })
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth.response
+
+  try {
+    const body = await req.json()
+    const { id, payment, fulfillment_status } = body
+
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
+    }
+
+    const updates: Record<string, unknown> = {}
+    if (typeof payment === 'boolean') {
+      updates.payment = payment
+    }
+
+    if (Object.keys(updates).length > 0) {
+      const { error } = await supabase.from('orders').update(updates).eq('id', id)
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+    }
+
+    let fulfillment: FulfillmentStatus | undefined
+    if (fulfillment_status !== undefined) {
+      if (!VALID_FULFILLMENT.includes(fulfillment_status)) {
+        return NextResponse.json({ error: 'Invalid fulfillment status' }, { status: 400 })
+      }
+      fulfillment = await setOrderFulfillment(id, fulfillment_status)
+    }
+
+    const { data: order, error: fetchError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+    }
+
+    const map = await readFulfillmentMap().catch(() => ({} as Record<string, FulfillmentStatus>))
+
+    return NextResponse.json({
+      order: {
+        ...order,
+        fulfillment_status: fulfillment || map[id] || 'pending',
+      },
+    })
+  } catch (error: any) {
+    console.error('Update order error:', error)
+    return NextResponse.json({ error: error.message || 'An error occurred' }, { status: 500 })
+  }
+}

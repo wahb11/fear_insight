@@ -1,6 +1,8 @@
 import { Product } from '@/types/products'
+import { Category, CategoryTree } from '@/types/categories'
+import { collectCategoryIds, FALLBACK_CATEGORY_TREE } from '@/lib/categories'
 
-export type CollectionKey = 'fear' | 'oversize' | 'signature'
+export type CollectionKey = 'fear' | 'insignia' | 'chronicles' | 'oversized'
 
 export const COLLECTION_META: Record<
   CollectionKey,
@@ -8,19 +10,28 @@ export const COLLECTION_META: Record<
 > = {
   fear: {
     title: 'Fear',
-    subtitle: 'The full Fear Insight drop — every piece, every mood.',
+    subtitle: 'Statement pieces — bold graphics and presence.',
     href: '/fear',
   },
-  oversize: {
-    title: 'Oversize',
-    subtitle: 'One-size volume. Relaxed cut. Built to drape.',
-    href: '/oversize',
+  insignia: {
+    title: 'Insignia',
+    subtitle: 'Marks of origin — manifesto energy, lasting silhouettes.',
+    href: '/insignia',
   },
-  signature: {
-    title: 'Signature',
-    subtitle: 'Core essentials in standard sizing — everyday weight, clean fit.',
-    href: '/signature',
+  chronicles: {
+    title: 'Chronicles',
+    subtitle: 'Stories worn daily — faith, purpose, and growth.',
+    href: '/chronicles',
   },
+  oversized: {
+    title: 'Oversized',
+    subtitle: 'Volume and drape — streetwear scale with structure.',
+    href: '/oversized',
+  },
+}
+
+export function isCollectionKey(value: string): value is CollectionKey {
+  return value in COLLECTION_META
 }
 
 /** Normalize size labels from product data (string or stock-map objects). */
@@ -35,37 +46,55 @@ export function extractSizeLabels(sizes: Product['sizes'] | undefined): string[]
   })
 }
 
-/** True when a product is one-size / ONESIZE (Oversize line). */
+/** True when a product is one-size / ONESIZE (used on PDP sizing UI). */
 export function isOnesizeProduct(product: Product): boolean {
   const labels = extractSizeLabels(product.sizes).map((s) =>
     s.toLowerCase().replace(/[\s_-]+/g, '')
   )
   if (labels.length === 0) return false
-
   const onesizeTokens = new Set(['onesize', 'os', 'o/s'])
-  const hasOnesize = labels.some((l) => onesizeTokens.has(l))
-  if (!hasOnesize) return false
+  return labels.some((l) => onesizeTokens.has(l))
+}
 
-  // Pure onesize (only onesize listed) OR mixed listing that includes onesize
-  // User asked: hoodies that were onesize → include any product that has onesize
-  return true
+function findParentInTree(tree: CategoryTree, slug: string): Category | undefined {
+  return tree.find((c) => c.slug === slug && !c.parent_id)
 }
 
 /**
- * Collection rules (from live catalog):
- * - Fear → full catalog (renamed Collection)
- * - Oversize → products with onesize / ONESIZE / one size
- * - Signature → standard S/M/L line (everything that is NOT onesize)
+ * Filter products belonging to a parent category (or one of its subcategories).
+ * Optional `line` slug narrows to a single subcategory.
  */
-export function filterByCollection(products: Product[], collection: CollectionKey): Product[] {
-  switch (collection) {
-    case 'fear':
-      return products
-    case 'oversize':
-      return products.filter(isOnesizeProduct)
-    case 'signature':
-      return products.filter((p) => !isOnesizeProduct(p))
-    default:
-      return products
+export function filterByCategoryTree(
+  products: Product[],
+  tree: CategoryTree,
+  parentSlug: CollectionKey,
+  lineSlug?: string | null
+): Product[] {
+  const parent = findParentInTree(tree, parentSlug) || findParentInTree(FALLBACK_CATEGORY_TREE, parentSlug)
+  if (!parent) return products
+
+  if (lineSlug) {
+    const line = (parent.children || []).find((c) => c.slug === lineSlug)
+    if (line) {
+      const matched = products.filter((p) => p.category_id === line.id)
+      // If nothing assigned yet, don't empty the shop entirely for that line
+      return matched
+    }
   }
+
+  const ids = new Set(collectCategoryIds(parent))
+  const matched = products.filter((p) => ids.has(p.category_id))
+
+  // Until products are reassigned from HOODIES/OODIES, keep Fear as full catalog
+  // so the storefront is not empty after hierarchy seed.
+  if (matched.length === 0 && parentSlug === 'fear') {
+    return products
+  }
+
+  return matched
+}
+
+/** @deprecated use filterByCategoryTree — kept for temporary compat */
+export function filterByCollection(products: Product[], collection: CollectionKey): Product[] {
+  return filterByCategoryTree(products, FALLBACK_CATEGORY_TREE, collection)
 }

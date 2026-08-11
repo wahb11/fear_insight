@@ -1,10 +1,13 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useCategoryTree } from '@/hooks/useCategoryTree'
+import { Category } from '@/types/categories'
+import { FALLBACK_CATEGORY_TREE } from '@/lib/categories'
 
 gsap.registerPlugin(useGSAP)
 
@@ -18,38 +21,22 @@ type CategoryFace = {
   placeholderLabel: string
 }
 
-const CATEGORIES: CategoryFace[] = [
-  {
-    id: 'signature',
-    title: 'Signature',
-    tag: 'CORE // ESSENTIALS',
-    description: 'Foundational pieces built for everyday wear — clean silhouettes, lasting weight, quiet confidence.',
-    href: '/signature',
-    image: '/images/carousel-signature.jpg',
-    placeholderLabel: 'PLACEHOLDER · Signature',
-  },
-  {
-    id: 'fear',
-    title: 'Fear',
-    tag: 'STATEMENT // BOLD',
-    description: 'High-impact designs that speak first — fearless graphics and presence you can feel.',
-    href: '/fear',
-    image: '/images/carousel-fear.jpg',
-    placeholderLabel: 'PLACEHOLDER · Fear',
-  },
-  {
-    id: 'oversize',
-    title: 'Oversize',
-    tag: 'VOLUME // RELAXED',
-    description: 'Roomier cuts and heavier drape — streetwear scale without sacrificing structure.',
-    href: '/oversize',
-    image: '/images/carousel-oversize.jpg',
-    placeholderLabel: 'PLACEHOLDER · Oversize',
-  },
-]
+function toFaces(parents: Category[]): CategoryFace[] {
+  return parents
+    .filter((c) => !c.parent_id)
+    .map((c) => ({
+      id: c.id,
+      title: c.name,
+      tag: (c.tag || 'COLLECTION').toUpperCase(),
+      description: c.description || '',
+      href: `/${c.slug || c.name.toLowerCase()}`,
+      image: (c.images && c.images[0]) || '/images/carousel-fear.jpg',
+      placeholderLabel: `PLACEHOLDER · ${c.name}`,
+    }))
+}
 
-const TOTAL = CATEGORIES.length
-const ANGLE_STEP = 360 / TOTAL
+const FALLBACK_FACES = toFaces(FALLBACK_CATEGORY_TREE)
+
 const FRICTION = 0.935
 const DRAG_SENSITIVITY_DESKTOP = 0.42
 const DRAG_SENSITIVITY_MOBILE = 0.55
@@ -74,6 +61,20 @@ const DEPTH = 110
  */
 export default function CategoryCarousel() {
   const router = useRouter()
+  const { data: tree } = useCategoryTree()
+  const categories = useMemo(() => {
+    const faces = toFaces(tree && tree.length > 0 ? tree : FALLBACK_CATEGORY_TREE)
+    return faces.length > 0 ? faces : FALLBACK_FACES
+  }, [tree])
+  const categoriesRef = useRef(categories)
+  categoriesRef.current = categories
+  const total = Math.max(categories.length, 1)
+  const angleStep = 360 / total
+  const angleStepRef = useRef(angleStep)
+  const totalRef = useRef(total)
+  angleStepRef.current = angleStep
+  totalRef.current = total
+
   const sectionRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const faceRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -105,17 +106,27 @@ export default function CategoryCarousel() {
 
   const panelW = isMobile ? PANEL_W_MOBILE : PANEL_W_DESKTOP
   const panelH = isMobile ? PANEL_H_MOBILE : PANEL_H_DESKTOP
+  const active = categories[index] || categories[0]
 
   useEffect(() => {
-    CATEGORIES.forEach((cat) => {
+    categories.forEach((cat) => {
       const img = new window.Image()
       img.onload = () => setImgReady((prev) => ({ ...prev, [cat.id]: true }))
       img.src = cat.image
     })
-  }, [])
+  }, [categories])
+
+  useEffect(() => {
+    activeIndex.current = 0
+    setIndex(0)
+    currentRotation.current = 0
+    faceRefs.current = []
+    miniBarRefs.current = []
+  }, [total])
 
   const updateContent = useCallback((nextIndex: number) => {
-    const cat = CATEGORIES[nextIndex]
+    const list = categoriesRef.current
+    const cat = list[nextIndex]
     if (!cat) return
 
     const targets = [tagRef.current, titleRef.current, descRef.current].filter(Boolean)
@@ -128,10 +139,10 @@ export default function CategoryCarousel() {
 
       miniBarRefs.current.forEach((bar, i) => {
         if (!bar) return
-        const active = i === nextIndex
-        bar.style.backgroundColor = active ? '#0a0a0a' : 'rgba(0,0,0,0.15)'
-        bar.style.width = active ? '36px' : '20px'
-        bar.setAttribute('aria-current', active ? 'true' : 'false')
+        const isActive = i === nextIndex
+        bar.style.backgroundColor = isActive ? '#0a0a0a' : 'rgba(0,0,0,0.15)'
+        bar.style.width = isActive ? '36px' : '20px'
+        bar.setAttribute('aria-current', isActive ? 'true' : 'false')
       })
     }
 
@@ -152,19 +163,20 @@ export default function CategoryCarousel() {
   }, [])
 
   const navigateBy = useCallback((direction: number) => {
-    targetVelocity.current -= direction * ANGLE_STEP
+    targetVelocity.current -= direction * angleStepRef.current
   }, [])
 
   const goToIndex = useCallback((targetIndex: number) => {
+    const n = totalRef.current
     const current = activeIndex.current
     let diff = targetIndex - current
-    if (diff > TOTAL / 2) diff -= TOTAL
-    if (diff < -TOTAL / 2) diff += TOTAL
-    targetVelocity.current -= diff * ANGLE_STEP
+    if (diff > n / 2) diff -= n
+    if (diff < -n / 2) diff += n
+    targetVelocity.current -= diff * angleStepRef.current
   }, [])
 
   const openActiveCategory = useCallback(() => {
-    const cat = CATEGORIES[activeIndex.current]
+    const cat = categoriesRef.current[activeIndex.current]
     if (cat) router.push(cat.href)
   }, [router])
 
@@ -181,12 +193,14 @@ export default function CategoryCarousel() {
   )
 
   const relativeOffset = (faceIndex: number, rotationDeg: number) => {
+    const n = totalRef.current
+    const step = angleStepRef.current
     let normalized = -rotationDeg % 360
     if (normalized < 0) normalized += 360
-    const continuous = normalized / ANGLE_STEP
+    const continuous = normalized / step
     let offset = faceIndex - continuous
-    while (offset > TOTAL / 2) offset -= TOTAL
-    while (offset < -TOTAL / 2) offset += TOTAL
+    while (offset > n / 2) offset -= n
+    while (offset < -n / 2) offset += n
     return offset
   }
 
@@ -330,7 +344,7 @@ export default function CategoryCarousel() {
         ) {
           let normalized = -currentRotation.current % 360
           if (normalized < 0) normalized += 360
-          const nearest = Math.round(normalized / ANGLE_STEP) * ANGLE_STEP
+          const nearest = Math.round(normalized / angleStepRef.current) * angleStepRef.current
           let delta = nearest - normalized
           if (delta > 180) delta -= 360
           if (delta < -180) delta += 360
@@ -348,7 +362,8 @@ export default function CategoryCarousel() {
 
       let normalizedRotation = -currentRotation.current % 360
       if (normalizedRotation < 0) normalizedRotation += 360
-      const computedIndex = Math.round(normalizedRotation / ANGLE_STEP) % TOTAL
+      const n = totalRef.current
+      const computedIndex = Math.round(normalizedRotation / angleStepRef.current) % n
 
       if (computedIndex !== activeIndex.current) {
         activeIndex.current = computedIndex
@@ -377,8 +392,6 @@ export default function CategoryCarousel() {
       stage.removeEventListener('lostpointercapture', onPointerUp)
     }
   }, [navigateBy, openActiveCategory, updateContent])
-
-  const active = CATEGORIES[index]
 
   return (
     <section
@@ -424,7 +437,7 @@ export default function CategoryCarousel() {
                 01
               </span>
               <span className="mx-1">/</span>
-              <span>0{TOTAL}</span>
+              <span>{String(total).padStart(2, '0')}</span>
             </p>
             <div className="flex gap-2">
               <button
@@ -458,7 +471,7 @@ export default function CategoryCarousel() {
           }}
         >
           <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
-            {CATEGORIES.map((cat, i) => {
+            {categories.map((cat, i) => {
               const isActive = i === index
               return (
                 <button
@@ -522,19 +535,19 @@ export default function CategoryCarousel() {
               ref={tagRef}
               className="font-nike mb-1.5 inline-block border border-neutral-300 bg-neutral-100 px-2.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-neutral-700"
             >
-              {CATEGORIES[0].tag}
+              {categories[0]?.tag}
             </p>
             <h3
               ref={titleRef}
               className="font-nike-display mb-1 text-3xl uppercase leading-none tracking-[0.04em] text-black md:text-5xl"
             >
-              {CATEGORIES[0].title}
+              {categories[0]?.title}
             </h3>
             <p
               ref={descRef}
               className="font-nike line-clamp-2 max-w-md text-xs leading-relaxed text-neutral-600 md:text-sm"
             >
-              {CATEGORIES[0].description}
+              {categories[0]?.description}
             </p>
           </div>
 
@@ -548,7 +561,7 @@ export default function CategoryCarousel() {
             </button>
 
             <div className="flex gap-2" role="tablist" aria-label="Category position">
-              {CATEGORIES.map((cat, i) => (
+              {categories.map((cat, i) => (
                 <button
                   key={cat.id}
                   type="button"

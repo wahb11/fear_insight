@@ -11,10 +11,10 @@ function CatalogFallback() {
   )
 }
 
-export default function FearPage() {
+export default function OversizedPage() {
   return (
     <Suspense fallback={<CatalogFallback />}>
-      <CollectionCatalog collection="fear" />
+      <CollectionCatalog collection="oversized" />
     </Suspense>
   )
 }

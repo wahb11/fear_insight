@@ -34,7 +34,7 @@ export default function AdminLogin() {
       } else {
         setError(data.error || "Invalid password")
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred. Please try again.")
     } finally {
       setLoading(false)
@@ -42,25 +42,25 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-950 px-4">
-      <Card className="w-full max-w-md bg-stone-900 border-stone-800">
+    <div className="flex min-h-screen items-center justify-center bg-[#fafafa] px-4">
+      <Card className="w-full max-w-md rounded-none border-neutral-200 bg-white shadow-none">
         <CardHeader className="space-y-1">
-          <div className="flex items-center justify-center mb-4">
-            <div className="p-3 bg-stone-800 rounded-full">
-              <Lock className="w-6 h-6 text-stone-200" />
+          <div className="mb-4 flex items-center justify-center">
+            <div className="rounded-none border border-neutral-200 bg-neutral-50 p-3">
+              <Lock className="h-6 w-6 text-neutral-900" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-center text-stone-100">
-            Admin Portal
+          <CardTitle className="text-center font-nike-display text-2xl uppercase tracking-[0.06em] text-black">
+            Admin
           </CardTitle>
-          <CardDescription className="text-center text-stone-400">
-            Enter your password to access the admin dashboard
+          <CardDescription className="text-center font-nike text-neutral-500">
+            Enter your password to access the dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-stone-200">
+              <Label htmlFor="password" className="font-nike text-neutral-800">
                 Password
               </Label>
               <Input
@@ -68,20 +68,20 @@ export default function AdminLogin() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-stone-800 border-stone-700 text-stone-100"
+                className="rounded-none border-neutral-300 bg-white text-neutral-900"
                 placeholder="Enter admin password"
                 required
               />
             </div>
             {error && (
-              <div className="text-sm text-red-400 bg-red-950/30 border border-red-800 rounded p-2">
+              <div className="rounded-none border border-red-200 bg-red-50 p-2 font-nike text-sm text-red-700">
                 {error}
               </div>
             )}
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-stone-800 hover:bg-stone-700 text-stone-100"
+              className="w-full rounded-none bg-neutral-900 font-nike uppercase tracking-[0.14em] text-white hover:bg-neutral-800"
             >
               {loading ? "Logging in..." : "Login"}
             </Button>
@@ -91,5 +91,3 @@ export default function AdminLogin() {
     </div>
   )
 }
-
-

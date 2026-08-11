@@ -1,7 +1,5 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import CollectionCatalog from '@/components/product/CollectionCatalog'
-
-export default function OversizePage() {
-  return <CollectionCatalog collection="oversize" />
+export default function OversizeRedirect() {
+  redirect('/oversized')
 }

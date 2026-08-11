@@ -1,50 +1,19 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useCategoryTree } from '@/hooks/useCategoryTree'
+import { FALLBACK_CATEGORY_TREE } from '@/lib/categories'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
-// PLACEHOLDER SOCIAL URLS — replace these with the official Fear Insight profiles.
 const SOCIAL_LINKS = [
   { label: 'Instagram', href: 'https://instagram.com/fearinsight' },
   { label: 'TikTok', href: 'https://tiktok.com/@fearinsight' },
   { label: 'WhatsApp', href: 'https://wa.me/0000000000' },
-] as const
-
-// PLACEHOLDER SITEMAP CONTENT — replace product names and destinations when collections are final.
-const SITEMAP_COLUMNS = [
-  {
-    title: 'Fear',
-    links: [
-      { label: 'Shop Fear', href: '/fear' },
-      { label: 'Fear collection', href: '/fear' },
-    ],
-  },
-  {
-    title: 'Signature',
-    links: [
-      { label: 'Shop Signature', href: '/signature' },
-      { label: 'Core essentials', href: '/signature' },
-    ],
-  },
-  {
-    title: 'Oversize',
-    links: [
-      { label: 'Shop Oversize', href: '/oversize' },
-      { label: 'One-size hoodies', href: '/oversize' },
-    ],
-  },
-  {
-    title: 'Upcoming',
-    links: [
-      { label: 'Coming soon', href: '/upcoming' },
-      { label: 'Next drop', href: '/upcoming' },
-    ],
-  },
 ] as const
 
 /** Footer-adjacent sitemap block; the site footer remains a separate component below it. */
@@ -54,6 +23,24 @@ export default function SitemapSection() {
   const socialRef = useRef<HTMLElement>(null)
   const columnRefs = useRef<(HTMLDivElement | null)[]>([])
   const [reducedMotion, setReducedMotion] = useState(false)
+  const { data: tree } = useCategoryTree()
+
+  const columns = useMemo(() => {
+    const parents = (tree && tree.length > 0 ? tree : FALLBACK_CATEGORY_TREE).filter(
+      (c) => !c.parent_id
+    )
+    return parents.map((parent) => {
+      const slug = parent.slug || parent.name.toLowerCase()
+      const links = [
+        { label: `Shop ${parent.name}`, href: `/${slug}` },
+        ...(parent.children || []).map((sub) => ({
+          label: sub.name,
+          href: `/${slug}?line=${sub.slug}`,
+        })),
+      ]
+      return { title: parent.name, links }
+    })
+  }, [tree])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -68,8 +55,8 @@ export default function SitemapSection() {
       const section = sectionRef.current
       const logo = logoRef.current
       const social = socialRef.current
-      const columns = columnRefs.current.filter(Boolean)
-      if (!section || !logo || !social || columns.length === 0) return
+      const cols = columnRefs.current.filter(Boolean)
+      if (!section || !logo || !social || cols.length === 0) return
 
       const timeline = gsap.timeline({
         scrollTrigger: {
@@ -97,7 +84,7 @@ export default function SitemapSection() {
           reducedMotion ? '>-0.2' : '>-0.15'
         )
         .from(
-          columns,
+          cols,
           {
             opacity: 0,
             y: reducedMotion ? 0 : 18,
@@ -108,7 +95,7 @@ export default function SitemapSection() {
           reducedMotion ? '>-0.2' : '>-0.1'
         )
     },
-    { scope: sectionRef, dependencies: [reducedMotion] }
+    { scope: sectionRef, dependencies: [reducedMotion, columns.length] }
   )
 
   return (
@@ -123,7 +110,6 @@ export default function SitemapSection() {
 
       <div className="mx-auto max-w-7xl">
         <div ref={logoRef} className="flex justify-center">
-          {/* Placeholder logo asset — replace `/images/logo-mark.svg` with the final logo. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo-mark.svg"
@@ -151,7 +137,7 @@ export default function SitemapSection() {
         </nav>
 
         <div className="mt-16 grid grid-cols-2 gap-x-6 gap-y-12 sm:mt-20 sm:gap-x-10 md:grid-cols-4 md:gap-x-12 lg:mt-24 lg:gap-x-20">
-          {SITEMAP_COLUMNS.map((column, index) => (
+          {columns.map((column, index) => (
             <div
               key={column.title}
               ref={(element) => {

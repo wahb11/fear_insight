@@ -1,43 +1,67 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { useFeaturedProducts } from '@/hooks/useFeaturedProducts'
+import { Product } from '@/types/products'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
-/**
- * Featured products — one look per category.
- * Images: /public/images/slider1–3.png
- */
-const PRODUCTS = [
+type CarouselItem = {
+  id: string
+  name: string
+  detail: string
+  image: string
+  href: string
+}
+
+/** Previous hardcoded drop — used until admin featured cutouts exist */
+const FALLBACK_PRODUCTS: CarouselItem[] = [
   {
-    category: 'Fear',
+    id: 'fallback-fear',
     name: 'Fear Hoodie',
     detail: 'Statement weight · Fear collection',
     image: '/images/slider1.png',
     href: '/fear',
   },
   {
-    category: 'Oversize',
-    name: 'Oversize Hoodie',
-    detail: 'Relaxed volume · Oversize collection',
+    id: 'fallback-insignia',
+    name: 'Insignia Hoodie',
+    detail: 'Mark of origin · Insignia collection',
     image: '/images/slider2.png',
-    href: '/oversize',
+    href: '/insignia',
   },
   {
-    category: 'Signature',
-    name: 'Signature Hoodie',
-    detail: 'Everyday core · Signature collection',
+    id: 'fallback-oversized',
+    name: 'Oversized Hoodie',
+    detail: 'Relaxed volume · Oversized collection',
     image: '/images/slider3.png',
-    href: '/signature',
+    href: '/oversized',
   },
-] as const
+]
 
-const TOTAL = PRODUCTS.length
+function toCarouselItems(products: Product[]): CarouselItem[] {
+  return products
+    .filter((p) => p.featured_image)
+    .map((p) => {
+      const price =
+        p.discount > 0
+          ? `$${(p.price * (1 - p.discount / 100)).toFixed(2)} · ${p.discount}% off`
+          : `$${Number(p.price).toFixed(2)}`
+      return {
+        id: p.id,
+        name: p.name,
+        detail: price,
+        image: p.featured_image as string,
+        href: `/product/${p.id}`,
+      }
+    })
+}
 
 type SlotPose = {
   xPercent: number
@@ -58,7 +82,6 @@ type PoseSet = {
   offRight: SlotPose
 }
 
-/** Desktop / tablet coverflow spacing */
 const DESKTOP_POSES: PoseSet = {
   center: {
     xPercent: -50,
@@ -112,10 +135,6 @@ const DESKTOP_POSES: PoseSet = {
   },
 }
 
-/**
- * Mobile — tighter wings so prev/next stay on-screen,
- * lighter blur for GPU, still upright.
- */
 const MOBILE_POSES: PoseSet = {
   center: {
     xPercent: -50,
@@ -169,14 +188,16 @@ const MOBILE_POSES: PoseSet = {
   },
 }
 
-function wrapIndex(i: number) {
-  return ((i % TOTAL) + TOTAL) % TOTAL
+function wrapIndex(i: number, total: number) {
+  if (total <= 0) return 0
+  return ((i % total) + total) % total
 }
 
-function relativeOffset(productIndex: number, activeIndex: number) {
+function relativeOffset(productIndex: number, activeIndex: number, total: number) {
+  if (total <= 0) return 0
   let offset = productIndex - activeIndex
-  while (offset > TOTAL / 2) offset -= TOTAL
-  while (offset < -TOTAL / 2) offset += TOTAL
+  while (offset > total / 2) offset -= total
+  while (offset < -total / 2) offset += total
   return offset
 }
 
@@ -189,9 +210,19 @@ function poseForOffset(offset: number, poses: PoseSet): SlotPose {
 
 /**
  * Studio coverflow — center sharp & floating, sides blurred with soft floor shadows.
- * Responsive poses + touch-friendly swipe for mobile.
+ * Products come from admin Featured tab (featured + featured_image cutout).
  */
 export default function FeaturedProducts() {
+  const router = useRouter()
+  const { data, isLoading } = useFeaturedProducts()
+  const products = useMemo(() => {
+    const fromDb = toCarouselItems(data || [])
+    return fromDb.length > 0 ? fromDb : FALLBACK_PRODUCTS
+  }, [data])
+  const productsRef = useRef(products)
+  productsRef.current = products
+  const total = products.length
+
   const sectionRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
@@ -208,6 +239,7 @@ export default function FeaturedProducts() {
   const floatTweensRef = useRef<gsap.core.Tween[]>([])
   const posesRef = useRef<PoseSet>(DESKTOP_POSES)
   const isMobileRef = useRef(false)
+  const suppressClickRef = useRef(false)
 
   const [reducedMotion, setReducedMotion] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -234,6 +266,15 @@ export default function FeaturedProducts() {
       mqMobile.removeEventListener('change', syncMobile)
     }
   }, [])
+
+  // Reset carousel when product list changes
+  useEffect(() => {
+    currentIndexRef.current = 0
+    setActiveIndex(0)
+    itemRefs.current = []
+    shadowRefs.current = []
+    imgRefs.current = []
+  }, [total])
 
   const killFloat = useCallback(() => {
     floatTweensRef.current.forEach((t) => t.kill())
@@ -318,12 +359,13 @@ export default function FeaturedProducts() {
   const layoutToIndex = useCallback(
     (active: number, immediate = false) => {
       const poses = posesRef.current
-      PRODUCTS.forEach((_, i) => {
+      const n = productsRef.current.length
+      productsRef.current.forEach((_, i) => {
         const el = itemRefs.current[i]
         const shadow = shadowRefs.current[i]
         const img = imgRefs.current[i]
         if (!el) return
-        const offset = relativeOffset(i, active)
+        const offset = relativeOffset(i, active, n)
         applyPose(el, shadow, img, poseForOffset(offset, poses), immediate)
       })
     },
@@ -333,19 +375,20 @@ export default function FeaturedProducts() {
   const transitionToIndex = useCallback(
     (from: number, to: number) => {
       const poses = posesRef.current
+      const n = productsRef.current.length
 
-      PRODUCTS.forEach((_, i) => {
+      productsRef.current.forEach((_, i) => {
         const el = itemRefs.current[i]
         const shadow = shadowRefs.current[i]
         const img = imgRefs.current[i]
         if (!el) return
 
-        const fromOff = relativeOffset(i, from)
-        const toOff = relativeOffset(i, to)
+        const fromOff = relativeOffset(i, from, n)
+        const toOff = relativeOffset(i, to, n)
         const toPose = poseForOffset(toOff, poses)
 
         const wrapsAround =
-          (fromOff === -1 && toOff === 1) || (fromOff === 1 && toOff === -1)
+          n > 2 && ((fromOff === -1 && toOff === 1) || (fromOff === 1 && toOff === -1))
 
         if (wrapsAround) {
           const exitPose = fromOff < 0 ? poses.offLeft : poses.offRight
@@ -425,10 +468,11 @@ export default function FeaturedProducts() {
     killFloat()
 
     const mobile = isMobileRef.current
+    const n = productsRef.current.length
 
     itemRefs.current.forEach((el, i) => {
       if (!el) return
-      const offset = relativeOffset(i, currentIndexRef.current)
+      const offset = relativeOffset(i, currentIndexRef.current, n)
       if (Math.abs(offset) > 1) return
 
       const amplitude = mobile
@@ -458,8 +502,9 @@ export default function FeaturedProducts() {
 
   const updateMeta = useCallback(
     (index: number) => {
-      const data = PRODUCTS[index]
-      if (!data) return
+      const list = productsRef.current
+      const dataItem = list[index]
+      if (!dataItem) return
 
       const brand = brandRef.current
       const detail = detailRef.current
@@ -467,9 +512,9 @@ export default function FeaturedProducts() {
       if (!brand || !detail || !seeMore) return
 
       if (reducedMotion) {
-        brand.textContent = data.name
-        detail.textContent = data.detail
-        seeMore.href = data.href
+        brand.textContent = dataItem.name
+        detail.textContent = dataItem.detail
+        seeMore.href = dataItem.href
         return
       }
 
@@ -483,9 +528,9 @@ export default function FeaturedProducts() {
           ease: 'power2.in',
         })
         .add(() => {
-          brand.textContent = data.name
-          detail.textContent = data.detail
-          seeMore.href = data.href
+          brand.textContent = dataItem.name
+          detail.textContent = dataItem.detail
+          seeMore.href = dataItem.href
         })
         .set([brand, detail, seeMore], { y: -8 })
         .to([brand, detail, seeMore], {
@@ -501,8 +546,9 @@ export default function FeaturedProducts() {
 
   const goTo = useCallback(
     (nextIndex: number) => {
-      if (isAnimatingRef.current) return
-      const wrapped = wrapIndex(nextIndex)
+      const n = productsRef.current.length
+      if (n <= 1 || isAnimatingRef.current) return
+      const wrapped = wrapIndex(nextIndex, n)
       const from = currentIndexRef.current
       if (wrapped === from) return
 
@@ -554,19 +600,26 @@ export default function FeaturedProducts() {
     goTo(currentIndexRef.current + 1)
   }, [goTo])
 
-  // Initial layout + re-layout when breakpoint flips
   useGSAP(
     () => {
+      if (total === 0) return
       layoutToIndex(currentIndexRef.current, true)
+      if (brandRef.current && products[0]) {
+        brandRef.current.textContent = products[currentIndexRef.current]?.name || products[0].name
+      }
+      if (detailRef.current && products[0]) {
+        detailRef.current.textContent =
+          products[currentIndexRef.current]?.detail || products[0].detail
+      }
     },
-    { scope: sectionRef, dependencies: [layoutToIndex, isMobile] }
+    { scope: sectionRef, dependencies: [layoutToIndex, isMobile, total, products] }
   )
 
   useGSAP(
     () => {
       const section = sectionRef.current
       const content = contentRef.current
-      if (!section || !content) return
+      if (!section || !content || total === 0) return
 
       gsap.set(content, { opacity: 0, y: reducedMotion ? 0 : 20 })
 
@@ -588,12 +641,12 @@ export default function FeaturedProducts() {
         },
       })
     },
-    { scope: sectionRef, dependencies: [reducedMotion, startFloat] }
+    { scope: sectionRef, dependencies: [reducedMotion, startFloat, total] }
   )
 
   useEffect(() => {
     const section = sectionRef.current
-    if (!section) return
+    if (!section || total === 0) return
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
@@ -607,7 +660,7 @@ export default function FeaturedProducts() {
 
     section.addEventListener('keydown', onKeyDown)
     return () => section.removeEventListener('keydown', onKeyDown)
-  }, [goPrev, goNext])
+  }, [goPrev, goNext, total])
 
   useEffect(() => {
     return () => {
@@ -616,13 +669,12 @@ export default function FeaturedProducts() {
   }, [killFloat])
 
   useEffect(() => {
-    if (inViewRef.current) {
+    if (inViewRef.current && total > 0) {
       layoutToIndex(currentIndexRef.current, true)
       startFloat()
     }
-  }, [isMobile, layoutToIndex, startFloat])
+  }, [isMobile, layoutToIndex, startFloat, total])
 
-  // Touch / pointer swipe — allows vertical page scroll, snaps on horizontal intent
   useEffect(() => {
     const stage = stageRef.current
     if (!stage) return
@@ -632,21 +684,22 @@ export default function FeaturedProducts() {
     let startY = 0
     let axis: 'x' | 'y' | null = null
     let moved = false
+    let captured = false
+    let tapLink: HTMLAnchorElement | null = null
 
     const threshold = () => (isMobileRef.current ? 36 : 48)
 
     const onDown = (e: PointerEvent) => {
-      if ((e.target as HTMLElement).closest('a, button')) return
+      if ((e.target as HTMLElement).closest('button')) return
       dragging = true
       moved = false
       axis = null
+      captured = false
+      suppressClickRef.current = false
+      tapLink = (e.target as HTMLElement).closest('a[data-featured-product]')
       startX = e.clientX
       startY = e.clientY
-      try {
-        stage.setPointerCapture(e.pointerId)
-      } catch {
-        /* ignore */
-      }
+      // Do NOT capture yet — capturing kills the following click on the product link
     }
 
     const onMove = (e: PointerEvent) => {
@@ -660,8 +713,15 @@ export default function FeaturedProducts() {
 
       if (axis === 'x') {
         moved = Math.abs(dx) > 20
-        // Keep page from scrolling sideways while swiping the carousel
         e.preventDefault()
+        if (!captured && total > 1) {
+          captured = true
+          try {
+            stage.setPointerCapture(e.pointerId)
+          } catch {
+            /* ignore */
+          }
+        }
       }
     }
 
@@ -669,18 +729,35 @@ export default function FeaturedProducts() {
       if (!dragging) return
       dragging = false
       const dx = e.clientX - startX
-      try {
-        stage.releasePointerCapture(e.pointerId)
-      } catch {
-        /* already released */
+      if (captured) {
+        try {
+          stage.releasePointerCapture(e.pointerId)
+        } catch {
+          /* already released */
+        }
       }
 
-      if (axis !== 'x' || !moved || Math.abs(dx) < threshold()) {
+      const isSwipe =
+        total > 1 && axis === 'x' && moved && Math.abs(dx) >= threshold()
+
+      if (isSwipe) {
+        suppressClickRef.current = true
+        if (dx < 0) goNext()
+        else goPrev()
+        tapLink = null
         axis = null
         return
       }
-      if (dx < 0) goNext()
-      else goPrev()
+
+      // Tap (not a swipe) on a product image → navigate
+      if (tapLink) {
+        const href = tapLink.getAttribute('href')
+        if (href) {
+          suppressClickRef.current = true
+          router.push(href)
+        }
+      }
+      tapLink = null
       axis = null
     }
 
@@ -695,9 +772,31 @@ export default function FeaturedProducts() {
       stage.removeEventListener('pointerup', onUp)
       stage.removeEventListener('pointercancel', onUp)
     }
-  }, [goNext, goPrev])
+  }, [goNext, goPrev, total, router])
 
-  const product = PRODUCTS[activeIndex]
+  const product = products[activeIndex] || products[0]
+
+  if (isLoading) {
+    return (
+      <section
+        id="bestsellers"
+        className="relative flex min-h-[320px] items-center justify-center overflow-hidden px-3 py-16 text-neutral-900 sm:min-h-[420px]"
+        style={{
+          backgroundImage: `
+            radial-gradient(ellipse 90% 55% at 50% 40%, rgba(255,255,255,0.97) 0%, transparent 68%),
+            linear-gradient(180deg, #fafafa 0%, #f2f2f2 45%, #ebebeb 68%, #e0e0e0 100%)
+          `,
+        }}
+      >
+        <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
+      </section>
+    )
+  }
+
+  // Always have FALLBACK_PRODUCTS — empty state should never show
+  if (total === 0) {
+    return null
+  }
 
   return (
     <section
@@ -708,7 +807,6 @@ export default function FeaturedProducts() {
       aria-label="Featured products. Swipe or use the dots to browse on mobile; arrow buttons on larger screens."
       className="relative overflow-hidden px-3 py-10 text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:px-4 sm:py-14 md:py-20"
     >
-      {/* Studio atmosphere — soft wall → floor */}
       <div
         className="pointer-events-none absolute inset-0"
         aria-hidden
@@ -747,41 +845,39 @@ export default function FeaturedProducts() {
           role="region"
           aria-labelledby="featured-products-heading"
           style={{
-            // Allow vertical scroll; horizontal swipe handled in JS once axis locks
             touchAction: 'pan-y',
             WebkitUserSelect: 'none',
             userSelect: 'none',
           }}
         >
-          {/* Arrows only from sm up — on mobile they cover the side hoodies; swipe + dots instead */}
-          <button
-            type="button"
-            onClick={goPrev}
-            aria-label="Previous featured product"
-            className="absolute left-0 top-1/2 z-30 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-neutral-900/80 bg-white/95 text-neutral-900 shadow-sm backdrop-blur-sm transition-colors hover:bg-neutral-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 sm:flex"
-          >
-            <ChevronLeft className="h-5 w-5" aria-hidden />
-          </button>
+          {total > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={goPrev}
+                aria-label="Previous featured product"
+                className="absolute left-0 top-1/2 z-30 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-neutral-900/80 bg-white/95 text-neutral-900 shadow-sm backdrop-blur-sm transition-colors hover:bg-neutral-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 sm:flex"
+              >
+                <ChevronLeft className="h-5 w-5" aria-hidden />
+              </button>
 
-          <button
-            type="button"
-            onClick={goNext}
-            aria-label="Next featured product"
-            className="absolute right-0 top-1/2 z-30 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-neutral-900/80 bg-white/95 text-neutral-900 shadow-sm backdrop-blur-sm transition-colors hover:bg-neutral-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 sm:flex"
-          >
-            <ChevronRight className="h-5 w-5" aria-hidden />
-          </button>
+              <button
+                type="button"
+                onClick={goNext}
+                aria-label="Next featured product"
+                className="absolute right-0 top-1/2 z-30 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-neutral-900/80 bg-white/95 text-neutral-900 shadow-sm backdrop-blur-sm transition-colors hover:bg-neutral-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 sm:flex"
+              >
+                <ChevronRight className="h-5 w-5" aria-hidden />
+              </button>
+            </>
+          )}
 
-          {/*
-            Track width leaves room for blurred side peeks on phone.
-            GSAP owns xPercent / yPercent / scale / opacity.
-          */}
           <div className="relative h-full w-[62%] max-w-[200px] sm:w-[42%] sm:max-w-[280px] md:max-w-[340px] lg:max-w-[380px]">
-            {PRODUCTS.map((p, i) => {
+            {products.map((p, i) => {
               const isActive = i === activeIndex
               return (
                 <div
-                  key={p.category}
+                  key={p.id}
                   ref={(el) => {
                     itemRefs.current[i] = el
                   }}
@@ -789,7 +885,6 @@ export default function FeaturedProducts() {
                   style={{ opacity: 0 }}
                   aria-hidden={!isActive}
                 >
-                  {/* Soft elliptical floor shadow under each hoodie */}
                   <div
                     ref={(el) => {
                       shadowRefs.current[i] = el
@@ -803,21 +898,35 @@ export default function FeaturedProducts() {
                       transformOrigin: 'center center',
                     }}
                   />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    ref={(el) => {
-                      imgRefs.current[i] = el
+                  <Link
+                    href={p.href}
+                    data-featured-product
+                    aria-label={`View ${p.name}`}
+                    tabIndex={isActive ? 0 : -1}
+                    className="relative z-10 block cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/50 focus-visible:ring-offset-2"
+                    onClick={(e) => {
+                      // Swipe / programmatic navigation already handled — avoid double nav
+                      if (suppressClickRef.current) {
+                        e.preventDefault()
+                        suppressClickRef.current = false
+                      }
                     }}
-                    src={p.image}
-                    alt={isActive ? `${p.name} — Fear Insight ${p.category} collection` : ''}
-                    className="relative z-10 h-auto w-full select-none"
-                    style={{ willChange: isActive ? 'filter' : 'auto' }}
-                    draggable={false}
-                    decoding="async"
-                    // Center image first; sides can wait a tick on mobile bandwidth
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                    sizes="(max-width: 639px) 52vw, (max-width: 767px) 280px, 380px"
-                  />
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      ref={(el) => {
+                        imgRefs.current[i] = el
+                      }}
+                      src={p.image}
+                      alt={isActive ? p.name : ''}
+                      className="h-auto w-full select-none"
+                      style={{ willChange: isActive ? 'filter' : 'auto' }}
+                      draggable={false}
+                      decoding="async"
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      sizes="(max-width: 639px) 52vw, (max-width: 767px) 280px, 380px"
+                    />
+                  </Link>
                 </div>
               )
             })}
@@ -846,40 +955,41 @@ export default function FeaturedProducts() {
           </Link>
         </div>
 
-        {/* Tappable dots on mobile + index on larger screens */}
         <div className="mt-4 flex flex-col items-center gap-3 sm:mt-5">
-          <div
-            className="flex items-center gap-2 sm:hidden"
-            role="tablist"
-            aria-label="Featured product position"
-          >
-            {PRODUCTS.map((p, i) => (
-              <button
-                key={p.category}
-                type="button"
-                role="tab"
-                aria-label={`Go to ${p.name}`}
-                aria-current={i === activeIndex ? 'true' : 'false'}
-                onClick={() => goTo(i)}
-                className="flex h-8 w-8 items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
-              >
-                <span
-                  className="block h-1.5 rounded-full transition-all duration-300"
-                  style={{
-                    width: i === activeIndex ? 22 : 8,
-                    backgroundColor:
-                      i === activeIndex ? '#0a0a0a' : 'rgba(0,0,0,0.22)',
-                  }}
-                />
-              </button>
-            ))}
-          </div>
+          {total > 1 && (
+            <div
+              className="flex items-center gap-2 sm:hidden"
+              role="tablist"
+              aria-label="Featured product position"
+            >
+              {products.map((p, i) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  role="tab"
+                  aria-label={`Go to ${p.name}`}
+                  aria-current={i === activeIndex ? 'true' : 'false'}
+                  onClick={() => goTo(i)}
+                  className="flex h-8 w-8 items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
+                >
+                  <span
+                    className="block h-1.5 rounded-full transition-all duration-300"
+                    style={{
+                      width: i === activeIndex ? 22 : 8,
+                      backgroundColor:
+                        i === activeIndex ? '#0a0a0a' : 'rgba(0,0,0,0.22)',
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+          )}
 
           <p
             className="hidden text-center font-nike text-xs uppercase tracking-[0.18em] text-neutral-400 sm:block"
             aria-live="polite"
           >
-            {String(activeIndex + 1).padStart(2, '0')} / {String(TOTAL).padStart(2, '0')}
+            {String(activeIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
           </p>
         </div>
       </div>

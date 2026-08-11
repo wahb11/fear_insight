@@ -1,559 +1,678 @@
-"use client"
+'use client'
 
-import React, { useState, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { useCart } from "@/app/context/CartContext"
-import { Star, ShoppingBag, Ruler, Share2, Truck, RotateCcw, Shield, ChevronLeft, ChevronRight, Mail, Instagram, Twitter, ArrowLeft } from "lucide-react"
-import { SizeChart } from "@/components/ui/size-chart"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Product } from "@/types/products"
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
+import {
+  Star,
+  ShoppingBag,
+  Ruler,
+  Heart,
+  Truck,
+  RotateCcw,
+  Shield,
+  ChevronDown,
+  ZoomIn,
+  Shirt,
+  Layers,
+  Sparkles,
+} from 'lucide-react'
+import { SizeChart } from '@/components/ui/size-chart'
+import { useCart } from '@/app/context/CartContext'
+import { useAllProducts } from '@/hooks/useAllProducts'
+import { Product } from '@/types/products'
+import { isOnesizeProduct } from '@/lib/collections'
 
-// Map color names to valid CSS colors
 const getColorValue = (colorName: string): string => {
-	const colorMap: Record<string, string> = {
-		'black': '#1a1a1a',
-		'white': '#ffffff',
-		'cream': '#fffdd0',
-		'beige': '#f5f5dc',
-		'navy': '#1e3a5f',
-		'blue': '#2563eb',
-		'pink': '#ec4899',
-		'red': '#dc2626',
-		'green': '#16a34a',
-		'gray': '#6b7280',
-		'grey': '#6b7280',
-		'brown': '#78350f',
-		'tan': '#d2b48c',
-		'olive': '#556b2f',
-		'maroon': '#800000',
-		'burgundy': '#800020',
-		'charcoal': '#36454f',
-		'sand': '#c2b280',
-		'ivory': '#fffff0',
-		'khaki': '#c3b091',
-		'stone': '#928e85',
-	}
-	const lowerName = colorName.toLowerCase().trim()
-	return colorMap[lowerName] || colorName.toLowerCase()
+  const colorMap: Record<string, string> = {
+    black: '#1a1a1a',
+    white: '#ffffff',
+    cream: '#fffdd0',
+    beige: '#f5f5dc',
+    navy: '#1e3a5f',
+    blue: '#2563eb',
+    pink: '#ec4899',
+    red: '#dc2626',
+    green: '#16a34a',
+    gray: '#6b7280',
+    grey: '#6b7280',
+    brown: '#78350f',
+    tan: '#d2b48c',
+    olive: '#556b2f',
+    maroon: '#800000',
+    burgundy: '#800020',
+    charcoal: '#36454f',
+    sand: '#c2b280',
+    ivory: '#fffff0',
+    khaki: '#c3b091',
+    stone: '#928e85',
+  }
+  return colorMap[colorName.toLowerCase().trim()] || colorName.toLowerCase()
 }
 
 type VariantOption = { name: string; inStock: boolean }
+type InfoTab = 'details' | 'materials' | 'fit' | 'shipping'
+
+const TABS: { id: InfoTab; label: string }[] = [
+  { id: 'details', label: 'Details' },
+  { id: 'materials', label: 'Materials' },
+  { id: 'fit', label: 'Size & Fit' },
+  { id: 'shipping', label: 'Shipping & Returns' },
+]
 
 interface ProductDetailClientProps {
-	product: Product
+  product: Product
 }
 
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
-	const router = useRouter()
-	const { addToCart } = useCart()
+  const { addToCart } = useCart()
+  const { data: allProducts } = useAllProducts()
 
-	// Extract available colors and sizes from the product data (handles both string arrays and object arrays)
-	const availableColors = React.useMemo<VariantOption[]>(() => {
-		if (!product?.colors?.length) return []
-		return product.colors.flatMap((color: unknown) => {
-			// String format: "Navy"
-			if (typeof color === 'string' && color.trim().length > 0) {
-				return [{ name: color.trim(), inStock: true }]
-			}
-			// Object format: {"Navy": 5}
-			if (typeof color === 'object' && color !== null) {
-				return Object.keys(color)
-					.filter(key => key.trim().length > 0)
-					.map(key => ({ name: key.trim(), inStock: true }))
-			}
-			return []
-		})
-	}, [product])
+  const availableColors = useMemo<VariantOption[]>(() => {
+    if (!product?.colors?.length) return []
+    return product.colors.flatMap((color: unknown) => {
+      if (typeof color === 'string' && color.trim()) {
+        return [{ name: color.trim(), inStock: true }]
+      }
+      if (typeof color === 'object' && color !== null) {
+        return Object.keys(color)
+          .filter((key) => key.trim().length > 0)
+          .map((key) => ({ name: key.trim(), inStock: true }))
+      }
+      return []
+    })
+  }, [product])
 
-	const availableSizes = React.useMemo<VariantOption[]>(() => {
-		if (!product?.sizes?.length) return []
-		return product.sizes.flatMap((size: unknown) => {
-			// String format: "M"
-			if (typeof size === 'string' && size.trim().length > 0) {
-				return [{ name: size.trim().toUpperCase(), inStock: true }]
-			}
-			// Object format: {"M": 10}
-			if (typeof size === 'object' && size !== null) {
-				return Object.keys(size)
-					.filter(key => key.trim().length > 0)
-					.map(key => ({ name: key.trim().toUpperCase(), inStock: true }))
-			}
-			return []
-		})
-	}, [product])
+  const availableSizes = useMemo<VariantOption[]>(() => {
+    if (!product?.sizes?.length) return []
+    return product.sizes.flatMap((size: unknown) => {
+      if (typeof size === 'string' && size.trim()) {
+        return [{ name: size.trim().toUpperCase(), inStock: true }]
+      }
+      if (typeof size === 'object' && size !== null) {
+        return Object.keys(size)
+          .filter((key) => key.trim().length > 0)
+          .map((key) => ({ name: key.trim().toUpperCase(), inStock: true }))
+      }
+      return []
+    })
+  }, [product])
 
-	// States
-	const [selectedImage, setSelectedImage] = useState(0)
-	const [selectedColor, setSelectedColor] = useState("")
-	const [selectedSize, setSelectedSize] = useState("")
-	const [quantity, setQuantity] = useState(1)
-	const [isAdding, setIsAdding] = useState(false)
-	const [imageError, setImageError] = useState(false)
-	const [showSizeChart, setShowSizeChart] = useState(false)
-	
-	const fallbackImage = "/download.png"
+  const images = useMemo(() => {
+    if (!product?.images?.length) return ['/download.png']
+    return product.images
+  }, [product])
 
-	// Set initial color and size when product loads
-	React.useEffect(() => {
-		if (availableColors.length > 0 && !selectedColor) {
-			const firstAvailableColor = availableColors.find((c: VariantOption) => c.inStock)
-			if (firstAvailableColor) setSelectedColor(firstAvailableColor.name)
-		}
-	}, [availableColors, selectedColor])
+  const [selectedImage, setSelectedImage] = useState(0)
+  const [selectedColor, setSelectedColor] = useState('')
+  const [selectedSize, setSelectedSize] = useState('')
+  const [isAdding, setIsAdding] = useState(false)
+  const [addedFlash, setAddedFlash] = useState(false)
+  const [imageError, setImageError] = useState(false)
+  const [showSizeChart, setShowSizeChart] = useState(false)
+  const [activeTab, setActiveTab] = useState<InfoTab>('details')
+  const [lightbox, setLightbox] = useState(false)
 
-	React.useEffect(() => {
-		if (availableSizes.length > 0 && !selectedSize) {
-			const firstAvailableSize = availableSizes.find((s: VariantOption) => s.inStock)
-			if (firstAvailableSize) setSelectedSize(firstAvailableSize.name)
-		}
-	}, [availableSizes, selectedSize])
-	
-	// Snap main image to the first image that matches the selected color
-	React.useEffect(() => {
-		if (!product?.images?.length || !selectedColor) return
+  const fallbackImage = '/download.png'
 
-		const normalizedSelected = selectedColor.toLowerCase().replace(/\s+/g, "")
+  useEffect(() => {
+    if (availableColors.length > 0 && !selectedColor) {
+      const first = availableColors.find((c) => c.inStock)
+      if (first) setSelectedColor(first.name)
+    }
+  }, [availableColors, selectedColor])
 
-		const matchingIndex = product.images.findIndex((img: string) => {
-			try {
-				const url = new URL(img)
-				const colorParam = url.searchParams.get("color")?.toLowerCase().replace(/\s+/g, "")
-				if (colorParam && colorParam === normalizedSelected) return true
-			} catch {
-				// ignore parsing errors, fall back to substring match
-			}
-			return img.toLowerCase().includes(`color=${normalizedSelected}`)
-		})
+  useEffect(() => {
+    if (availableSizes.length > 0 && !selectedSize) {
+      const first = availableSizes.find((s) => s.inStock)
+      if (first) setSelectedSize(first.name)
+    }
+  }, [availableSizes, selectedSize])
 
-		if (matchingIndex >= 0) setSelectedImage(matchingIndex)
-	}, [product?.images, selectedColor])
+  useEffect(() => {
+    if (!images.length || !selectedColor) return
+    const normalized = selectedColor.toLowerCase().replace(/\s+/g, '')
+    const matchingIndex = images.findIndex((img) => {
+      try {
+        const url = new URL(img)
+        const colorParam = url.searchParams.get('color')?.toLowerCase().replace(/\s+/g, '')
+        if (colorParam && colorParam === normalized) return true
+      } catch {
+        /* ignore */
+      }
+      return img.toLowerCase().includes(`color=${normalized}`)
+    })
+    if (matchingIndex >= 0) setSelectedImage(matchingIndex)
+  }, [images, selectedColor])
 
-	// Clamp selected image to valid range if data changes
-	React.useEffect(() => {
-		if (!product?.images?.length) return
-		if (selectedImage >= product.images.length) setSelectedImage(0)
-	}, [product?.images?.length, selectedImage])
+  useEffect(() => {
+    if (selectedImage >= images.length) setSelectedImage(0)
+  }, [images.length, selectedImage])
 
-	// Reset image error when selection changes
-	React.useEffect(() => {
-		setImageError(false)
-	}, [selectedImage, selectedColor])
-	
-	// Check if current selection is in stock
-	const isColorInStock = useCallback(() => {
-		const colorData = availableColors.find((c: VariantOption) => c.name === selectedColor)
-		return colorData?.inStock ?? false
-	}, [availableColors, selectedColor])
-	
-	const isSizeInStock = useCallback(() => {
-		const sizeData = availableSizes.find((s: VariantOption) => s.name === selectedSize)
-		return sizeData?.inStock ?? false
-	}, [availableSizes, selectedSize])
-	
-	
-	// Handle add to cart
-	const handleAddToCart = async () => {
-		if (!product || !selectedSize || !selectedColor) return
-		
-		setIsAdding(true)
-		try {
-			addToCart(product, quantity, selectedColor, selectedSize)
-			// Show success feedback
-			setTimeout(() => {
-				setIsAdding(false)
-			}, 500)
-		} catch (error) {
-			console.error("Error adding to cart:", error)
-			setIsAdding(false)
-		}
-	}
-	
-	const discountedPrice = product.price * (1 - product.discount / 100)
-	// Only check stock if selections are made, otherwise assume in stock
-	const hasRequiredSelections = selectedColor && selectedSize
-	const isOutOfStock = hasRequiredSelections ? (!isColorInStock() || !isSizeInStock()) : false
-	
-	return (
-		<div className="bg-white text-neutral-900 overflow-hidden">
-		
-			{/* Breadcrumb */}
-			<motion.div
-				initial={{ opacity: 0, y: -20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.6, delay: 0.2 }}
-				className="pt-24 px-4 bg-white"
-			>
-				<div className="container mx-auto flex items-center gap-2 text-sm text-neutral-600">
-					<Link href="/" className="hover:text-neutral-900 transition-colors">Home</Link>
-					<span>/</span>
-					<Link href="/products" className="hover:text-neutral-900 transition-colors">Products</Link>
-					<span>/</span>
-					<span className="text-neutral-900">{product.name}</span>
-				</div>
-			</motion.div>
+  useEffect(() => {
+    setImageError(false)
+  }, [selectedImage, selectedColor])
 
-			{/* Main Content */}
-			<section className="py-12 px-4">
-				<div className="container mx-auto">
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start">
-						{/* Image Section */}
-						<motion.div
-							initial={{ opacity: 0, x: -50 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ duration: 0.8 }}
-							className="space-y-4"
-						>
-							{/* Main Image */}
-							<motion.div
-								className="relative h-96 sm:h-[500px] overflow-hidden rounded-lg bg-neutral-50 border border-neutral-200"
-								whileHover={{ scale: 1.02 }}
-								transition={{ duration: 0.3 }}
-							>
-								{/* Main image navigation */}
-								{product.images.length > 1 && (
-									<>
-										<button
-											onClick={() => setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length)}
-											className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 p-2 rounded-full text-white"
-										>
-											<ChevronLeft className="w-5 h-5" />
-										</button>
-										<button
-											onClick={() => setSelectedImage((prev) => (prev + 1) % product.images.length)}
-											className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 p-2 rounded-full text-white"
-										>
-											<ChevronRight className="w-5 h-5" />
-										</button>
-									</>
-								)}
+  const relatedProducts = useMemo(() => {
+    if (!allProducts?.length) return []
+    return allProducts
+      .filter((p) => p.id !== product.id)
+      .slice(0, 4)
+  }, [allProducts, product.id])
 
-								<AnimatePresence mode="wait">
-									<motion.img
-										key={selectedImage}
-										src={imageError ? fallbackImage : (product.images[selectedImage] || fallbackImage)}
-										alt={`${product.name} - Premium streetwear by Fear Insight - View ${selectedImage + 1}`}
-										className="w-full h-full object-cover"
-										onError={() => setImageError(true)}
-										initial={{ opacity: 0 }}
-										animate={{ opacity: 1 }}
-										exit={{ opacity: 0 }}
-										transition={{ duration: 0.3 }}
-									/>
-								</AnimatePresence>
-								
-								{/* Image Counter */}
-								<div className="absolute bottom-4 right-4 bg-black/70 px-3 py-1 rounded text-sm text-white">
-									{selectedImage + 1} / {product.images.length}
-								</div>
-							</motion.div>
+  const isColorInStock = useCallback(() => {
+    return availableColors.find((c) => c.name === selectedColor)?.inStock ?? false
+  }, [availableColors, selectedColor])
 
-							{/* Thumbnail Grid */}
-							<div className="flex flex-wrap gap-2">
-								{product.images.map((image: string, index: number) => (
-									<motion.button
-										key={index}
-										onClick={() => setSelectedImage(index)}
-										whileHover={{ scale: 1.05 }}
-										whileTap={{ scale: 0.95 }}
-										className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all ${
-											selectedImage === index
-												? "border-black ring-2 ring-neutral-400/50"
-												: "border-neutral-200 hover:border-neutral-400"
-										}`}
-									>
-										<img
-											src={image}
-											alt={`${product.name} thumbnail ${index + 1} - Fear Insight`}
-											className="w-full h-full object-cover"
-										/>
-									</motion.button>
-								))}
-							</div>
-						</motion.div>
+  const isSizeInStock = useCallback(() => {
+    return availableSizes.find((s) => s.name === selectedSize)?.inStock ?? false
+  }, [availableSizes, selectedSize])
 
-						{/* Product Details */}
-						<motion.div
-							initial={{ opacity: 0, x: 50 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ duration: 0.8 }}
-							className="space-y-6"
-						>
-			{/* Category & Badges */}
-			<div className="flex items-center gap-3">
-				{product.featured && (
-					<motion.span
-						initial={{ scale: 0 }}
-						animate={{ scale: 1 }}
-						className="bg-black text-white text-xs font-bold px-3 py-1 rounded-full"
-					>
-						FEATURED
-					</motion.span>
-				)}
-				{product.best_seller && (
-					<motion.span
-						initial={{ scale: 0 }}
-						animate={{ scale: 1 }}
-						transition={{ delay: 0.1 }}
-						className="bg-neutral-100 text-neutral-900 text-xs font-bold px-3 py-1 rounded-full border border-neutral-200"
-					>
-						BESTSELLER
-					</motion.span>
-				)}
-			</div>							{/* name */}
-							<div>
-								<h1 className="text-4xl font-black text-neutral-900 mb-2">
-									{product.name}
-								</h1>
-								<p className="text-neutral-600">{product.description}</p>
-							</div>
+  const handleAddToCart = async () => {
+    if (!product || !selectedSize || !selectedColor) return
+    setIsAdding(true)
+    try {
+      addToCart(product, 1, selectedColor, selectedSize)
+      setAddedFlash(true)
+      setTimeout(() => {
+        setIsAdding(false)
+        setAddedFlash(false)
+      }, 1200)
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      setIsAdding(false)
+    }
+  }
 
-			{/* Rating */}
-			<div className="flex items-center gap-4 pb-4 border-b border-neutral-200">
-				<div className="flex items-center gap-1">
-					{[...Array(5)].map((_, i) => (
-						<Star
-							key={i}
-							className={`w-5 h-5 ${
-								i < Math.floor(product.ratings)
-									? "fill-neutral-900 text-neutral-900"
-									: "text-neutral-300"
-							}`}
-						/>
-					))}
-				</div>
-				<span className="text-neutral-900 font-semibold">{product.ratings.toFixed(1)}</span>
-			</div>							{/* Price */}
-							<div className="space-y-2">
-								<div className="flex items-center gap-4">
-									<span className="text-4xl font-black text-neutral-900">
-										${discountedPrice.toFixed(2)}
-									</span>
-									{product.discount > 0 && (
-										<>
-											<span className="text-xl text-neutral-600 line-through">
-												${product.price.toFixed(2)}
-											</span>
-											<motion.span
-												initial={{ scale: 0 }}
-												animate={{ scale: 1 }}
-												className="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full"
-											>
-												-{product.discount}%
-											</motion.span>
-										</>
-									)}
-								</div>
-								{product.discount > 0 && (
-									<p className="text-sm text-neutral-600">
-										You save ${(product.price - discountedPrice).toFixed(2)}
-									</p>
-								)}
-							</div>
+  const discountedPrice = product.price * (1 - (product.discount || 0) / 100)
+  const hasDiscount = (product.discount || 0) > 0
+  const hasRequiredSelections =
+    (availableColors.length === 0 || selectedColor) &&
+    (availableSizes.length === 0 || selectedSize)
+  const isOutOfStock = hasRequiredSelections
+    ? (availableColors.length > 0 && !isColorInStock()) ||
+      (availableSizes.length > 0 && !isSizeInStock())
+    : false
 
-			{/* Color Selection */}
-			{availableColors.length > 0 && (
-				<div>
-					<label className="block text-sm font-semibold text-neutral-900 mb-3">
-						COLOR
-					</label>
-					<div className="flex flex-wrap gap-3">
-						{availableColors.map((color: VariantOption) => (
-							<motion.button
-								key={color.name}
-								onClick={() => setSelectedColor(color.name)}
-								whileHover={{ scale: 1.05 }}
-								whileTap={{ scale: 0.95 }}
-								className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all capitalize ${
-									selectedColor === color.name
-										? "border-black bg-neutral-50"
-										: "border-neutral-200 hover:border-neutral-400"
-								}`}
-							>
-								<span 
-									className="w-4 h-4 rounded-full border border-neutral-300"
-									style={{ backgroundColor: getColorValue(color.name) }}
-								/>
-								<span className="text-sm font-medium">{color.name}</span>
-							</motion.button>
-						))}
-					</div>
-				</div>
-			)}
+  const shortDescription =
+    product.description ||
+    product.fullDescription?.slice(0, 160) ||
+    'Premium Fear Insight piece — built for presence, cut with intention.'
 
-			{/* Size Selection */}
-			{availableSizes.length > 0 && (
-				<div>
-					<label className="block text-sm font-semibold text-neutral-900 mb-3">
-						SIZE
-					</label>
-					<div className="grid grid-cols-5 gap-2">
-						{availableSizes.map((size: VariantOption) => (
-							<motion.button
-								key={size.name}
-								onClick={() => setSelectedSize(size.name)}
-								whileHover={{ scale: 1.05 }}
-								whileTap={{ scale: 0.95 }}
-								className={`py-3 rounded-lg font-semibold transition-all ${
-									selectedSize === size.name
-										? "bg-black text-white"
-										: "bg-neutral-100 text-neutral-900 hover:bg-neutral-200"
-								}`}
-							>
-								{size.name}
-							</motion.button>
-						))}
-					</div>
-				</div>
-			)}
+  const mainSrc = imageError ? fallbackImage : images[selectedImage] || fallbackImage
+  const detailImage = images[Math.min(1, images.length - 1)] || mainSrc
+  const onesize = isOnesizeProduct(product)
 
-							{/* Quantity */}
-							<div>
-								<label className="block text-sm font-semibold text-neutral-900 mb-3">
-									QUANTITY
-								</label>
-								<div className="flex items-center gap-4">
-									<motion.button
-										onClick={() => setQuantity(Math.max(1, quantity - 1))}
-										whileHover={{ scale: 1.05 }}
-										whileTap={{ scale: 0.95 }}
-										className="w-12 h-12 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold border border-neutral-200"
-									>
-										−
-									</motion.button>
-									<span className="text-2xl font-bold text-neutral-900 w-8 text-center">
-										{quantity}
-									</span>
-									<motion.button
-										onClick={() => setQuantity(quantity + 1)}
-										whileHover={{ scale: 1.05 }}
-										whileTap={{ scale: 0.95 }}
-										className="w-12 h-12 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold border border-neutral-200"
-									>
-										+
-									</motion.button>
-								</div>
-							</div>
+  const scrollThumbs = (dir: 1 | -1) => {
+    setSelectedImage((prev) => (prev + dir + images.length) % images.length)
+  }
 
-							{/* Add to Cart & Wishlist */}
-							<div className="flex gap-4 pt-4">
-								<motion.div
-									className="flex-1"
-									whileHover={{ scale: 1.03, y: -2 }}
-									whileTap={{ scale: 0.98 }}
-									transition={{ type: "spring", stiffness: 260, damping: 18 }}
-								>
-									<Button
-										onClick={handleAddToCart}
-										disabled={!selectedColor || !selectedSize || isAdding}
-										className="w-full bg-black text-white hover:bg-neutral-800 h-14 font-semibold text-lg group disabled:opacity-50 disabled:cursor-not-allowed"
-									>
-										{isAdding ? (
-											<motion.span
-												animate={{ rotate: 360 }}
-												transition={{ duration: 1, repeat: Infinity }}
-											>
-												Adding...
-											</motion.span>
-										) : !selectedColor || !selectedSize ? (
-											"Select Color & Size"
-										) : (
-											<>
-												<ShoppingBag className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-												Add to Cart
-											</>
-										)}
-									</Button>
-								</motion.div>
-								<motion.button
-									whileHover={{ scale: 1.05 }}
-									whileTap={{ scale: 0.95 }}
-									onClick={() => setShowSizeChart(true)}
-									className="w-14 h-14 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-900 flex items-center justify-center border border-neutral-200"
-								>
-									<Ruler className="w-5 h-5" />
-								</motion.button>
-							</div>
+  return (
+    <div className="bg-white text-neutral-900">
+      {/* Breadcrumb */}
+      <div className="border-b border-neutral-100 px-4 pb-2 pt-28 sm:px-6 sm:pt-32 lg:px-8">
+        <div className="mx-auto flex max-w-6xl items-center gap-2 font-nike text-xs text-neutral-500">
+          <Link href="/" className="transition-colors hover:text-neutral-900">
+            Home
+          </Link>
+          <span>/</span>
+          <Link href="/fear" className="transition-colors hover:text-neutral-900">
+            Shop
+          </Link>
+          <span>/</span>
+          <span className="truncate text-neutral-900">{product.name}</span>
+        </div>
+      </div>
 
-							{/* Product Details */}
-							<div className="space-y-3 pt-4 border-t border-neutral-200">
-								<div className="flex items-start gap-3">
-									<Truck className="w-5 h-5 text-neutral-600 mt-1 flex-shrink-0" />
-									<div>
-										<p className="font-semibold text-neutral-900">Free Shipping</p>
-										<p className="text-sm text-neutral-600">On orders over $75</p>
-									</div>
-								</div>
-								<div className="flex items-start gap-3">
-									<RotateCcw className="w-5 h-5 text-neutral-600 mt-1 flex-shrink-0" />
-									<div>
-										<p className="font-semibold text-neutral-900">30-Day Returns</p>
-										<p className="text-sm text-neutral-600">Easy returns & exchanges</p>
-									</div>
-								</div>
-								<div className="flex items-start gap-3">
-									<Shield className="w-5 h-5 text-neutral-600 mt-1 flex-shrink-0" />
-									<div>
-										<p className="font-semibold text-neutral-900">Secure Checkout</p>
-										<p className="text-sm text-neutral-600">100% encrypted transactions</p>
-									</div>
-								</div>
-							</div>
-						</motion.div>
-					</div>
+      {/* Primary product section */}
+      <section className="px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+        <div className="mx-auto grid max-w-6xl items-start gap-5 lg:grid-cols-12 lg:gap-6">
+          {/* Thumbnails — desktop left rail */}
+          <div className="hidden lg:col-span-1 lg:flex lg:flex-col lg:items-center lg:gap-2">
+            <div className="flex max-h-[420px] flex-col gap-2 overflow-y-auto pr-1">
+              {images.map((image, index) => (
+                <button
+                  key={`thumb-${index}`}
+                  type="button"
+                  onClick={() => setSelectedImage(index)}
+                  aria-label={`View image ${index + 1}`}
+                  className={`h-14 w-14 shrink-0 overflow-hidden border transition-all ${
+                    selectedImage === index
+                      ? 'border-neutral-900'
+                      : 'border-neutral-200 hover:border-neutral-400'
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+            {images.length > 4 && (
+              <button
+                type="button"
+                onClick={() => scrollThumbs(1)}
+                aria-label="Next images"
+                className="mt-1 flex h-7 w-7 items-center justify-center text-neutral-500 transition-colors hover:text-neutral-900"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            )}
+          </div>
 
-					{/* Description & Specifications */}
-					<motion.div
-						initial={{ opacity: 0, y: 40 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.6 }}
-						viewport={{ once: true }}
-						className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6"
-					>
-						<div className="lg:col-span-2 space-y-4">
-							<Card className="bg-white border-neutral-200 shadow-sm">
-								<CardContent className="p-6 space-y-3">
-									<h2 className="text-2xl font-bold text-neutral-900">Product Description</h2>
-									<p className="text-neutral-600 leading-relaxed">
-										{product.fullDescription}
-									</p>
-								</CardContent>
-							</Card>
+          {/* Main image */}
+          <div className="lg:col-span-6">
+            <div className="relative aspect-square overflow-hidden bg-neutral-50 sm:aspect-[4/5] lg:aspect-[5/6] lg:max-h-[560px]">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={selectedImage}
+                  src={mainSrc}
+                  alt={`${product.name} — Fear Insight`}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  onError={() => setImageError(true)}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                />
+              </AnimatePresence>
+              <button
+                type="button"
+                onClick={() => setLightbox(true)}
+                aria-label="Zoom image"
+                className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
+              >
+                <ZoomIn className="h-4 w-4" />
+              </button>
+            </div>
 
-							<Card className="bg-white border-neutral-200 shadow-sm">
-								<CardContent className="p-6 space-y-3">
-									<h3 className="text-xl font-semibold text-neutral-900">Material & Care</h3>
-									<p className="text-neutral-600">
-										<strong>Material:</strong> 80% premium cotton, 20% polyester
-									</p>
-									<p className="text-neutral-600">
-										<strong>Care Instructions:</strong> {product.care}
-									</p>
-								</CardContent>
-							</Card>
-						</div>
+            {/* Mobile / tablet horizontal thumbs */}
+            <div className="mt-2.5 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+              {images.map((image, index) => (
+                <button
+                  key={`m-thumb-${index}`}
+                  type="button"
+                  onClick={() => setSelectedImage(index)}
+                  className={`h-14 w-14 shrink-0 overflow-hidden border ${
+                    selectedImage === index ? 'border-neutral-900' : 'border-neutral-200'
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={image} alt="" className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
 
-						<div>
-							<Card className="bg-white border-neutral-200 shadow-sm">
-								<CardContent className="p-6 space-y-4">
-									<h3 className="font-bold text-neutral-900">Shipping Info</h3>
-									<p className="text-sm text-neutral-600">
-										{product.shipping}
-									</p>
-									<Button className="w-full bg-black text-white hover:bg-neutral-800">
-										<Link href="/shipping-returns">Learn More</Link>
-									</Button>
-								</CardContent>
-							</Card>
-						</div>
-					</motion.div>
-				</div>
-			</section>
+          {/* Purchase panel */}
+          <div className="flex flex-col lg:col-span-5 lg:sticky lg:top-32">
+            {(product.featured || product.best_seller) && (
+              <span className="mb-2 inline-flex w-fit items-center rounded-full bg-neutral-100 px-2.5 py-0.5 font-nike text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-neutral-700">
+                {product.best_seller ? 'Bestseller' : 'New Arrival'}
+              </span>
+            )}
 
-		
-			<SizeChart isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
-		</div>
-	)
+            <h1 className="text-3xl font-black leading-tight tracking-tight text-neutral-900 sm:text-4xl">
+              {product.name}
+            </h1>
+
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-3.5 w-3.5 ${
+                      i < Math.floor(product.ratings || 0)
+                        ? 'fill-neutral-900 text-neutral-900'
+                        : 'text-neutral-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="font-nike text-sm text-neutral-600">
+                {(product.ratings || 0).toFixed(1)}
+              </span>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2.5">
+              <span className="font-nike text-xl font-semibold text-neutral-900 sm:text-2xl">
+                ${discountedPrice.toFixed(2)}
+              </span>
+              {hasDiscount && (
+                <>
+                  <span className="font-nike text-base text-neutral-400 line-through">
+                    ${product.price.toFixed(2)}
+                  </span>
+                  <span className="rounded-full bg-neutral-900 px-2 py-0.5 font-nike text-[0.6rem] font-bold uppercase tracking-wider text-white">
+                    {Math.round(product.discount)}% off
+                  </span>
+                </>
+              )}
+            </div>
+
+            <p className="font-nike mt-3 max-w-md text-sm leading-relaxed text-neutral-600">
+              {shortDescription}
+            </p>
+
+            {/* Color */}
+            {availableColors.length > 0 && (
+              <div className="mt-5">
+                <p className="font-nike text-sm text-neutral-800">
+                  Color:{' '}
+                  <span className="font-semibold capitalize">{selectedColor || '—'}</span>
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {availableColors.map((color) => {
+                    const active = selectedColor === color.name
+                    return (
+                      <button
+                        key={color.name}
+                        type="button"
+                        onClick={() => setSelectedColor(color.name)}
+                        aria-label={color.name}
+                        title={color.name}
+                        className={`h-8 w-8 rounded-full border-2 transition-all ${
+                          active
+                            ? 'border-neutral-900 ring-2 ring-neutral-900/10 ring-offset-1'
+                            : 'border-neutral-200 hover:border-neutral-400'
+                        }`}
+                        style={{ backgroundColor: getColorValue(color.name) }}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Size */}
+            {availableSizes.length > 0 && (
+              <div className="mt-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-nike text-sm text-neutral-800">
+                    Size:{' '}
+                    <span className="font-semibold">{selectedSize || '—'}</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowSizeChart(true)}
+                    className="font-nike inline-flex items-center gap-1.5 text-xs text-neutral-500 underline-offset-4 transition-colors hover:text-neutral-900 hover:underline"
+                  >
+                    <Ruler className="h-3.5 w-3.5" />
+                    Size Guide
+                  </button>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {availableSizes.map((size) => {
+                    const active = selectedSize === size.name
+                    return (
+                      <button
+                        key={size.name}
+                        type="button"
+                        onClick={() => setSelectedSize(size.name)}
+                        className={`min-w-[2.75rem] px-2.5 py-2 font-nike text-sm font-semibold transition-colors ${
+                          active
+                            ? 'bg-neutral-900 text-white'
+                            : 'border border-neutral-200 bg-white text-neutral-900 hover:border-neutral-400'
+                        }`}
+                      >
+                        {size.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* CTA row */}
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={!hasRequiredSelections || isOutOfStock || isAdding}
+                className="font-nike inline-flex flex-1 items-center justify-center gap-2 bg-neutral-900 px-5 py-3 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {isOutOfStock
+                  ? 'Out of stock'
+                  : addedFlash
+                    ? 'Added'
+                    : isAdding
+                      ? 'Adding…'
+                      : !hasRequiredSelections
+                        ? 'Select options'
+                        : 'Add to Cart'}
+              </button>
+              <button
+                type="button"
+                aria-label="Save for later"
+                className="flex h-11 w-11 shrink-0 items-center justify-center border border-neutral-200 text-neutral-700 transition-colors hover:border-neutral-900 hover:text-neutral-900"
+              >
+                <Heart className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Trust row */}
+            <div className="mt-4 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-4">
+              {[
+                { icon: Truck, label: 'Free Shipping' },
+                { icon: RotateCcw, label: 'Easy Returns' },
+                { icon: Shield, label: 'Secure Payment' },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex flex-col items-center gap-1 text-center">
+                  <Icon className="h-3.5 w-3.5 text-neutral-500" strokeWidth={1.75} />
+                  <span className="font-nike text-[0.6rem] uppercase tracking-[0.08em] text-neutral-500">
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Info tabs — compact, no stretched empty column */}
+      <section className="border-t border-neutral-100 px-4 py-8 sm:px-6 sm:py-9 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div
+            role="tablist"
+            aria-label="Product information"
+            className="flex gap-5 overflow-x-auto border-b border-neutral-200 sm:gap-7"
+          >
+            {TABS.map((tab) => {
+              const active = activeTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`font-nike shrink-0 pb-2.5 text-sm transition-colors ${
+                    active
+                      ? 'border-b-2 border-neutral-900 font-semibold text-neutral-900'
+                      : 'border-b-2 border-transparent text-neutral-400 hover:text-neutral-700'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="mt-5 grid items-start gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:gap-8">
+            <div className="min-w-0">
+              {activeTab === 'details' && (
+                <div className="space-y-4">
+                  <p className="font-nike text-sm leading-relaxed text-neutral-600">
+                    {product.fullDescription ||
+                      product.description ||
+                      'Crafted for daily wear with Fear Insight’s signature weight and finish — a silhouette that holds its shape and carries the message.'}
+                  </p>
+                  <ul className="grid gap-2 sm:grid-cols-1">
+                    {[
+                      {
+                        icon: Shirt,
+                        text: onesize ? 'Oversize / one-size fit' : 'Standard cut with room to move',
+                      },
+                      {
+                        icon: Layers,
+                        text: product.material || 'Soft heavyweight cotton blend',
+                      },
+                      {
+                        icon: Sparkles,
+                        text: 'Directed by God — Fear Insight essentials',
+                      },
+                    ].map(({ icon: Icon, text }) => (
+                      <li key={text} className="flex items-center gap-2.5">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center bg-neutral-100 text-neutral-700">
+                          <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        </span>
+                        <span className="font-nike text-sm text-neutral-700">{text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {activeTab === 'materials' && (
+                <div className="space-y-3 font-nike text-sm leading-relaxed text-neutral-600">
+                  <p>
+                    <span className="font-semibold text-neutral-900">Material: </span>
+                    {product.material || '80% premium cotton, 20% polyester'}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-neutral-900">Care: </span>
+                    {product.care ||
+                      'Machine wash cold with like colors. Tumble dry low. Turn inside out before washing.'}
+                  </p>
+                </div>
+              )}
+
+              {activeTab === 'fit' && (
+                <div className="space-y-3 font-nike text-sm leading-relaxed text-neutral-600">
+                  <p>
+                    {onesize
+                      ? 'This piece is offered in one size with an oversized drape. Check the size guide for approximate measurements.'
+                      : 'True to size with a structured silhouette. Between sizes? Size up for a roomier feel.'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowSizeChart(true)}
+                    className="inline-flex items-center gap-2 border border-neutral-900 px-4 py-2 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white"
+                  >
+                    <Ruler className="h-3.5 w-3.5" />
+                    Open size guide
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'shipping' && (
+                <div className="space-y-3 font-nike text-sm leading-relaxed text-neutral-600">
+                  <p>
+                    {product.shipping ||
+                      'Free standard shipping on orders over $75. Most orders ship within 1–2 business days.'}
+                  </p>
+                  <Link
+                    href="/shipping-returns"
+                    className="inline-flex text-neutral-900 underline underline-offset-4 transition-opacity hover:opacity-60"
+                  >
+                    View shipping &amp; returns policy
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <div className="relative aspect-[4/3] max-h-56 overflow-hidden bg-neutral-100 sm:max-h-64 lg:max-h-72">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={detailImage}
+                alt={`${product.name} detail`}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* You may also like */}
+      {relatedProducts.length > 0 && (
+        <section className="border-t border-neutral-100 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <h2 className="font-nike-display text-xl uppercase tracking-[0.04em] text-neutral-900 sm:text-2xl">
+                You May Also Like
+              </h2>
+              <Link
+                href="/fear"
+                className="font-nike shrink-0 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+              >
+                View All →
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
+              {relatedProducts.map((item) => {
+                const price =
+                  item.discount > 0
+                    ? item.price * (1 - item.discount / 100)
+                    : item.price
+                const img = item.images?.[0] || fallbackImage
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/product/${item.id}`}
+                    className="group block"
+                  >
+                    <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={img}
+                        alt={item.name}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                      <span className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center bg-white/90 text-neutral-700 opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                        <Heart className="h-3.5 w-3.5" />
+                      </span>
+                    </div>
+                    <div className="mt-3 space-y-0.5">
+                      <p className="font-nike text-sm font-semibold text-neutral-900 line-clamp-1">
+                        {item.name}
+                      </p>
+                      <p className="font-nike text-sm text-neutral-500">
+                        ${price.toFixed(2)}
+                      </p>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product image zoom"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4"
+          onClick={() => setLightbox(false)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={mainSrc}
+            alt={product.name}
+            className="max-h-[90vh] max-w-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
+      <SizeChart isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
+    </div>
+  )
 }

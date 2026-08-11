@@ -1,21 +1,15 @@
-import { NextRequest, NextResponse } from "next/server"
-import { cookies } from "next/headers"
+import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { requireAdmin } from "@/lib/admin-auth"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-// Use service role key for admin operations to bypass RLS if needed
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    // Check authentication
-    const cookieStore = await cookies()
-    const session = cookieStore.get("admin_session")
-
-    if (session?.value !== "authenticated") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const auth = await requireAdmin()
+    if (!auth.ok) return auth.response
 
     // Get visitor stats from analytics table (we'll create this)
     const { data: analytics, error: analyticsError } = await supabase

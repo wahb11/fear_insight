@@ -1,7 +1,5 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import CollectionCatalog from '@/components/product/CollectionCatalog'
-
-export default function SignaturePage() {
-  return <CollectionCatalog collection="signature" />
+export default function SignatureRedirect() {
+  redirect('/insignia')
 }

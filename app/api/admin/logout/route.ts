@@ -1,18 +1,13 @@
-import { NextRequest, NextResponse } from "next/server"
-import { cookies } from "next/headers"
+import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import { COOKIE_NAME } from '@/lib/admin-auth'
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     const cookieStore = await cookies()
-    cookieStore.delete("admin_session")
-
+    cookieStore.delete(COOKIE_NAME)
     return NextResponse.json({ success: true })
-  } catch (error) {
-    return NextResponse.json(
-      { error: "An error occurred" },
-      { status: 500 }
-    )
+  } catch {
+    return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
   }
 }
-
-

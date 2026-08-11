@@ -11,6 +11,7 @@ export type Order = {
   zip_code: string | null
   country: string | null
   payment: boolean | null
+  fulfillment_status?: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
   tax: number | null
   shipping: number | null
   discount: number | null

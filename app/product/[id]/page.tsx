@@ -104,7 +104,7 @@ async function StructuredData({ id }: { id: string }) {
   const productSchema = generateProductSchema(product, id)
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: '/' },
-    { name: 'Products', url: '/products' },
+    { name: 'Shop', url: '/fear' },
     { name: product.name, url: `/product/${id}` },
   ])
 
