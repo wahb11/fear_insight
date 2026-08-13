@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/admin-auth'
+import {
+  getCachedAdminProductList,
+  setCachedAdminProductList,
+} from '@/lib/admin-products-cache'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey =
@@ -19,12 +23,15 @@ export async function GET() {
       )
     }
 
-    // Select only the columns needed for the list view — avoids fetching large
-    // image arrays and base64 cutouts for every product on every load.
-    // The edit dialog fetches the full product via GET /api/admin/products/[id].
+    const cached = getCachedAdminProductList()
+    if (cached) {
+      return NextResponse.json({ products: cached })
+    }
+
+    // List view only: skip featured_image (often a large cutout) and extra columns.
     const { data, error } = await supabase
       .from('products')
-      .select('id, name, description, price, discount, featured, best_seller, category_id, images, featured_image')
+      .select('id, name, description, price, discount, featured, best_seller, category_id, images')
       .order('name', { ascending: true })
 
     if (error) {
@@ -34,7 +41,17 @@ export async function GET() {
       )
     }
 
-    return NextResponse.json({ products: data ?? [] })
+    const products = (data ?? []).map((row) => ({
+      ...row,
+      description:
+        typeof row.description === 'string' && row.description.length > 160
+          ? `${row.description.slice(0, 160)}…`
+          : row.description,
+      images: Array.isArray(row.images) && row.images[0] ? [row.images[0]] : [],
+    }))
+
+    setCachedAdminProductList(products)
+    return NextResponse.json({ products })
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'An error occurred', type: error.name || 'UnknownError' },

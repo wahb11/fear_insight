@@ -16,6 +16,7 @@ import { Product } from "@/types/products"
 export default function ProductsTab() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [listLoading, setListLoading] = useState(true)
   const [images, setImages] = useState<File[]>([])
   const [previews, setPreviews] = useState<string[]>([])
   const [categories, setCategories] = useState<any[]>([])
@@ -84,13 +85,16 @@ export default function ProductsTab() {
     }
   }
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (opts?: { silent?: boolean }) => {
     try {
+      if (!opts?.silent) setListLoading(true)
       const res = await fetch('/api/admin/products')
       const data = await res.json()
       setProducts(data.products || [])
     } catch (error) {
       console.error('Failed to fetch products:', error)
+    } finally {
+      setListLoading(false)
     }
   }
 
@@ -203,7 +207,7 @@ export default function ProductsTab() {
         })
         setImages([])
         setPreviews([])
-        fetchProducts()
+        fetchProducts({ silent: true })
       } else {
         toast({
           title: "Error",
@@ -307,7 +311,7 @@ export default function ProductsTab() {
           description: "Product updated successfully!",
         })
         setEditDialogOpen(false)
-        fetchProducts()
+        fetchProducts({ silent: true })
       } else {
         toast({
           title: "Error",
@@ -352,7 +356,7 @@ export default function ProductsTab() {
         setAddImagesDialogOpen(false)
         setNewImages([])
         setNewImagePreviews([])
-        fetchProducts()
+        fetchProducts({ silent: true })
       } else {
         toast({
           title: "Error",
@@ -396,7 +400,7 @@ export default function ProductsTab() {
       setCutoutBlob(null)
       setCutoutProgress("")
       toast({ title: "Success", description: "Carousel cutout saved" })
-      fetchProducts()
+      fetchProducts({ silent: true })
     } catch (error: any) {
       toast({
         title: "Error",
@@ -443,7 +447,7 @@ export default function ProductsTab() {
       if (!res.ok) throw new Error(data.error || "Failed to clear")
       setEditingProduct({ ...editingProduct, featured_image: null })
       toast({ title: "Cleared", description: "Cutout removed" })
-      fetchProducts()
+      fetchProducts({ silent: true })
     } catch (error: any) {
       toast({
         title: "Error",
@@ -473,7 +477,7 @@ export default function ProductsTab() {
       if (editingProduct?.id === productId && Array.isArray(data.images)) {
         setEditingProduct({ ...editingProduct, images: data.images })
       }
-      fetchProducts()
+      fetchProducts({ silent: true })
     } catch (error: any) {
       toast({
         title: "Error",
@@ -499,7 +503,7 @@ export default function ProductsTab() {
         setEditDialogOpen(false)
         setEditingProduct(null)
       }
-      fetchProducts()
+      fetchProducts({ silent: true })
     } catch (error: any) {
       toast({
         title: "Error",
@@ -537,7 +541,12 @@ export default function ProductsTab() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-6 pb-4">
-            {products.length === 0 ? (
+            {listLoading ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                <p className="text-neutral-500 text-sm mt-3">Loading products…</p>
+              </div>
+            ) : products.length === 0 ? (
               <div className="text-center py-12">
                 <Package className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
                 <p className="text-neutral-500">No products found</p>
@@ -556,6 +565,8 @@ export default function ProductsTab() {
                             src={product.images[0]}
                             alt={product.name}
                               className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-neutral-200"
+                            loading="lazy"
+                            decoding="async"
                           />
                           ) : (
                             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-neutral-100 rounded-lg flex items-center justify-center">

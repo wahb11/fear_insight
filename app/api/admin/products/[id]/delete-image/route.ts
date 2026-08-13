@@ -75,6 +75,8 @@ export async function POST(
       await supabase.storage.from(BUCKET_NAME).remove([path])
     }
 
+    const { invalidateAdminProductList } = await import("@/lib/admin-products-cache")
+    invalidateAdminProductList()
     return NextResponse.json({ success: true, images: nextImages })
   } catch (error: any) {
     console.error('Delete image error:', error)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/admin-auth'
+import { invalidateAdminProductList } from '@/lib/admin-products-cache'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey =
@@ -138,6 +139,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
+    invalidateAdminProductList()
     return NextResponse.json({ product: data[0] })
   } catch (error: any) {
     console.error('Update product error:', error)
@@ -179,6 +181,7 @@ export async function DELETE(
       return NextResponse.json({ error: deleteError.message }, { status: 500 })
     }
 
+    invalidateAdminProductList()
     return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error('Delete product error:', error)

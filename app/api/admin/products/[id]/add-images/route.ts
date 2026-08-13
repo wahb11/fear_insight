@@ -189,6 +189,8 @@ export async function POST(
 
     console.log("Product updated successfully")
 
+    const { invalidateAdminProductList } = await import("@/lib/admin-products-cache")
+    invalidateAdminProductList()
     return NextResponse.json({
       success: true,
       product: data[0],

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { requireAdmin } from "@/lib/admin-auth"
+import { invalidateAdminProductList } from "@/lib/admin-products-cache"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -181,6 +182,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    invalidateAdminProductList()
     return NextResponse.json({
       success: true,
       product: data?.[0],
