@@ -1,13 +1,16 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { ShoppingBag, Search, Heart } from 'lucide-react'
+import { ShoppingBag, Search, Heart, ChevronRight } from 'lucide-react'
 import { useCart } from '@/app/context/CartContext'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { useMagnetic } from '@/hooks/useMagnetic'
+import { useCategoryTree } from '@/hooks/useCategoryTree'
+import { FALLBACK_CATEGORY_TREE } from '@/lib/categories'
+import { COLLECTION_META, CollectionKey } from '@/lib/collections'
 
 gsap.registerPlugin(useGSAP)
 
@@ -28,13 +31,22 @@ const MAIN_NAV = [
 /** Secondary routes — footer + mobile menu */
 const SECONDARY_NAV = [
   { label: 'Home', href: '/' },
-  { label: 'Fear', href: '/fear' },
-  { label: 'Insignia', href: '/insignia' },
-  { label: 'Chronicles', href: '/chronicles' },
-  { label: 'Oversized', href: '/oversized' },
   { label: 'About', href: '#about' },
   { label: 'Contact', href: '#contact' },
 ] as const
+
+const LINE_PREFIX: Record<CollectionKey, string> = {
+  fear: 'FR',
+  insignia: 'IS',
+  chronicles: 'CH',
+  oversized: 'OV',
+}
+
+function formatLineCode(parentSlug: CollectionKey, index: number, name: string) {
+  const prefix = LINE_PREFIX[parentSlug]
+  const num = String(index + 1).padStart(2, '0')
+  return `${prefix}-${num}-${name.replace(/\s+/g, '-').toUpperCase()}`
+}
 
 function MagneticLink({
   href,
@@ -84,8 +96,11 @@ function MagneticLink({
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [openCollection, setOpenCollection] = useState<string | null>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [isHeaderHidden, setIsHeaderHidden] = useState(false)
+  const { data: categoryTreeData } = useCategoryTree()
+  const categoryTree = categoryTreeData?.length ? categoryTreeData : FALLBACK_CATEGORY_TREE
   const { items } = useCart()
   const router = useRouter()
   const pathname = usePathname()
@@ -158,6 +173,9 @@ export default function Header() {
   useEffect(() => {
     if (isMenuOpen && isHeaderHidden) {
       setIsHeaderHidden(false)
+    }
+    if (!isMenuOpen) {
+      setOpenCollection(null)
     }
   }, [isMenuOpen, isHeaderHidden])
 
@@ -332,23 +350,55 @@ export default function Header() {
         {/* Mobile menu */}
         <div
           className={`overflow-hidden bg-white border-t border-neutral-200 transition-all duration-300 lg:hidden ${
-            isMenuOpen ? 'max-h-[480px] opacity-100' : 'max-h-0 opacity-0 border-t-0'
+            isMenuOpen ? 'max-h-[80vh] opacity-100 overflow-y-auto' : 'max-h-0 opacity-0 border-t-0'
           }`}
         >
           <div className="container mx-auto px-4 py-4 flex flex-col space-y-1">
-            {MAIN_NAV.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={(e) => {
-                  if (item.href.includes('#')) handleAnchorNav(item.href, e)
-                  setIsMenuOpen(false)
-                }}
-                className="text-black hover:text-neutral-500 transition-colors duration-200 py-3 px-4 text-left w-full text-[16px] font-medium focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-black"
-              >
-                {item.label}
-              </a>
-            ))}
+            {MAIN_NAV.map((item) => {
+              const slug = item.href.replace('/', '') as CollectionKey
+              const parent = categoryTree.find((c) => c.slug === slug)
+              const children = parent?.children || []
+              const isOpen = openCollection === slug
+
+              return (
+                <div key={item.label} className="border-b border-neutral-100 last:border-b-0">
+                  <div className="flex items-center">
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${item.label}`}
+                      onClick={() => setOpenCollection(isOpen ? null : slug)}
+                      className="flex items-center justify-center w-10 h-12 text-black"
+                    >
+                      <ChevronRight
+                        className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
+                      />
+                    </button>
+                    <Link
+                      href={item.href}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex-1 text-black hover:text-neutral-500 transition-colors duration-200 py-3 pr-4 text-left text-[16px] font-medium uppercase tracking-[0.06em]"
+                    >
+                      {item.label}
+                    </Link>
+                  </div>
+                  {isOpen && children.length > 0 && (
+                    <div className="pb-2 pl-10 pr-4 flex flex-col">
+                      {children.map((sub, index) => (
+                        <Link
+                          key={sub.id}
+                          href={`${COLLECTION_META[slug].href}?line=${sub.slug}`}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="py-2 text-[13px] font-medium uppercase tracking-[0.08em] text-neutral-600 hover:text-black"
+                        >
+                          {formatLineCode(slug, index, sub.name)}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
 
             <div className="pt-3 mt-2 border-t border-neutral-200">
               <p className="px-4 pb-2 text-[11px] uppercase tracking-[0.08em] text-neutral-400">More</p>
