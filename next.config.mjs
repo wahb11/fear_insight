@@ -9,50 +9,20 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Keep heavy WASM / Node ORT packages out of the server graph
-  experimental: {
-    serverComponentsExternalPackages: [
-      '@imgly/background-removal',
-      'onnxruntime-web',
-      'onnxruntime-node',
-      'sharp',
-    ],
-  },
-  webpack: (config, { isServer, webpack }) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      sharp$: false,
-      'onnxruntime-node$': false,
-      // Node-only ORT entry uses `import { createRequire } from "module"` —
-      // webpack cannot parse it. Force the browser build instead.
-      'onnxruntime-web/dist/ort.node.min.js': false,
-      'onnxruntime-web/dist/ort.node.min.mjs': false,
-    }
-
+  webpack: (config, { webpack }) => {
+    // Never compile these — they ship Node ESM / WASM that SWC cannot parse.
     config.plugins.push(
       new webpack.IgnorePlugin({
-        resourceRegExp: /^onnxruntime-node$/,
-      }),
-      new webpack.IgnorePlugin({
-        resourceRegExp: /ort\.node\.min\.m?js$/,
+        resourceRegExp: /^(onnxruntime-web|onnxruntime-node|@imgly\/background-removal|sharp)$/,
       })
     )
-
-    if (isServer) {
-      const externals = Array.isArray(config.externals)
-        ? config.externals
-        : config.externals
-          ? [config.externals]
-          : []
-      config.externals = [
-        ...externals,
-        '@imgly/background-removal',
-        'onnxruntime-web',
-        'onnxruntime-node',
-        'sharp',
-      ]
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      sharp: false,
+      'onnxruntime-node': false,
+      'onnxruntime-web': false,
+      '@imgly/background-removal': false,
     }
-
     return config
   },
 }
