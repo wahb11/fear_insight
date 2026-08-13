@@ -1,8 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 
 const STATUS_PATH = 'admin/order-fulfillment.json'
+const CACHE_TTL_MS = 20_000
+const DOWNLOAD_TIMEOUT_MS = 2000
 
 export type FulfillmentStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+
+let cachedMap: { value: Record<string, FulfillmentStatus>; at: number } | null = null
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -11,7 +15,7 @@ function getAdminClient() {
   return createClient(url, key)
 }
 
-export async function readFulfillmentMap(): Promise<Record<string, FulfillmentStatus>> {
+async function downloadFulfillmentMap(): Promise<Record<string, FulfillmentStatus>> {
   const supabase = getAdminClient()
   const { data, error } = await supabase.storage.from('products').download(STATUS_PATH)
   if (error || !data) return {}
@@ -24,14 +28,31 @@ export async function readFulfillmentMap(): Promise<Record<string, FulfillmentSt
   }
 }
 
+export async function readFulfillmentMap(): Promise<Record<string, FulfillmentStatus>> {
+  if (cachedMap && Date.now() - cachedMap.at < CACHE_TTL_MS) {
+    return cachedMap.value
+  }
+
+  const map = await Promise.race([
+    downloadFulfillmentMap(),
+    new Promise<Record<string, FulfillmentStatus>>((resolve) =>
+      setTimeout(() => resolve(cachedMap?.value || {}), DOWNLOAD_TIMEOUT_MS)
+    ),
+  ])
+
+  cachedMap = { value: map, at: Date.now() }
+  return map
+}
+
 export async function writeFulfillmentMap(map: Record<string, FulfillmentStatus>) {
   const supabase = getAdminClient()
-  const blob = new Blob([JSON.stringify(map, null, 2)], { type: 'application/json' })
+  const blob = new Blob([JSON.stringify(map)], { type: 'application/json' })
   const { error } = await supabase.storage.from('products').upload(STATUS_PATH, blob, {
     upsert: true,
     contentType: 'application/json',
   })
   if (error) throw new Error(error.message)
+  cachedMap = { value: map, at: Date.now() }
 }
 
 export async function setOrderFulfillment(orderId: string, status: FulfillmentStatus) {

@@ -25,17 +25,22 @@ export async function GET() {
   if (!auth.ok) return auth.response
 
   try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const [ordersResult, fulfillmentMap] = await Promise.all([
+      supabase
+        .from('orders')
+        .select(
+          'id, order_number, first_name, last_name, email, phone, address, city, state, zip_code, country, payment, tax, shipping, discount, promo_code, grand_total, created_at, products'
+        )
+        .order('created_at', { ascending: false })
+        .limit(150),
+      readFulfillmentMap().catch(() => ({} as Record<string, FulfillmentStatus>)),
+    ])
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (ordersResult.error) {
+      return NextResponse.json({ error: ordersResult.error.message }, { status: 500 })
     }
 
-    const fulfillmentMap = await readFulfillmentMap().catch(() => ({} as Record<string, FulfillmentStatus>))
-    const orders = (data || []).map((order) => ({
+    const orders = (ordersResult.data || []).map((order) => ({
       ...order,
       fulfillment_status: fulfillmentMap[order.id] || 'pending',
     }))

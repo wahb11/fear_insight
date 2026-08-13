@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState("orders")
   const router = useRouter()
 
   useEffect(() => {
@@ -99,7 +100,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-8">
-        <Tabs defaultValue="orders" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-4 grid w-full grid-cols-4 rounded-none border border-neutral-200 bg-white p-1 sm:mb-6">
             <TabsTrigger
               value="orders"
@@ -135,16 +136,16 @@ export default function AdminDashboard() {
           </TabsList>
 
           <TabsContent value="orders" className="mt-4 sm:mt-6">
-            <OrdersTab />
+            {activeTab === "orders" && <OrdersTab />}
           </TabsContent>
           <TabsContent value="analytics" className="mt-4 sm:mt-6">
-            <AnalyticsTab />
+            {activeTab === "analytics" && <AnalyticsTab />}
           </TabsContent>
           <TabsContent value="products" className="mt-4 sm:mt-6">
-            <ProductsTab />
+            {activeTab === "products" && <ProductsTab />}
           </TabsContent>
           <TabsContent value="categories" className="mt-4 sm:mt-6">
-            <CategoriesTab />
+            {activeTab === "categories" && <CategoriesTab />}
           </TabsContent>
         </Tabs>
       </div>
