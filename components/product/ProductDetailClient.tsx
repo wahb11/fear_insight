@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { SizeChart } from '@/components/ui/size-chart'
 import { useCart } from '@/app/context/CartContext'
+import { useWishlist } from '@/app/context/WishlistContext'
 import { useAllProducts } from '@/hooks/useAllProducts'
 import { Product } from '@/types/products'
 import { isOnesizeProduct } from '@/lib/collections'
@@ -66,6 +67,8 @@ interface ProductDetailClientProps {
 
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
   const { addToCart } = useCart()
+  const { has, toggle } = useWishlist()
+  const saved = has(product.id)
   const { data: allProducts } = useAllProducts()
 
   const availableColors = useMemo<VariantOption[]>(() => {
@@ -447,10 +450,12 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               </button>
               <button
                 type="button"
-                aria-label="Save for later"
+                aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+                aria-pressed={saved}
+                onClick={() => toggle(product.id)}
                 className="flex h-11 w-11 shrink-0 items-center justify-center border border-neutral-200 text-neutral-700 transition-colors hover:border-neutral-900 hover:text-neutral-900"
               >
-                <Heart className="h-4 w-4" />
+                <Heart className={`h-4 w-4 ${saved ? 'fill-neutral-900 text-neutral-900' : ''}`} />
               </button>
             </div>
 
@@ -633,9 +638,18 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                         alt={item.name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       />
-                      <span className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center bg-white/90 text-neutral-700 opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                        <Heart className="h-3.5 w-3.5" />
-                      </span>
+                      <button
+                        type="button"
+                        aria-label={has(item.id) ? 'Remove from wishlist' : 'Save to wishlist'}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          toggle(item.id)
+                        }}
+                        className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center bg-white/90 text-neutral-700 shadow-sm transition-opacity group-hover:opacity-100 opacity-0"
+                      >
+                        <Heart className={`h-3.5 w-3.5 ${has(item.id) ? 'fill-neutral-900 text-neutral-900' : ''}`} />
+                      </button>
                     </div>
                     <div className="mt-3 space-y-0.5">
                       <p className="font-nike text-sm font-semibold text-neutral-900 line-clamp-1">

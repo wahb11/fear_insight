@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { ShoppingBag, Search, Heart, ChevronRight } from 'lucide-react'
 import { useCart } from '@/app/context/CartContext'
+import { useAuth } from '@/app/context/AuthContext'
+import { useWishlist } from '@/app/context/WishlistContext'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useGSAP } from '@gsap/react'
@@ -18,7 +20,6 @@ const UTILITY_LINKS = [
   { label: 'Find a Store', href: '#contact' },
   { label: 'Assistance', href: '/faq' },
   { label: 'The Community', href: 'https://www.instagram.com/fear_insight?igsh=MXV4dmtxMG0zbjJ3aQ==', external: true },
-  { label: 'Sign In', href: '#', placeholder: true },
 ] as const
 
 const MAIN_NAV = [
@@ -102,6 +103,8 @@ export default function Header() {
   const { data: categoryTreeData } = useCategoryTree()
   const categoryTree = categoryTreeData?.length ? categoryTreeData : FALLBACK_CATEGORY_TREE
   const { items } = useCart()
+  const { user, signOut } = useAuth()
+  const { count: wishlistCount } = useWishlist()
   const router = useRouter()
   const pathname = usePathname()
   const headerRef = useRef<HTMLElement>(null)
@@ -224,10 +227,6 @@ export default function Header() {
                 external={'external' in link && link.external}
                 reducedMotion={reducedMotion}
                 onClick={(e) => {
-                  if ('placeholder' in link && link.placeholder) {
-                    e.preventDefault()
-                    return
-                  }
                   if (link.href.startsWith('#')) handleAnchorNav(link.href, e)
                 }}
                 className="text-[12px] text-neutral-700 hover:text-black transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-black"
@@ -236,6 +235,20 @@ export default function Header() {
               </MagneticLink>
             </React.Fragment>
           ))}
+          <span className="text-neutral-300 text-[10px] select-none" aria-hidden>|</span>
+          {user ? (
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="text-[12px] text-neutral-700 hover:text-black transition-colors"
+            >
+              Sign Out
+            </button>
+          ) : (
+            <Link href="/login" className="text-[12px] text-neutral-700 hover:text-black transition-colors">
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
 
@@ -325,11 +338,19 @@ export default function Header() {
                 <Search className="w-[22px] h-[22px] text-black" strokeWidth={1.75} />
               </Link>
               <Link
-                href="/fear"
-                aria-label="Wishlist"
-                className="hidden sm:flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full hover:bg-neutral-100 transition-all duration-200 group focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-black"
+                href="/wishlist"
+                aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ''}`}
+                className="flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full hover:bg-neutral-100 transition-all duration-200 relative group focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-black"
               >
-                <Heart className="w-[22px] h-[22px] text-black" strokeWidth={1.75} />
+                <Heart
+                  className={`w-[22px] h-[22px] text-black ${wishlistCount > 0 ? 'fill-black' : ''}`}
+                  strokeWidth={1.75}
+                />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-black text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
               </Link>
               <Link
                 href="/cart"
@@ -416,6 +437,26 @@ export default function Header() {
                 </a>
               ))}
               <div className="flex flex-wrap gap-x-4 gap-y-2 px-4 pt-3 pb-1">
+                {user ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signOut()
+                      setIsMenuOpen(false)
+                    }}
+                    className="text-[12px] text-neutral-500 hover:text-black transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-[12px] text-neutral-500 hover:text-black transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                )}
                 {UTILITY_LINKS.map((link) => (
                   <a
                     key={link.label}
@@ -423,11 +464,6 @@ export default function Header() {
                     target={'external' in link && link.external ? '_blank' : undefined}
                     rel={'external' in link && link.external ? 'noopener noreferrer' : undefined}
                     onClick={(e) => {
-                      if ('placeholder' in link && link.placeholder) {
-                        e.preventDefault()
-                        setIsMenuOpen(false)
-                        return
-                      }
                       if (link.href.startsWith('#')) handleAnchorNav(link.href, e)
                       setIsMenuOpen(false)
                     }}

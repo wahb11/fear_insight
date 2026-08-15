@@ -4,6 +4,8 @@ import { GeistMono } from 'geist/font/mono'
 import { Montserrat, Bebas_Neue, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from './context/CartContext'
+import { AuthProvider } from './context/AuthContext'
+import { WishlistProvider } from './context/WishlistContext'
 import './globals.css'
 import QueryProvider from '@/providers/query-provider'
 import VisitorTracker from '@/components/VisitorTracker'
@@ -123,13 +125,17 @@ export default function RootLayout({
           }}
         />
         <VisitorTracker />
+        <AuthProvider>
         <CartProvider>
+          <WishlistProvider>
           <NavigationLoaderProvider>
             <ConditionalLayout>
               {children}
             </ConditionalLayout>
           </NavigationLoaderProvider>
+          </WishlistProvider>
         </CartProvider>
+        </AuthProvider>
         <Analytics />
         </QueryProvider>
       </body>

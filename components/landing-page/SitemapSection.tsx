@@ -11,8 +11,10 @@ import { FALLBACK_CATEGORY_TREE } from '@/lib/categories'
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 const SOCIAL_LINKS = [
-  { label: 'Instagram', href: 'https://instagram.com/fearinsight' },
-  { label: 'TikTok', href: 'https://tiktok.com/@fearinsight' },
+  { label: 'Instagram', href: 'https://www.instagram.com/fear_insight' },
+  { label: 'TikTok', href: 'https://www.tiktok.com/@fearinsight' },
+  { label: 'TikTok Shop', href: 'https://www.tiktok.com/@fearinsight' },
+  { label: 'Facebook', href: 'https://www.facebook.com/fearinsight' },
   { label: 'WhatsApp', href: 'https://wa.me/0000000000' },
 ] as const
 
@@ -31,14 +33,11 @@ export default function SitemapSection() {
     )
     return parents.map((parent) => {
       const slug = parent.slug || parent.name.toLowerCase()
-      const links = [
-        { label: `Shop ${parent.name}`, href: `/${slug}` },
-        ...(parent.children || []).map((sub) => ({
-          label: sub.name,
-          href: `/${slug}?line=${sub.slug}`,
-        })),
-      ]
-      return { title: parent.name, links }
+      const links = (parent.children || []).map((sub) => ({
+        label: sub.name,
+        href: `/${slug}?line=${sub.slug}`,
+      }))
+      return { title: parent.name, href: `/${slug}`, links }
     })
   }, [tree])
 
@@ -144,7 +143,14 @@ export default function SitemapSection() {
                 columnRefs.current[index] = element
               }}
             >
-              <h3 className="text-base font-semibold text-black sm:text-lg">{column.title}</h3>
+              <h3 className="text-base font-semibold text-black sm:text-lg">
+                <Link
+                  href={column.href}
+                  className="transition-opacity duration-300 hover:opacity-55 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-900"
+                >
+                  {column.title}
+                </Link>
+              </h3>
               <ul className="mt-5 space-y-3 sm:mt-6 sm:space-y-4">
                 {column.links.map((item) => (
                   <li key={item.label}>

@@ -15,7 +15,7 @@ export default function Footer() {
 
   return (
     <>
-      <footer id="contact" className="relative overflow-hidden bg-[#0a0a0a] text-[#e8e4dc]">
+      <footer id="contact" className="relative overflow-hidden bg-[#2a2a2a] text-[#e8e4dc]">
         <div className="mx-auto max-w-7xl px-5 pt-12 sm:px-8 sm:pt-14 md:px-10 md:pt-16 lg:px-12">
           <div className="flex flex-col gap-10 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
             <div className="max-w-md">
