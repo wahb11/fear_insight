@@ -28,7 +28,7 @@ export default function FearInsightLanding() {
 
   return (
     <>
-      <div className="bg-white text-neutral-900">
+      <div className="bg-white text-neutral-900 overflow-x-hidden max-w-full">
         <Hero />
 
         {/* Category carousel — keeps #about for nav anchors */}

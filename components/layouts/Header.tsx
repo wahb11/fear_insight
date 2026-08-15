@@ -208,7 +208,7 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className={`fixed top-0 w-full z-50 font-nike transition-transform duration-300 ease-out ${
+      className={`fixed top-0 w-full max-w-full overflow-x-hidden z-50 font-nike transition-transform duration-300 ease-out ${
         isHeaderHidden ? '-translate-y-full' : 'translate-y-0'
       }`}
     >
@@ -410,7 +410,7 @@ export default function Header() {
                           key={sub.id}
                           href={`${COLLECTION_META[slug].href}?line=${sub.slug}`}
                           onClick={() => setIsMenuOpen(false)}
-                          className="py-2 text-[13px] font-medium uppercase tracking-[0.08em] text-neutral-600 hover:text-black"
+                          className="break-words py-2 text-[13px] font-medium uppercase tracking-[0.08em] text-neutral-600 hover:text-black"
                         >
                           {formatLineCode(slug, index, sub.name)}
                         </Link>

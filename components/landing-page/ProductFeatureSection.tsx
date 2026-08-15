@@ -77,7 +77,7 @@ export default function ProductFeatureSection() {
       <p
         ref={watermarkRef}
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-[18%] z-0 w-[140%] -translate-x-1/2 text-center font-nike-display text-[clamp(3.5rem,16vw,11rem)] uppercase leading-none tracking-[0.02em] text-black/[0.045] select-none sm:top-[12%]"
+        className="pointer-events-none absolute left-1/2 top-[18%] z-0 w-full max-w-full -translate-x-1/2 overflow-hidden text-center font-nike-display text-[clamp(2.5rem,14vw,11rem)] uppercase leading-none tracking-[0.02em] text-black/[0.045] select-none sm:top-[12%]"
       >
         Fear Insight
       </p>

@@ -175,7 +175,7 @@ export default function LifestyleStorySection() {
             <h2
               id="story-title"
               ref={titleRef}
-              className="font-nike-display max-w-[12ch] text-[clamp(2.4rem,7vw,5.5rem)] uppercase leading-[0.92] tracking-[0.02em] text-white will-change-transform"
+              className="font-nike-display max-w-[12ch] break-words text-[clamp(1.85rem,8vw,5.5rem)] uppercase leading-[0.92] tracking-[0.02em] text-white will-change-transform"
             >
               Built for
               <br />

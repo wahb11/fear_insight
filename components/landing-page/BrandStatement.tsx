@@ -46,11 +46,11 @@ export default function BrandStatement() {
   )
 
   return (
-    <section ref={sectionRef} aria-label="Directed by God" className="bg-white">
+    <section ref={sectionRef} aria-label="Directed by God" className="overflow-x-hidden bg-white">
       <div className="flex items-center justify-center px-4 py-9 md:py-12 lg:py-14">
         <p
           ref={statementRef}
-          className="text-center text-xl font-medium leading-none tracking-[0.09em] text-neutral-900 will-change-transform sm:text-3xl sm:tracking-[0.12em] md:text-4xl lg:text-5xl"
+          className="max-w-full break-words text-center text-[clamp(1.15rem,5.2vw,3rem)] font-medium leading-none tracking-[0.06em] text-neutral-900 will-change-transform sm:tracking-[0.12em]"
           style={{
             fontFamily: 'var(--font-editorial), "Times New Roman", serif',
           }}

@@ -805,7 +805,7 @@ export default function FeaturedProducts() {
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="Featured products. Swipe or use the dots to browse on mobile; arrow buttons on larger screens."
-      className="relative overflow-hidden px-3 py-10 text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:px-4 sm:py-14 md:py-20"
+      className="relative overflow-hidden px-3 py-10 text-neutral-900 outline-none [contain:paint] focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:px-4 sm:py-14 md:py-20"
     >
       <div
         className="pointer-events-none absolute inset-0"
@@ -841,7 +841,7 @@ export default function FeaturedProducts() {
 
         <div
           ref={stageRef}
-          className="relative mx-auto mt-0 flex h-[250px] w-full max-w-5xl cursor-grab items-center justify-center active:cursor-grabbing sm:h-[380px] md:h-[460px] lg:h-[500px]"
+          className="relative mx-auto mt-0 flex h-[250px] w-full max-w-5xl cursor-grab items-center justify-center overflow-hidden active:cursor-grabbing sm:h-[380px] md:h-[460px] lg:h-[500px]"
           role="region"
           aria-labelledby="featured-products-heading"
           style={{

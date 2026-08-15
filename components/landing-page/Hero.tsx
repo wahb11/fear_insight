@@ -126,12 +126,12 @@ export default function Hero() {
       {/* True viewport center: left/top 50% + translate -50% (header optical offset via top calc) */}
       <div
         ref={textRef}
-        className="pointer-events-none absolute left-1/2 z-30 w-max max-w-[92vw] -translate-x-1/2 -translate-y-1/2 px-4 text-center"
+        className="pointer-events-none absolute left-1/2 z-30 w-[min(92%,40rem)] max-w-full -translate-x-1/2 -translate-y-1/2 overflow-hidden px-4 text-center"
         style={{ top: 'calc(50% + 1.75rem)' }}
       >
         <h1
           ref={wordmarkRef}
-          className="font-nike-display block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold uppercase text-white tracking-[0.04em] leading-none whitespace-nowrap"
+          className="font-nike-display block text-[clamp(1.75rem,8.5vw,4.5rem)] font-bold uppercase text-white tracking-[0.04em] leading-none"
         >
           Fear Insight
         </h1>

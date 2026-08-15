@@ -101,7 +101,7 @@ export default function SitemapSection() {
     <section
       ref={sectionRef}
       aria-labelledby="sitemap-heading"
-      className="bg-white px-4 pb-12 pt-8 text-neutral-900 sm:px-6 sm:pb-14 sm:pt-10 lg:px-12 lg:pb-16 lg:pt-12"
+      className="overflow-x-hidden bg-white px-4 pb-12 pt-8 text-neutral-900 sm:px-6 sm:pb-14 sm:pt-10 lg:px-12 lg:pb-16 lg:pt-12"
     >
       <h2 id="sitemap-heading" className="sr-only">
         Explore Fear Insight
@@ -156,7 +156,7 @@ export default function SitemapSection() {
                   <li key={item.label}>
                     <Link
                       href={item.href}
-                      className="inline-block text-sm leading-relaxed text-neutral-600 transition-all duration-300 hover:translate-x-1 hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-900 sm:text-[0.95rem]"
+                      className="inline-block max-w-full break-words text-sm leading-relaxed text-neutral-600 transition-all duration-300 hover:translate-x-1 hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-900 sm:text-[0.95rem]"
                     >
                       {item.label}
                     </Link>

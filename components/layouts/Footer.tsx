@@ -78,7 +78,7 @@ export default function Footer() {
             <Link
               href="/"
               aria-label="Fear Insight home"
-              className="group inline-flex max-w-full items-center gap-3 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e8e4dc] sm:gap-5 md:gap-6"
+              className="group flex max-w-full flex-wrap items-center gap-3 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e8e4dc] sm:gap-5 md:gap-6"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -86,7 +86,7 @@ export default function Footer() {
                 alt=""
                 className="h-9 w-auto shrink-0 brightness-0 invert opacity-90 transition-opacity group-hover:opacity-100 sm:h-12 md:h-16 lg:h-[4.5rem]"
               />
-              <span className="font-nike-display text-[clamp(2.25rem,8.5vw,6.25rem)] uppercase leading-none tracking-[0.02em] text-[#e8e4dc] transition-colors group-hover:text-white">
+              <span className="font-nike-display break-words text-[clamp(1.75rem,7vw,6.25rem)] uppercase leading-none tracking-[0.02em] text-[#e8e4dc] transition-colors group-hover:text-white">
                 Fear Insight
               </span>
             </Link>

@@ -140,7 +140,7 @@ export default function JourneyBanner() {
             <h2
               id="journey-headline"
               ref={headlineRef}
-              className="font-nike-display text-4xl uppercase leading-none tracking-[0.04em] text-white sm:text-5xl md:text-6xl lg:text-7xl"
+              className="font-nike-display break-words text-[clamp(1.75rem,8vw,4.5rem)] uppercase leading-none tracking-[0.04em] text-white"
             >
               See Our Journey
             </h2>

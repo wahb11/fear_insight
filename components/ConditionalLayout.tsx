@@ -14,11 +14,11 @@ export default function ConditionalLayout({ children }: { children: ReactNode })
   }
 
   return (
-    <>
+    <div className="w-full max-w-full overflow-x-hidden">
       <Header />
       {children}
       <Footer />
-    </>
+    </div>
   )
 }
 

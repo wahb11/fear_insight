@@ -51,7 +51,7 @@ const PANEL_W_MOBILE = 170
 const PANEL_H_MOBILE = 210
 
 const SPREAD_DESKTOP = 195
-const SPREAD_MOBILE = 125
+const SPREAD_MOBILE = 88
 const YAW = 46
 const DEPTH = 110
 
@@ -400,10 +400,10 @@ export default function CategoryCarousel() {
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="Product categories carousel. Drag, use arrow buttons, or keyboard arrows to change category."
-      className="category-carousel relative flex flex-col justify-center bg-white text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className="category-carousel relative flex flex-col justify-center overflow-hidden bg-white text-neutral-900 outline-none [contain:paint] focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       style={{
-        minHeight: 'calc(100svh - 6.75rem)',
-        maxHeight: 'calc(100svh - 6.75rem)',
+        minHeight: 'min(100svh - 6.75rem, 640px)',
+        maxHeight: 'min(100svh - 6.75rem, 720px)',
       }}
     >
       <div
@@ -462,7 +462,7 @@ export default function CategoryCarousel() {
 
         <div
           ref={stageRef}
-          className="relative mx-auto min-h-0 w-full flex-1 cursor-grab touch-pan-y select-none active:cursor-grabbing"
+          className="relative mx-auto min-h-0 w-full flex-1 cursor-grab touch-pan-y select-none overflow-hidden active:cursor-grabbing"
           style={{
             perspective: isMobile ? '800px' : '1100px',
             perspectiveOrigin: '50% 50%',
@@ -539,7 +539,7 @@ export default function CategoryCarousel() {
             </p>
             <h3
               ref={titleRef}
-              className="font-nike-display mb-1 text-3xl uppercase leading-none tracking-[0.04em] text-black md:text-5xl"
+              className="font-nike-display mb-1 break-words text-[clamp(1.5rem,7vw,3rem)] uppercase leading-none tracking-[0.04em] text-black md:text-5xl"
             >
               {categories[0]?.title}
             </h3>
