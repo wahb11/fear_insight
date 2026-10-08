@@ -3,7 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useAllProducts } from '@/hooks/useAllProducts'
 import { Product } from '@/types/products'
-import { Toast } from '@/components/ui/toast'
+import { Toast } from '@/components/ui/cart-toast'
+import { parseColorNames, isSizeAvailableForColor } from '@/lib/product-variants'
 
 // Valid influencer promo codes - all give 20% off
 // Add or remove codes here as needed
@@ -103,21 +104,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const product = products.find((p: Product) => p.id === storedItem.productId)
           if (!product) return null
 
-          // Check if color exists (handles string arrays)
-          const colorExists = product.colors.some((c) => {
-            if (typeof c === 'string') {
-              return c.toLowerCase() === storedItem.selectedColor.toLowerCase()
-            }
-            return Object.keys(c).some(key => key.toLowerCase() === storedItem.selectedColor.toLowerCase())
-          })
-
-          // Check if size exists (handles string arrays)
-          const sizeExists = product.sizes.some((s) => {
-            if (typeof s === 'string') {
-              return s.toLowerCase() === storedItem.selectedSize.toLowerCase()
-            }
-            return Object.keys(s).some(key => key.toLowerCase() === storedItem.selectedSize.toLowerCase())
-          })
+          const colorExists = parseColorNames(product.colors).some(
+            (c) => c.toLowerCase() === storedItem.selectedColor.toLowerCase()
+          )
+          const sizeExists = isSizeAvailableForColor(
+            product.sizes,
+            storedItem.selectedColor,
+            storedItem.selectedSize
+          )
 
           if (!colorExists || !sizeExists) return null
 
@@ -181,26 +175,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, isHydrated, shippingType, promoCode])
 
   const addToCart = (product: Product, quantity: number, color: string, size: string) => {
-    // Check if color exists in product (handles string arrays)
-    const colorExists = product.colors.some((c) => {
-      if (typeof c === 'string') {
-        return c.toLowerCase() === color.toLowerCase()
-      }
-      // Fallback for old object format
-      return Object.keys(c).some(key => key.toLowerCase() === color.toLowerCase())
-    })
-    
-    // Check if size exists in product (handles string arrays)
-    const sizeExists = product.sizes.some((s) => {
-      if (typeof s === 'string') {
-        return s.toLowerCase() === size.toLowerCase()
-      }
-      // Fallback for old object format
-      return Object.keys(s).some(key => key.toLowerCase() === size.toLowerCase())
-    })
-    
+    const colorExists = parseColorNames(product.colors).some(
+      (c) => c.toLowerCase() === color.toLowerCase()
+    )
+    const sizeExists = isSizeAvailableForColor(product.sizes, color, size)
+
     if (!colorExists || !sizeExists) {
-      alert('Selected variant is not available')
+      alert('Selected variant is not available for this color/size')
       return
     }
 

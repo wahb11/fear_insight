@@ -11,6 +11,7 @@ import QueryProvider from '@/providers/query-provider'
 import VisitorTracker from '@/components/VisitorTracker'
 import ConditionalLayout from '@/components/ConditionalLayout'
 import { NavigationLoaderProvider } from '@/components/NavigationLoader'
+import { Toaster } from '@/components/ui/toaster'
 import Script from 'next/script'
 import { generateOrganizationSchema, generateWebSiteSchema, schemaToJsonLd } from '@/lib/seo/structured-data'
 
@@ -140,6 +141,7 @@ export default function RootLayout({
         </CartProvider>
         </AuthProvider>
         <Analytics />
+        <Toaster />
         </QueryProvider>
       </body>
     </html>

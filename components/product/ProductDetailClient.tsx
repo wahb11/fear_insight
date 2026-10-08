@@ -23,6 +23,7 @@ import { useWishlist } from '@/app/context/WishlistContext'
 import { useAllProducts } from '@/hooks/useAllProducts'
 import { Product } from '@/types/products'
 import { isOnesizeProduct } from '@/lib/collections'
+import { sizesForColor } from '@/lib/product-variants'
 
 const getColorValue = (colorName: string): string => {
   const colorMap: Record<string, string> = {
@@ -86,26 +87,6 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     })
   }, [product])
 
-  const availableSizes = useMemo<VariantOption[]>(() => {
-    if (!product?.sizes?.length) return []
-    return product.sizes.flatMap((size: unknown) => {
-      if (typeof size === 'string' && size.trim()) {
-        return [{ name: size.trim().toUpperCase(), inStock: true }]
-      }
-      if (typeof size === 'object' && size !== null) {
-        return Object.keys(size)
-          .filter((key) => key.trim().length > 0)
-          .map((key) => ({ name: key.trim().toUpperCase(), inStock: true }))
-      }
-      return []
-    })
-  }, [product])
-
-  const images = useMemo(() => {
-    if (!product?.images?.length) return ['/download.png']
-    return product.images
-  }, [product])
-
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedColor, setSelectedColor] = useState('')
   const [selectedSize, setSelectedSize] = useState('')
@@ -116,6 +97,19 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const [activeTab, setActiveTab] = useState<InfoTab>('details')
   const [lightbox, setLightbox] = useState(false)
 
+  const availableSizes = useMemo<VariantOption[]>(() => {
+    const color = selectedColor || availableColors[0]?.name || ''
+    return sizesForColor(product?.sizes, color).map((name) => ({
+      name,
+      inStock: true,
+    }))
+  }, [product?.sizes, selectedColor, availableColors])
+
+  const images = useMemo(() => {
+    if (!product?.images?.length) return ['/download.png']
+    return product.images
+  }, [product])
+
   const fallbackImage = '/download.png'
 
   useEffect(() => {
@@ -125,8 +119,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     }
   }, [availableColors, selectedColor])
 
+  // When color changes, keep size only if still available for that color
   useEffect(() => {
-    if (availableSizes.length > 0 && !selectedSize) {
+    if (!availableSizes.length) {
+      setSelectedSize('')
+      return
+    }
+    if (!selectedSize || !availableSizes.some((s) => s.name === selectedSize)) {
       const first = availableSizes.find((s) => s.inStock)
       if (first) setSelectedSize(first.name)
     }
@@ -135,7 +134,9 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   useEffect(() => {
     if (!images.length || !selectedColor) return
     const normalized = selectedColor.toLowerCase().replace(/\s+/g, '')
-    const matchingIndex = images.findIndex((img) => {
+
+    // 1) Prefer images tagged with ?color= from admin
+    let matchingIndex = images.findIndex((img) => {
       try {
         const url = new URL(img)
         const colorParam = url.searchParams.get('color')?.toLowerCase().replace(/\s+/g, '')
@@ -145,8 +146,17 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       }
       return img.toLowerCase().includes(`color=${normalized}`)
     })
+
+    // 2) Fallback: same order as colors list (1st color → 1st image, etc.)
+    if (matchingIndex < 0 && availableColors.length > 0) {
+      const colorIdx = availableColors.findIndex(
+        (c) => c.name.toLowerCase().replace(/\s+/g, '') === normalized
+      )
+      if (colorIdx >= 0 && colorIdx < images.length) matchingIndex = colorIdx
+    }
+
     if (matchingIndex >= 0) setSelectedImage(matchingIndex)
-  }, [images, selectedColor])
+  }, [images, selectedColor, availableColors])
 
   useEffect(() => {
     if (selectedImage >= images.length) setSelectedImage(0)

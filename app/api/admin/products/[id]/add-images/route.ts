@@ -1,206 +1,136 @@
-import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
-import { requireAdmin } from "@/lib/admin-auth"
+import { NextRequest, NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/admin-auth'
+import { getAdminSupabase } from '@/lib/admin-supabase'
+import {
+  removeUploadedPaths,
+  uploadProductImages,
+} from '@/lib/admin-image-upload'
+import { invalidateAdminProductList } from '@/lib/admin-products-cache'
+import { applyColorsToImageUrls } from '@/lib/product-image-color'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-const BUCKET_NAME = "products"
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-const validExt = [".jpg", ".jpeg", ".png", ".webp", ".gif"]
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
+  let uploadedPaths: string[] = []
+
   try {
     const auth = await requireAdmin()
     if (!auth.ok) return auth.response
 
-    const { id } = await params
-
-    // Validate product ID
-    if (!id || typeof id !== "string") {
-      return NextResponse.json({ error: "Invalid product ID" }, { status: 400 })
+    const { id } = await Promise.resolve(params)
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 })
     }
 
-    const formData = await req.formData()
-    const files = formData.getAll("images") as File[]
-
-    if (!files || files.length === 0) {
-      return NextResponse.json({ error: "No images provided" }, { status: 400 })
-    }
-
-    // Fetch existing product to preserve existing images
-    const { data: existingProduct, error: fetchError } = await supabase
-      .from("products")
-      .select("images, id")
-      .eq("id", id)
-      .single()
-
-    if (fetchError || !existingProduct) {
-      console.error("Fetch error:", fetchError)
+    let formData: FormData
+    try {
+      formData = await req.formData()
+    } catch {
       return NextResponse.json(
-        { error: fetchError?.message || "Product not found" },
-        { status: 404 }
-      )
-    }
-
-    // Get existing images exactly as they are - NO VALIDATION, NO CHANGES
-    const existingImages = Array.isArray(existingProduct.images)
-      ? (existingProduct.images as string[])
-      : []
-
-    // Get existing files from Supabase Storage to find the highest number
-    const { data: existingFiles, error: listError } = await supabase.storage
-      .from(BUCKET_NAME)
-      .list("", {
-        limit: 1000,
-        sortBy: { column: "name", order: "asc" },
-      })
-
-    if (listError) {
-      console.error("List error:", listError)
-      // Continue anyway, start from 0
-    }
-
-    // Find highest fXXX number
-    let maxNum = 0
-    if (existingFiles) {
-      const patternFiles = existingFiles.filter((file) => /^f\d{3}\./.test(file.name))
-      for (const file of patternFiles) {
-        const num = parseInt(file.name.substring(1, 4))
-        if (!isNaN(num) && num > maxNum) maxNum = num
-      }
-    }
-
-    // Process and upload NEW images to Supabase Storage
-    const newImageUrls: string[] = []
-    const uploadedFileNames: string[] = []
-
-    for (const file of files) {
-      // Validate file size
-      if (file.size > MAX_FILE_SIZE) {
-        // Cleanup uploaded files on error
-        if (uploadedFileNames.length > 0) {
-          await supabase.storage.from(BUCKET_NAME).remove(uploadedFileNames)
-        }
-        return NextResponse.json(
-          { error: `File ${file.name} exceeds maximum size of 10MB` },
-          { status: 400 }
-        )
-      }
-
-      const ext = "." + (file.name.split(".").pop()?.toLowerCase() || "jpg")
-      if (!validExt.includes(ext)) {
-        console.log(`Skipping invalid file extension: ${ext} for file: ${file.name}`)
-        continue
-      }
-
-      maxNum++
-      const newName = `f${String(maxNum).padStart(3, "0")}${ext}`
-
-      // Convert file to array buffer
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-
-      console.log(`Uploading ${newName} to bucket ${BUCKET_NAME}...`)
-
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(newName, buffer, {
-          contentType: file.type || `image/${ext.replace(".", "")}`,
-          upsert: false,
-        })
-
-      if (uploadError) {
-        console.error("Upload error for", newName, ":", uploadError)
-        // Cleanup uploaded files on error
-        if (uploadedFileNames.length > 0) {
-          await supabase.storage.from(BUCKET_NAME).remove(uploadedFileNames)
-        }
-        return NextResponse.json(
-          { error: `Failed to upload ${file.name}: ${uploadError.message}` },
-          { status: 500 }
-        )
-      }
-
-      uploadedFileNames.push(newName)
-
-      // Get public URL from Supabase Storage
-      const { data: urlData } = supabase.storage
-        .from(BUCKET_NAME)
-        .getPublicUrl(newName)
-
-      if (!urlData?.publicUrl) {
-        console.error("Failed to get public URL for", newName)
-        // Cleanup uploaded files on error
-        if (uploadedFileNames.length > 0) {
-          await supabase.storage.from(BUCKET_NAME).remove(uploadedFileNames)
-        }
-        return NextResponse.json(
-          { error: `Failed to generate URL for ${file.name}` },
-          { status: 500 }
-        )
-      }
-
-      console.log(`Uploaded successfully. URL: ${urlData.publicUrl}`)
-      newImageUrls.push(urlData.publicUrl)
-    }
-
-    if (newImageUrls.length === 0) {
-      return NextResponse.json(
-        { error: "No valid images were uploaded. Supported formats: JPG, JPEG, PNG, WEBP, GIF" },
+        {
+          error:
+            'Could not read upload body. Try fewer/smaller images (under 10MB each) and use JPG or PNG.',
+        },
         { status: 400 }
       )
     }
 
-    // Simple merge: existing images first, then new images
-    // NO VALIDATION, NO FILTERING, NO CHANGES to existing URLs
-    const updatedImages = [...existingImages, ...newImageUrls]
+    const files = formData
+      .getAll('images')
+      .filter((entry): entry is File => typeof File !== 'undefined' && entry instanceof File)
 
-    console.log(`Updating product ${id} with ${updatedImages.length} images (${existingImages.length} existing + ${newImageUrls.length} new)`)
+    if (files.length === 0) {
+      return NextResponse.json({ error: 'No images provided' }, { status: 400 })
+    }
 
-    // Update product with merged images
+    const supabase = getAdminSupabase()
+    const { data: existingProduct, error: fetchError } = await supabase
+      .from('products')
+      .select('images, id')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !existingProduct) {
+      return NextResponse.json(
+        { error: fetchError?.message || 'Product not found' },
+        { status: 404 }
+      )
+    }
+
+    const existingImages = Array.isArray(existingProduct.images)
+      ? (existingProduct.images as string[])
+      : []
+
+    const { urls: newImageUrls, paths, skipped } = await uploadProductImages(files)
+    uploadedPaths = paths
+
+    if (newImageUrls.length === 0) {
+      return NextResponse.json(
+        {
+          error:
+            skipped.length > 0
+              ? `No valid images uploaded. ${skipped.join('; ')}`
+              : 'No valid images were uploaded. Supported formats: JPG, JPEG, PNG, WEBP, GIF',
+        },
+        { status: 400 }
+      )
+    }
+
+    let imageColors: Array<string | null> = []
+    const colorsRaw = formData.get('imageColors')
+    if (typeof colorsRaw === 'string' && colorsRaw.trim()) {
+      try {
+        const parsed = JSON.parse(colorsRaw)
+        if (Array.isArray(parsed)) imageColors = parsed
+      } catch {
+        /* ignore bad JSON */
+      }
+    }
+
+    const taggedNewUrls = applyColorsToImageUrls(newImageUrls, imageColors)
+    const updatedImages = [...existingImages, ...taggedNewUrls]
+
     const { data, error } = await supabase
-      .from("products")
+      .from('products')
       .update({ images: updatedImages })
-      .eq("id", id)
+      .eq('id', id)
       .select()
 
     if (error) {
-      console.error("Update error:", error)
-      // Cleanup uploaded files if database update fails
-      if (uploadedFileNames.length > 0) {
-        await supabase.storage.from(BUCKET_NAME).remove(uploadedFileNames)
-      }
+      await removeUploadedPaths(uploadedPaths)
+      uploadedPaths = []
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     if (!data || data.length === 0) {
-      // Cleanup uploaded files if product not found
-      if (uploadedFileNames.length > 0) {
-        await supabase.storage.from(BUCKET_NAME).remove(uploadedFileNames)
-      }
-      return NextResponse.json({ error: "Product not found" }, { status: 404 })
+      await removeUploadedPaths(uploadedPaths)
+      uploadedPaths = []
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    console.log("Product updated successfully")
-
-    const { invalidateAdminProductList } = await import("@/lib/admin-products-cache")
     invalidateAdminProductList()
     return NextResponse.json({
       success: true,
       product: data[0],
-      newImages: newImageUrls,
+      newImages: taggedNewUrls,
       totalImages: updatedImages.length,
+      skipped: skipped.length ? skipped : undefined,
     })
   } catch (error: any) {
-    console.error("Add images error:", error)
+    if (uploadedPaths.length > 0) {
+      try {
+        await removeUploadedPaths(uploadedPaths)
+      } catch {
+        /* ignore */
+      }
+    }
+    console.error('Add images error:', error)
     return NextResponse.json(
-      { error: error.message || "An error occurred while adding images" },
+      { error: error?.message || 'An error occurred while adding images' },
       { status: 500 }
     )
   }

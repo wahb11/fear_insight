@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/admin-auth'
+import { getAdminSupabase, PRODUCTS_BUCKET } from '@/lib/admin-supabase'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-const BUCKET_NAME = 'products'
+const BUCKET_NAME = PRODUCTS_BUCKET
 
 function extractStoragePath(imageUrl: string): string | null {
   try {
@@ -34,6 +29,7 @@ export async function POST(
   if (!auth.ok) return auth.response
 
   try {
+    const supabase = getAdminSupabase()
     const { id } = await params
     const body = await req.json()
     const imageUrl: string | undefined = body.imageUrl || body.url

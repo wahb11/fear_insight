@@ -28,7 +28,7 @@ export default function CartPage() {
   const [promoInput, setPromoInput] = useState('')
   const [promoError, setPromoError] = useState<string | null>(null)
 
-  // Pick the first image whose query param color matches the selected color; fall back to the first image
+  // Prefer ?color= tagged images from admin; else fall back to first image
   const getImageForColor = (images: string[], selectedColor: string) => {
     if (!images?.length) return ''
     const normalizedSelected = selectedColor.toLowerCase().replace(/\s+/g, '')

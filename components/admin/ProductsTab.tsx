@@ -10,15 +10,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, Upload, X, Edit, ImagePlus, Trash2, Package, Star, AlertCircle, Wand2 } from "lucide-react"
+import { Loader2, Upload, X, Edit, ImagePlus, Trash2, Package, Star, AlertCircle, Wand2, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react"
 import { Product } from "@/types/products"
+import { getImageColor, setImageColor } from "@/lib/product-image-color"
+import {
+  buildPerColorSizes,
+  colorSizeMapFromProduct,
+  hasPerColorSizes,
+  parseColorNames,
+  parseFlatSizes,
+} from "@/lib/product-variants"
+
+const DEFAULT_SIZE_OPTIONS = ["S", "M", "L", "XL", "XXL"]
+
+const IMAGE_ACCEPT =
+  "image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
+const IMAGE_EXT = /\.(jpe?g|png|webp|gif)$/i
+const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
 
 export default function ProductsTab() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [listLoading, setListLoading] = useState(true)
+  const [uploadNotice, setUploadNotice] = useState<{
+    type: "success" | "error"
+    title: string
+    message: string
+  } | null>(null)
   const [images, setImages] = useState<File[]>([])
   const [previews, setPreviews] = useState<string[]>([])
+  const [imageColors, setImageColors] = useState<string[]>([])
+  const [newImageColors, setNewImageColors] = useState<string[]>([])
+  const [dragOverCreate, setDragOverCreate] = useState(false)
+  const [dragOverAdd, setDragOverAdd] = useState(false)
+  const [assigningColor, setAssigningColor] = useState(false)
+  const [perColorSizesCreate, setPerColorSizesCreate] = useState(false)
+  const [perColorSizesEdit, setPerColorSizesEdit] = useState(false)
+  const [createColorSizeMap, setCreateColorSizeMap] = useState<Record<string, string[]>>({})
+  const [editColorSizeMap, setEditColorSizeMap] = useState<Record<string, string[]>>({})
   const [categories, setCategories] = useState<any[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -54,6 +83,8 @@ export default function ProductsTab() {
   const [cutoutBlob, setCutoutBlob] = useState<Blob | null>(null)
   const autoCutoutRef = useRef<HTMLInputElement | null>(null)
   const readyCutoutRef = useRef<HTMLInputElement | null>(null)
+  const createImagesInputRef = useRef<HTMLInputElement | null>(null)
+  const addImagesInputRef = useRef<HTMLInputElement | null>(null)
 
   // Fetch categories and products on mount
   useEffect(() => {
@@ -98,10 +129,78 @@ export default function ProductsTab() {
     }
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    setImages((prev) => [...prev, ...files])
+  const filterImageFiles = (picked: File[]) => {
+    const files = picked.filter((file) => {
+      const ok = IMAGE_EXT.test(file.name) || IMAGE_TYPES.includes(file.type)
+      if (!ok) {
+        toast({
+          title: "Unsupported image",
+          description: `${file.name} was skipped. Use JPG/PNG/WEBP/GIF (not HEIC).`,
+          variant: "destructive",
+        })
+      }
+      return ok
+    })
+    return files
+  }
 
+  const parseColorList = (raw: string) =>
+    raw
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean)
+
+  const parseSizeList = (raw: string) =>
+    raw
+      .split(",")
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean)
+
+  const syncColorSizeMap = (
+    colors: string[],
+    masterSizes: string[],
+    prev: Record<string, string[]>
+  ) => {
+    const next: Record<string, string[]> = {}
+    for (const color of colors) {
+      next[color] = prev[color]?.length ? prev[color] : [...masterSizes]
+    }
+    return next
+  }
+
+  const toggleSizeForColor = (
+    map: Record<string, string[]>,
+    color: string,
+    size: string
+  ) => {
+    const current = map[color] || []
+    const has = current.includes(size)
+    return {
+      ...map,
+      [color]: has ? current.filter((s) => s !== size) : [...current, size],
+    }
+  }
+
+  const resolveSizesPayload = (
+    perColor: boolean,
+    colorsRaw: string,
+    sizesRaw: string,
+    colorMap: Record<string, string[]>
+  ) => {
+    const colors = parseColorList(colorsRaw)
+    const flat = parseSizeList(sizesRaw)
+    if (perColor && colors.length > 0) {
+      const maps = buildPerColorSizes(colorMap)
+      if (maps.length > 0) return maps
+    }
+    return flat.length > 0 ? flat : ["S", "M", "L", "XL"]
+  }
+
+  const appendCreateImages = (picked: File[]) => {
+    const files = filterImageFiles(picked)
+    if (files.length === 0) return
+    setImages((prev) => [...prev, ...files])
+    setImageColors((prev) => [...prev, ...files.map(() => "")])
     files.forEach((file) => {
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -111,10 +210,11 @@ export default function ProductsTab() {
     })
   }
 
-  const handleNewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
+  const appendNewImages = (picked: File[]) => {
+    const files = filterImageFiles(picked)
+    if (files.length === 0) return
     setNewImages((prev) => [...prev, ...files])
-
+    setNewImageColors((prev) => [...prev, ...files.map(() => "")])
     files.forEach((file) => {
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -124,34 +224,181 @@ export default function ProductsTab() {
     })
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    appendCreateImages(Array.from(e.target.files || []))
+    e.target.value = ""
+  }
+
+  const handleNewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    appendNewImages(Array.from(e.target.files || []))
+    e.target.value = ""
+  }
+
+  const onDragOver =
+    (setter: (v: boolean) => void) =>
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setter(true)
+    }
+
+  const onDragLeave =
+    (setter: (v: boolean) => void) =>
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setter(false)
+    }
+
+  const onDropCreate = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverCreate(false)
+    appendCreateImages(Array.from(e.dataTransfer.files || []))
+  }
+
+  const onDropAdd = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverAdd(false)
+    appendNewImages(Array.from(e.dataTransfer.files || []))
+  }
+
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index))
     setPreviews((prev) => prev.filter((_, i) => i !== index))
+    setImageColors((prev) => prev.filter((_, i) => i !== index))
   }
 
   const removeNewImage = (index: number) => {
     setNewImages((prev) => prev.filter((_, i) => i !== index))
     setNewImagePreviews((prev) => prev.filter((_, i) => i !== index))
+    setNewImageColors((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const moveItem = <T,>(list: T[], from: number, to: number) => {
+    if (to < 0 || to >= list.length || from === to) return list
+    const next = [...list]
+    const [item] = next.splice(from, 1)
+    next.splice(to, 0, item)
+    return next
+  }
+
+  const moveCreateImage = (from: number, to: number) => {
+    setImages((prev) => moveItem(prev, from, to))
+    setPreviews((prev) => moveItem(prev, from, to))
+    setImageColors((prev) => moveItem(prev, from, to))
+  }
+
+  const moveNewImage = (from: number, to: number) => {
+    setNewImages((prev) => moveItem(prev, from, to))
+    setNewImagePreviews((prev) => moveItem(prev, from, to))
+    setNewImageColors((prev) => moveItem(prev, from, to))
+  }
+
+  const persistEditingImages = async (
+    nextImages: string[],
+    previous: string[],
+    successMessage: string
+  ) => {
+    if (!editingProduct) return false
+    setEditingProduct({ ...editingProduct, images: nextImages })
+    try {
+      const res = await fetch(`/api/admin/products/${editingProduct.id}/reorder-images`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ images: nextImages }),
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        setEditingProduct({ ...editingProduct, images: previous })
+        toast({
+          title: "Could not update images",
+          description: data?.error || "Failed to save image changes",
+          variant: "destructive",
+        })
+        return false
+      }
+      if (Array.isArray(data?.images)) {
+        setEditingProduct((prev) => (prev ? { ...prev, images: data.images } : prev))
+      }
+      fetchProducts({ silent: true })
+      toast({ title: "Saved", description: successMessage })
+      return true
+    } catch (error: any) {
+      setEditingProduct({ ...editingProduct, images: previous })
+      toast({
+        title: "Could not update images",
+        description: error?.message || "Failed to save image changes",
+        variant: "destructive",
+      })
+      return false
+    }
+  }
+
+  const reorderEditingImages = async (from: number, to: number) => {
+    if (!editingProduct?.images?.length) return
+    if (to < 0 || to >= editingProduct.images.length || from === to) return
+    const previous = editingProduct.images
+    const nextImages = moveItem(previous, from, to)
+    await persistEditingImages(
+      nextImages,
+      previous,
+      "Image order saved. The first image is the main product photo."
+    )
+  }
+
+  const assignEditingImageColor = async (index: number, color: string) => {
+    if (!editingProduct?.images?.[index]) return
+    const previous = editingProduct.images
+    const nextImages = previous.map((url, i) =>
+      i === index ? setImageColor(url, color || null) : url
+    )
+    setAssigningColor(true)
+    await persistEditingImages(
+      nextImages,
+      previous,
+      color
+        ? `This photo will show when shoppers pick "${color}".`
+        : "Color link removed from this photo."
+    )
+    setAssigningColor(false)
+  }
+
+  const notifyUpload = (
+    type: "success" | "error",
+    title: string,
+    message: string
+  ) => {
+    setUploadNotice({ type, title, message })
+    toast({
+      title,
+      description: message,
+      variant: type === "error" ? "destructive" : "default",
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setUploadNotice(null)
     
     if (images.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please upload at least one image",
-        variant: "destructive",
-      })
+      notifyUpload("error", "Product not added", "Please upload at least one image.")
       return
     }
 
     if (!formData.category_id) {
-      toast({
-        title: "Error",
-        description: "Please select a category",
-        variant: "destructive",
-      })
+      notifyUpload("error", "Product not added", "Please select a category.")
+      return
+    }
+
+    if (!formData.name.trim()) {
+      notifyUpload("error", "Product not added", "Please enter a product name.")
+      return
+    }
+
+    if (!formData.price || Number(formData.price) <= 0) {
+      notifyUpload("error", "Product not added", "Please enter a valid price.")
       return
     }
 
@@ -160,21 +407,21 @@ export default function ProductsTab() {
     try {
       const submitFormData = new FormData()
       
-      const colors = formData.colors
-        .split(",")
-        .map((c) => c.trim())
-        .filter((c) => c)
-      const sizes = formData.sizes
-        .split(",")
-        .map((s) => s.trim())
-        .filter((s) => s)
+      const colors = parseColorList(formData.colors)
+      const sizes = resolveSizesPayload(
+        perColorSizesCreate,
+        formData.colors,
+        formData.sizes,
+        createColorSizeMap
+      )
 
       const productData = {
         ...formData,
         colors: colors.length > 0 ? colors : ["Black"],
-        sizes: sizes.length > 0 ? sizes : ["S", "M", "L", "XL"],
+        sizes,
         price: parseFloat(formData.price),
         discount: parseFloat(formData.discount),
+        imageColors,
       }
 
       submitFormData.append("productData", JSON.stringify(productData))
@@ -187,19 +434,29 @@ export default function ProductsTab() {
         body: submitFormData,
       })
 
-      const data = await res.json()
+      let data: any = null
+      try {
+        data = await res.json()
+      } catch {
+        data = null
+      }
 
       if (res.ok) {
-        toast({
-          title: "Success",
-          description: "Product uploaded successfully!",
-        })
+        const productName = data?.product?.name || formData.name.trim()
+        notifyUpload(
+          "success",
+          "Product added",
+          data?.skipped?.length
+            ? `"${productName}" was added. Some files skipped: ${data.skipped.join("; ")}`
+            : `"${productName}" was added successfully with ${images.length} image(s).`
+        )
+        const preferred = categories.find((c: any) => c.parent_id) || categories[0]
         setFormData({
           name: "",
           description: "",
           price: "",
           discount: "0",
-          category_id: categories[0]?.id || "",
+          category_id: preferred?.id || "",
           colors: "",
           sizes: "",
           featured: false,
@@ -207,63 +464,63 @@ export default function ProductsTab() {
         })
         setImages([])
         setPreviews([])
+        setImageColors([])
+        setPerColorSizesCreate(false)
+        setCreateColorSizeMap({})
         fetchProducts({ silent: true })
       } else {
-        toast({
-          title: "Error",
-          description: data.error || "Failed to upload product",
-          variant: "destructive",
-        })
+        notifyUpload(
+          "error",
+          "Product not added",
+          data?.error || `Upload failed (${res.status}). Please try again.`
+        )
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An error occurred",
-        variant: "destructive",
-      })
+    } catch (error: any) {
+      notifyUpload(
+        "error",
+        "Product not added",
+        error?.message || "An unexpected error occurred while uploading."
+      )
     } finally {
       setLoading(false)
     }
   }
 
-  const openEditDialog = async (product: Product) => {
-    // Optimistically open with list data, then fetch full product in background
-    setEditingProduct(product)
+  const hydrateEditVariants = (product: Product) => {
+    const colorNames = parseColorNames(product.colors)
+    const flatSizes = parseFlatSizes(product.sizes)
+    const perColor = hasPerColorSizes(product.sizes)
+    setPerColorSizesEdit(perColor)
+    setEditColorSizeMap(colorSizeMapFromProduct(product.sizes, colorNames))
     setEditFormData({
       name: product.name,
       description: product.description || "",
       price: product.price.toString(),
       discount: (product.discount ?? 0).toString(),
       category_id: product.category_id,
-      colors: Array.isArray(product.colors) ? product.colors.join(", ") : "",
-      sizes: Array.isArray(product.sizes) ? product.sizes.join(", ") : "",
+      colors: colorNames.join(", "),
+      sizes: (flatSizes.length ? flatSizes : DEFAULT_SIZE_OPTIONS).join(", "),
       featured: product.featured,
       best_seller: product.best_seller,
     })
+  }
+
+  const openEditDialog = async (product: Product) => {
+    setEditingProduct(product)
+    hydrateEditVariants(product)
     if (cutoutPreview) URL.revokeObjectURL(cutoutPreview)
     setCutoutPreview(null)
     setCutoutBlob(null)
     setCutoutProgress("")
     setEditDialogOpen(true)
 
-    // Fetch full product details (colors, sizes, all images) in background
     try {
       const res = await fetch(`/api/admin/products/${product.id}`)
       if (res.ok) {
         const json = await res.json()
         const full: Product = json.product ?? json
         setEditingProduct(full)
-        setEditFormData({
-          name: full.name,
-          description: full.description || "",
-          price: full.price.toString(),
-          discount: (full.discount ?? 0).toString(),
-          category_id: full.category_id,
-          colors: Array.isArray(full.colors) ? full.colors.join(", ") : "",
-          sizes: Array.isArray(full.sizes) ? full.sizes.join(", ") : "",
-          featured: full.featured,
-          best_seller: full.best_seller,
-        })
+        hydrateEditVariants(full)
       }
     } catch {
       // silently keep the optimistic data already shown
@@ -276,14 +533,13 @@ export default function ProductsTab() {
     setLoading(true)
 
     try {
-      const colors = editFormData.colors
-        .split(",")
-        .map((c) => c.trim())
-        .filter((c) => c)
-      const sizes = editFormData.sizes
-        .split(",")
-        .map((s) => s.trim())
-        .filter((s) => s)
+      const colors = parseColorList(editFormData.colors)
+      const sizes = resolveSizesPayload(
+        perColorSizesEdit,
+        editFormData.colors,
+        editFormData.sizes,
+        editColorSizeMap
+      )
 
       const updateData = {
         name: editFormData.name,
@@ -292,7 +548,7 @@ export default function ProductsTab() {
         discount: parseFloat(editFormData.discount),
         category_id: editFormData.category_id,
         colors: colors.length > 0 ? colors : ["Black"],
-        sizes: sizes.length > 0 ? sizes : ["S", "M", "L", "XL"],
+        sizes,
         featured: editFormData.featured,
         best_seller: editFormData.best_seller,
       }
@@ -340,34 +596,46 @@ export default function ProductsTab() {
       newImages.forEach((image) => {
         formData.append("images", image)
       })
+      formData.append("imageColors", JSON.stringify(newImageColors))
 
       const res = await fetch(`/api/admin/products/${editingProduct.id}/add-images`, {
         method: "POST",
         body: formData,
       })
 
-      const data = await res.json()
+      let data: any = null
+      try {
+        data = await res.json()
+      } catch {
+        data = null
+      }
 
       if (res.ok) {
         toast({
           title: "Success",
-          description: `${data.newImages?.length || 0} image(s) added successfully!`,
+          description: data?.skipped?.length
+            ? `Added ${data.newImages?.length || 0} image(s). Skipped: ${data.skipped.join("; ")}`
+            : `${data?.newImages?.length || 0} image(s) added successfully!`,
         })
         setAddImagesDialogOpen(false)
         setNewImages([])
         setNewImagePreviews([])
+        setNewImageColors([])
+        if (data?.product) {
+          setEditingProduct(data.product)
+        }
         fetchProducts({ silent: true })
       } else {
         toast({
           title: "Error",
-          description: data.error || "Failed to add images",
+          description: data?.error || `Failed to add images (${res.status})`,
           variant: "destructive",
         })
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "An error occurred while uploading images",
+        description: error?.message || "An error occurred while uploading images",
         variant: "destructive",
       })
     } finally {
@@ -655,6 +923,36 @@ export default function ProductsTab() {
           </CardHeader>
           <CardContent className="px-4 sm:px-6 pb-6">
             <form onSubmit={handleSubmit} className="space-y-5">
+              {uploadNotice && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className={`flex items-start gap-3 rounded-md border px-4 py-3 ${
+                    uploadNotice.type === "success"
+                      ? "border-emerald-300 bg-emerald-50 text-emerald-950"
+                      : "border-red-300 bg-red-50 text-red-950"
+                  }`}
+                >
+                  {uploadNotice.type === "success" ? (
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                  ) : (
+                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold">{uploadNotice.title}</p>
+                    <p className="mt-0.5 text-sm opacity-90">{uploadNotice.message}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setUploadNotice(null)}
+                    className="shrink-0 rounded p-1 opacity-60 hover:opacity-100"
+                    aria-label="Dismiss notification"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+
               {/* Name / Price / Discount */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-2 sm:col-span-1">
@@ -761,7 +1059,7 @@ export default function ProductsTab() {
                 />
               </div>
 
-              {/* Colors and Sizes Row */}
+              {/* Colors and Sizes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="colors" className="text-neutral-800 text-sm">
@@ -770,17 +1068,27 @@ export default function ProductsTab() {
                   <Input
                     id="colors"
                     value={formData.colors}
-                    onChange={(e) =>
-                      setFormData({ ...formData, colors: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const colors = e.target.value
+                      setFormData({ ...formData, colors })
+                      setCreateColorSizeMap((prev) =>
+                        syncColorSizeMap(
+                          parseColorList(colors),
+                          parseSizeList(formData.sizes).length
+                            ? parseSizeList(formData.sizes)
+                            : DEFAULT_SIZE_OPTIONS,
+                          prev
+                        )
+                      )
+                    }}
                     className="bg-neutral-100 border-neutral-200 text-neutral-900 h-10"
-                    placeholder="Black, Navy, White"
+                    placeholder="Black, Navy"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="sizes" className="text-neutral-800 text-sm">
-                    Sizes (comma-separated)
+                    Size options (comma-separated)
                   </Label>
                   <Input
                     id="sizes"
@@ -794,52 +1102,222 @@ export default function ProductsTab() {
                 </div>
               </div>
 
+              <div className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50 p-3">
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="per-color-sizes-create"
+                    checked={perColorSizesCreate}
+                    onCheckedChange={(checked) => {
+                      const on = checked === true
+                      setPerColorSizesCreate(on)
+                      if (on) {
+                        setCreateColorSizeMap((prev) =>
+                          syncColorSizeMap(
+                            parseColorList(formData.colors),
+                            parseSizeList(formData.sizes).length
+                              ? parseSizeList(formData.sizes)
+                              : DEFAULT_SIZE_OPTIONS,
+                            prev
+                          )
+                        )
+                      }
+                    }}
+                    className="mt-0.5 border-neutral-300"
+                  />
+                  <div>
+                    <Label
+                      htmlFor="per-color-sizes-create"
+                      className="text-neutral-800 text-sm cursor-pointer"
+                    >
+                      Different sizes for each color
+                    </Label>
+                    <p className="text-xs text-neutral-500 mt-0.5">
+                      Example: Black has S–L, Navy has M–XL.
+                    </p>
+                  </div>
+                </div>
+
+                {perColorSizesCreate && (
+                  <div className="space-y-3">
+                    {parseColorList(formData.colors).length === 0 ? (
+                      <p className="text-xs text-amber-700">
+                        Enter colors above first, then pick sizes for each.
+                      </p>
+                    ) : (
+                      parseColorList(formData.colors).map((color) => {
+                        const options =
+                          parseSizeList(formData.sizes).length > 0
+                            ? parseSizeList(formData.sizes)
+                            : DEFAULT_SIZE_OPTIONS
+                        const selected = createColorSizeMap[color] || []
+                        return (
+                          <div key={color} className="space-y-1.5">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-700">
+                              {color}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {options.map((size) => {
+                                const active = selected.includes(size)
+                                return (
+                                  <button
+                                    key={size}
+                                    type="button"
+                                    onClick={() =>
+                                      setCreateColorSizeMap((prev) =>
+                                        toggleSizeForColor(prev, color, size)
+                                      )
+                                    }
+                                    className={`min-w-[2.5rem] px-2.5 py-1.5 text-xs font-semibold border transition-colors ${
+                                      active
+                                        ? "border-neutral-900 bg-neutral-900 text-white"
+                                        : "border-neutral-300 bg-white text-neutral-700 hover:border-neutral-500"
+                                    }`}
+                                  >
+                                    {size}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Image Upload Section */}
               <div className="space-y-3">
                 <Label className="text-neutral-800 text-sm flex items-center gap-2">
                   <ImagePlus className="w-4 h-4" />
                   Product Images *
                 </Label>
-                
-                {/* Image Previews */}
-                {previews.length > 0 && (
-                  <div className="flex flex-wrap gap-3">
-                  {previews.map((preview, index) => (
-                      <div key={index} className="relative group">
-                      <img
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                          className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-neutral-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                          className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full p-1 shadow-lg transition-colors"
-                      >
-                          <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                )}
-                
-                {/* Upload Input */}
-                <div className="relative">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageChange}
-                    className="bg-neutral-100 border-neutral-200 text-neutral-900 h-10 file:bg-neutral-200 file:text-neutral-900 file:border-0 file:mr-3 file:px-3 file:h-10 file:cursor-pointer"
-                />
-              </div>
 
-                {previews.length === 0 && (
-                  <p className="text-xs text-neutral-500 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" />
-                    At least one image is required
-                  </p>
+                {previews.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-neutral-500">
+                      First image is the main photo. Assign a color under each pic so the color circle on the product page shows that photo.
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      {previews.map((preview, index) => (
+                        <div key={index} className="relative w-[5.5rem] sm:w-28">
+                          <div className="relative">
+                            <img
+                              src={preview}
+                              alt={`Preview ${index + 1}`}
+                              className="h-20 w-full sm:h-24 object-cover rounded-lg border border-neutral-200"
+                            />
+                            <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                              {index + 1}
+                              {index === 0 ? " · main" : ""}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full p-1 shadow-lg transition-colors"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <select
+                            value={imageColors[index] || ""}
+                            onChange={(e) =>
+                              setImageColors((prev) => {
+                                const next = [...prev]
+                                next[index] = e.target.value
+                                return next
+                              })
+                            }
+                            className="mt-1 w-full rounded border border-neutral-300 bg-white px-1 py-1 text-[11px] text-neutral-800"
+                            aria-label={`Color for image ${index + 1}`}
+                          >
+                            <option value="">No color</option>
+                            {parseColorList(formData.colors).map((c) => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
+                          </select>
+                          {previews.length > 1 && (
+                            <div className="mt-1 flex justify-center gap-1">
+                              <button
+                                type="button"
+                                disabled={index === 0}
+                                onClick={() => moveCreateImage(index, index - 1)}
+                                className="rounded border border-neutral-300 bg-white p-1 text-neutral-700 disabled:opacity-30 hover:bg-neutral-100"
+                                aria-label={`Move image ${index + 1} left`}
+                              >
+                                <ChevronLeft className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={index === previews.length - 1}
+                                onClick={() => moveCreateImage(index, index + 1)}
+                                className="rounded border border-neutral-300 bg-white p-1 text-neutral-700 disabled:opacity-30 hover:bg-neutral-100"
+                                aria-label={`Move image ${index + 1} right`}
+                              >
+                                <ChevronRight className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {parseColorList(formData.colors).length === 0 && (
+                      <p className="text-xs text-amber-700">
+                        Enter colors above (e.g. Black, Navy) to link each photo to a color circle.
+                      </p>
+                    )}
+                  </div>
                 )}
+
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      createImagesInputRef.current?.click()
+                    }
+                  }}
+                  onClick={() => createImagesInputRef.current?.click()}
+                  onDragEnter={onDragOver(setDragOverCreate)}
+                  onDragOver={onDragOver(setDragOverCreate)}
+                  onDragLeave={onDragLeave(setDragOverCreate)}
+                  onDrop={onDropCreate}
+                  className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors ${
+                    dragOverCreate
+                      ? "border-neutral-900 bg-neutral-100"
+                      : "border-neutral-300 bg-neutral-50 hover:border-neutral-500 hover:bg-neutral-100"
+                  }`}
+                >
+                  <Upload
+                    className={`h-7 w-7 ${dragOverCreate ? "text-neutral-900" : "text-neutral-500"}`}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-neutral-900">
+                      {dragOverCreate ? "Drop images here" : "Drag & drop product images"}
+                    </p>
+                    <p className="mt-1 text-xs text-neutral-500">
+                      or click to browse · JPG, PNG, WEBP, GIF
+                    </p>
+                  </div>
+                  <input
+                    ref={createImagesInputRef}
+                    type="file"
+                    accept={IMAGE_ACCEPT}
+                    multiple
+                    onChange={handleImageChange}
+                    className="sr-only"
+                  />
+                </div>
+
+                <p className="text-xs text-neutral-500 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {previews.length === 0
+                    ? "At least one image is required (not HEIC from iPhone)"
+                    : `${previews.length} image(s) ready · max 10MB each`}
+                </p>
               </div>
 
               <div className="flex flex-wrap gap-6 py-2">
@@ -989,14 +1467,24 @@ export default function ProductsTab() {
                   <Label className="text-neutral-800 text-sm">Colors (comma-separated)</Label>
                   <Input
                     value={editFormData.colors}
-                    onChange={(e) =>
-                      setEditFormData({ ...editFormData, colors: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const colors = e.target.value
+                      setEditFormData({ ...editFormData, colors })
+                      setEditColorSizeMap((prev) =>
+                        syncColorSizeMap(
+                          parseColorList(colors),
+                          parseSizeList(editFormData.sizes).length
+                            ? parseSizeList(editFormData.sizes)
+                            : DEFAULT_SIZE_OPTIONS,
+                          prev
+                        )
+                      )
+                    }}
                     className="bg-neutral-100 border-neutral-200 text-neutral-900 h-10"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-neutral-800 text-sm">Sizes (comma-separated)</Label>
+                  <Label className="text-neutral-800 text-sm">Size options (comma-separated)</Label>
                   <Input
                     value={editFormData.sizes}
                     onChange={(e) =>
@@ -1007,31 +1495,186 @@ export default function ProductsTab() {
                 </div>
               </div>
 
+              <div className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50 p-3">
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="per-color-sizes-edit"
+                    checked={perColorSizesEdit}
+                    onCheckedChange={(checked) => {
+                      const on = checked === true
+                      setPerColorSizesEdit(on)
+                      if (on) {
+                        setEditColorSizeMap((prev) =>
+                          syncColorSizeMap(
+                            parseColorList(editFormData.colors),
+                            parseSizeList(editFormData.sizes).length
+                              ? parseSizeList(editFormData.sizes)
+                              : DEFAULT_SIZE_OPTIONS,
+                            prev
+                          )
+                        )
+                      }
+                    }}
+                    className="mt-0.5 border-neutral-300"
+                  />
+                  <div>
+                    <Label
+                      htmlFor="per-color-sizes-edit"
+                      className="text-neutral-800 text-sm cursor-pointer"
+                    >
+                      Different sizes for each color
+                    </Label>
+                    <p className="text-xs text-neutral-500 mt-0.5">
+                      Same design, different size ranges per color. Click Save Changes after editing.
+                    </p>
+                  </div>
+                </div>
+
+                {perColorSizesEdit && (
+                  <div className="space-y-3">
+                    {parseColorList(editFormData.colors).length === 0 ? (
+                      <p className="text-xs text-amber-700">
+                        Enter colors above first, then pick sizes for each.
+                      </p>
+                    ) : (
+                      parseColorList(editFormData.colors).map((color) => {
+                        const options =
+                          parseSizeList(editFormData.sizes).length > 0
+                            ? parseSizeList(editFormData.sizes)
+                            : DEFAULT_SIZE_OPTIONS
+                        const selected = editColorSizeMap[color] || []
+                        return (
+                          <div key={color} className="space-y-1.5">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-700">
+                              {color}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {options.map((size) => {
+                                const active = selected.includes(size)
+                                return (
+                                  <button
+                                    key={size}
+                                    type="button"
+                                    onClick={() =>
+                                      setEditColorSizeMap((prev) =>
+                                        toggleSizeForColor(prev, color, size)
+                                      )
+                                    }
+                                    className={`min-w-[2.5rem] px-2.5 py-1.5 text-xs font-semibold border transition-colors ${
+                                      active
+                                        ? "border-neutral-900 bg-neutral-900 text-white"
+                                        : "border-neutral-300 bg-white text-neutral-700 hover:border-neutral-500"
+                                    }`}
+                                  >
+                                    {size}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Current Images */}
               <div className="space-y-2">
                 <Label className="text-neutral-800 text-sm">Current Images</Label>
-                <div className="flex flex-wrap gap-2">
+                <p className="text-xs text-neutral-500">
+                  Link each photo to a color. On the shop page, tapping that color circle shows this photo. Order saves immediately.
+                </p>
+                <div className="flex flex-wrap gap-3">
                   {editingProduct.images?.length > 0 ? (
-                    editingProduct.images.map((img, idx) => (
-                      <div key={idx} className="relative group">
-                      <img
-                        src={img}
-                        alt={`Product image ${idx + 1}`}
-                          className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-neutral-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(editingProduct.id, img)}
-                          className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full p-1 shadow-lg transition-colors"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                    ))
+                    editingProduct.images.map((img, idx) => {
+                      const linkedColor = getImageColor(img) || ""
+                      const colorOptions = parseColorList(editFormData.colors)
+                      return (
+                        <div key={`${img}-${idx}`} className="relative w-[5.5rem] sm:w-28">
+                          <div className="relative">
+                            <img
+                              src={img}
+                              alt={`Product image ${idx + 1}`}
+                              className="h-16 w-full sm:h-20 object-cover rounded-lg border border-neutral-200"
+                            />
+                            <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                              {idx + 1}
+                              {idx === 0 ? " · main" : ""}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(editingProduct.id, img)}
+                              className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full p-1 shadow-lg transition-colors"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <select
+                            value={
+                              linkedColor &&
+                              colorOptions.some(
+                                (c) => c.toLowerCase() === linkedColor.toLowerCase()
+                              )
+                                ? colorOptions.find(
+                                    (c) => c.toLowerCase() === linkedColor.toLowerCase()
+                                  ) || linkedColor
+                                : linkedColor
+                            }
+                            disabled={assigningColor}
+                            onChange={(e) => assignEditingImageColor(idx, e.target.value)}
+                            className="mt-1 w-full rounded border border-neutral-300 bg-white px-1 py-1 text-[11px] text-neutral-800 disabled:opacity-60"
+                            aria-label={`Color for image ${idx + 1}`}
+                          >
+                            <option value="">No color</option>
+                            {colorOptions.map((c) => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
+                            {linkedColor &&
+                              !colorOptions.some(
+                                (c) => c.toLowerCase() === linkedColor.toLowerCase()
+                              ) && (
+                                <option value={linkedColor}>{linkedColor}</option>
+                              )}
+                          </select>
+                          {editingProduct.images.length > 1 && (
+                            <div className="mt-1 flex justify-center gap-1">
+                              <button
+                                type="button"
+                                disabled={idx === 0 || assigningColor}
+                                onClick={() => reorderEditingImages(idx, idx - 1)}
+                                className="rounded border border-neutral-300 bg-white p-1 text-neutral-700 disabled:opacity-30 hover:bg-neutral-100"
+                                aria-label={`Move image ${idx + 1} left`}
+                              >
+                                <ChevronLeft className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={
+                                  idx === editingProduct.images.length - 1 || assigningColor
+                                }
+                                onClick={() => reorderEditingImages(idx, idx + 1)}
+                                className="rounded border border-neutral-300 bg-white p-1 text-neutral-700 disabled:opacity-30 hover:bg-neutral-100"
+                                aria-label={`Move image ${idx + 1} right`}
+                              >
+                                <ChevronRight className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })
                   ) : (
                     <p className="text-neutral-500 text-sm">No images</p>
                   )}
                 </div>
+                {parseColorList(editFormData.colors).length === 0 && (
+                  <p className="text-xs text-amber-700">
+                    Save colors on this product first (e.g. Black, Navy), then link photos here.
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-6 py-2">
@@ -1197,8 +1840,8 @@ export default function ProductsTab() {
 
       {/* Add Images Dialog */}
       <Dialog open={addImagesDialogOpen} onOpenChange={setAddImagesDialogOpen}>
-        <DialogContent className="bg-white border-neutral-200 text-neutral-900 max-w-[95vw] sm:max-w-lg p-4 sm:p-6">
-          <DialogHeader>
+        <DialogContent className="bg-white border-neutral-200 text-neutral-900 max-w-[95vw] sm:max-w-lg p-0 gap-0 max-h-[90vh] flex flex-col overflow-hidden">
+          <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 shrink-0 border-b border-neutral-100">
             <DialogTitle className="text-lg flex items-center gap-2">
               <ImagePlus className="w-5 h-5" />
               Add Images
@@ -1209,69 +1852,158 @@ export default function ProductsTab() {
               </p>
             )}
           </DialogHeader>
-          <div className="space-y-4 mt-4">
-            {/* New Image Previews */}
+
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
             {newImagePreviews.length > 0 && (
-              <div className="flex flex-wrap gap-3">
-              {newImagePreviews.map((preview, index) => (
-                  <div key={index} className="relative group">
-                  <img
-                    src={preview}
-                    alt={`Preview ${index + 1}`}
-                      className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-neutral-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeNewImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full p-1 shadow-lg transition-colors"
-                  >
-                      <X className="w-3 h-3" />
-                  </button>
+              <div className="space-y-2">
+                <p className="text-xs text-neutral-500">
+                  Assign a color under each new photo so the product-page color circle switches to it.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {newImagePreviews.map((preview, index) => (
+                    <div key={index} className="relative w-[5.5rem] sm:w-28">
+                      <div className="relative">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="h-20 w-full sm:h-24 object-cover rounded-lg border border-neutral-200"
+                        />
+                        <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                          {index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeNewImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full p-1 shadow-lg transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <select
+                        value={newImageColors[index] || ""}
+                        onChange={(e) =>
+                          setNewImageColors((prev) => {
+                            const next = [...prev]
+                            next[index] = e.target.value
+                            return next
+                          })
+                        }
+                        className="mt-1 w-full rounded border border-neutral-300 bg-white px-1 py-1 text-[11px] text-neutral-800"
+                        aria-label={`Color for new image ${index + 1}`}
+                      >
+                        <option value="">No color</option>
+                        {parseColorList(editFormData.colors).map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                      {newImagePreviews.length > 1 && (
+                        <div className="mt-1 flex justify-center gap-1">
+                          <button
+                            type="button"
+                            disabled={index === 0}
+                            onClick={() => moveNewImage(index, index - 1)}
+                            className="rounded border border-neutral-300 bg-white p-1 text-neutral-700 disabled:opacity-30 hover:bg-neutral-100"
+                            aria-label={`Move image ${index + 1} left`}
+                          >
+                            <ChevronLeft className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={index === newImagePreviews.length - 1}
+                            onClick={() => moveNewImage(index, index + 1)}
+                            className="rounded border border-neutral-300 bg-white p-1 text-neutral-700 disabled:opacity-30 hover:bg-neutral-100"
+                            aria-label={`Move image ${index + 1} right`}
+                          >
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
             )}
-            
-            {/* File Input */}
-            <Input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleNewImageChange}
-              className="bg-neutral-100 border-neutral-200 text-neutral-900 h-10 file:bg-neutral-200 file:text-neutral-900 file:border-0 file:mr-3 file:px-3 file:h-10"
-            />
-            
-            {/* Actions */}
-            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end pt-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setAddImagesDialogOpen(false)
-                  setNewImages([])
-                  setNewImagePreviews([])
-                }}
-                className="border-neutral-200 text-neutral-800 hover:bg-neutral-100 w-full sm:w-auto"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleAddImages}
-                disabled={loading || newImages.length === 0}
-                className="bg-neutral-900 hover:bg-neutral-800 text-white w-full sm:w-auto"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <ImagePlus className="w-4 h-4 mr-2" />
-                    Add {newImages.length} Image{newImages.length !== 1 ? 's' : ''}
-                  </>
-                )}
-              </Button>
+
+            <div
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  addImagesInputRef.current?.click()
+                }
+              }}
+              onClick={() => addImagesInputRef.current?.click()}
+              onDragEnter={onDragOver(setDragOverAdd)}
+              onDragOver={onDragOver(setDragOverAdd)}
+              onDragLeave={onDragLeave(setDragOverAdd)}
+              onDrop={onDropAdd}
+              className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 text-center transition-colors ${
+                newImagePreviews.length > 0 ? "py-4" : "py-8"
+              } ${
+                dragOverAdd
+                  ? "border-neutral-900 bg-neutral-100"
+                  : "border-neutral-300 bg-neutral-50 hover:border-neutral-500 hover:bg-neutral-100"
+              }`}
+            >
+              <Upload
+                className={`h-6 w-6 ${dragOverAdd ? "text-neutral-900" : "text-neutral-500"}`}
+              />
+              <div>
+                <p className="text-sm font-medium text-neutral-900">
+                  {dragOverAdd
+                    ? "Drop images here"
+                    : newImagePreviews.length > 0
+                      ? "Add more images"
+                      : "Drag & drop images"}
+                </p>
+                <p className="mt-1 text-xs text-neutral-500">
+                  or click to browse · JPG, PNG, WEBP, GIF
+                </p>
+              </div>
+              <input
+                ref={addImagesInputRef}
+                type="file"
+                accept={IMAGE_ACCEPT}
+                multiple
+                onChange={handleNewImageChange}
+                className="sr-only"
+              />
             </div>
+          </div>
+
+          <div className="shrink-0 border-t border-neutral-200 bg-white px-4 sm:px-6 py-3 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAddImagesDialogOpen(false)
+                setNewImages([])
+                setNewImagePreviews([])
+                setNewImageColors([])
+              }}
+              className="border-neutral-200 text-neutral-800 hover:bg-neutral-100 w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddImages}
+              disabled={loading || newImages.length === 0}
+              className="bg-neutral-900 hover:bg-neutral-800 text-white w-full sm:w-auto"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload {newImages.length} Image{newImages.length !== 1 ? "s" : ""}
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

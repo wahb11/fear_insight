@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/admin-auth'
+import { getAdminSupabase, PRODUCTS_BUCKET } from '@/lib/admin-supabase'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-const BUCKET_NAME = 'products'
+const BUCKET_NAME = PRODUCTS_BUCKET
 const MAX_FILE_SIZE = 12 * 1024 * 1024
 const validExt = ['.png', '.webp', '.jpg', '.jpeg']
 
@@ -31,6 +26,7 @@ export async function POST(
   if (!auth.ok) return auth.response
 
   try {
+    const supabase = getAdminSupabase()
     const { id } = await params
     if (!id) {
       return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 })
@@ -137,6 +133,7 @@ export async function DELETE(
   if (!auth.ok) return auth.response
 
   try {
+    const supabase = getAdminSupabase()
     const { id } = await params
     if (!id) {
       return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 })
