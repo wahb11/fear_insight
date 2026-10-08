@@ -294,10 +294,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             )}
           </div>
 
-          {/* Main image — capped height so title/price/CTA stay on first screen */}
+          {/* Main image — natural portrait fit, no horizontal crop */}
           <div className="min-w-0 w-full max-w-full lg:col-span-6">
             <div
-              className="relative mx-auto h-[min(52vw,38vh)] w-full max-w-full overflow-hidden bg-neutral-50 touch-pan-y sm:h-[min(48vw,42vh)] lg:h-auto lg:aspect-[5/6] lg:max-h-[560px]"
+              className="relative flex w-full max-w-full items-center justify-center overflow-hidden bg-neutral-50 touch-pan-y lg:aspect-[5/6] lg:max-h-[560px]"
               onTouchStart={onGalleryTouchStart}
               onTouchEnd={onGalleryTouchEnd}
             >
@@ -306,7 +306,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   key={selectedImage}
                   src={mainSrc}
                   alt={`${product.name} — Fear Insight`}
-                  className="absolute inset-0 h-full w-full object-cover object-center"
+                  className="relative z-0 mx-auto h-auto max-h-[min(68svh,560px)] w-full object-contain object-center lg:absolute lg:inset-0 lg:h-full lg:max-h-none lg:object-cover"
                   onError={() => setImageError(true)}
                   draggable={false}
                   initial={{ opacity: 0 }}
