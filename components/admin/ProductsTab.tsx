@@ -20,6 +20,7 @@ import {
   parseColorNames,
   parseFlatSizes,
 } from "@/lib/product-variants"
+import { compressImageFile } from "@/lib/compress-image"
 
 const DEFAULT_SIZE_OPTIONS = ["S", "M", "L", "XL", "XXL"]
 
@@ -425,9 +426,10 @@ export default function ProductsTab() {
       }
 
       submitFormData.append("productData", JSON.stringify(productData))
-      images.forEach((image) => {
-        submitFormData.append("images", image)
-      })
+      // Compress so multi-photo creates don't hit HTTP 413 body limits
+      for (const image of images) {
+        submitFormData.append("images", await compressImageFile(image))
+      }
 
       const res = await fetch("/api/admin/upload-product", {
         method: "POST",
@@ -472,7 +474,9 @@ export default function ProductsTab() {
         notifyUpload(
           "error",
           "Product not added",
-          data?.error || `Upload failed (${res.status}). Please try again.`
+          res.status === 413
+            ? "Photos are too large for one upload. Use fewer/smaller images, or add extras via Edit → Add Images."
+            : data?.error || `Upload failed (${res.status}). Please try again.`
         )
       }
     } catch (error: any) {
@@ -590,45 +594,78 @@ export default function ProductsTab() {
     if (!editingProduct || newImages.length === 0) return
 
     setLoading(true)
+    let uploadedCount = 0
+    let lastProduct: Product | null = null
+    const failures: string[] = []
 
     try {
-      const formData = new FormData()
-      newImages.forEach((image) => {
-        formData.append("images", image)
-      })
-      formData.append("imageColors", JSON.stringify(newImageColors))
+      // One-at-a-time avoids HTTP 413 (payload too large) on Vercel / proxies
+      for (let i = 0; i < newImages.length; i++) {
+        const original = newImages[i]
+        const color = newImageColors[i] || ""
+        toast({
+          title: "Uploading…",
+          description: `Image ${i + 1} of ${newImages.length}`,
+        })
 
-      const res = await fetch(`/api/admin/products/${editingProduct.id}/add-images`, {
-        method: "POST",
-        body: formData,
-      })
+        const compressed = await compressImageFile(original)
+        const formData = new FormData()
+        formData.append("images", compressed)
+        formData.append("imageColors", JSON.stringify([color]))
 
-      let data: any = null
-      try {
-        data = await res.json()
-      } catch {
-        data = null
+        const res = await fetch(`/api/admin/products/${editingProduct.id}/add-images`, {
+          method: "POST",
+          body: formData,
+        })
+
+        let data: any = null
+        try {
+          data = await res.json()
+        } catch {
+          data = null
+        }
+
+        if (!res.ok) {
+          const reason =
+            res.status === 413
+              ? "file too large for the server"
+              : data?.error || `error ${res.status}`
+          failures.push(`${original.name}: ${reason}`)
+          continue
+        }
+
+        uploadedCount += data?.newImages?.length || 1
+        if (data?.product) lastProduct = data.product
       }
 
-      if (res.ok) {
+      if (uploadedCount > 0) {
         toast({
-          title: "Success",
-          description: data?.skipped?.length
-            ? `Added ${data.newImages?.length || 0} image(s). Skipped: ${data.skipped.join("; ")}`
-            : `${data?.newImages?.length || 0} image(s) added successfully!`,
+          title: failures.length ? "Partially uploaded" : "Success",
+          description: failures.length
+            ? `Added ${uploadedCount} image(s). Failed: ${failures.join("; ")}`
+            : `${uploadedCount} image(s) added successfully!`,
+          variant: failures.length ? "destructive" : "default",
         })
         setAddImagesDialogOpen(false)
         setNewImages([])
         setNewImagePreviews([])
         setNewImageColors([])
-        if (data?.product) {
-          setEditingProduct(data.product)
+        if (lastProduct) setEditingProduct(lastProduct)
+        else {
+          // Refresh full product so gallery shows new images
+          const res = await fetch(`/api/admin/products/${editingProduct.id}`)
+          if (res.ok) {
+            const json = await res.json()
+            setEditingProduct(json.product ?? json)
+          }
         }
         fetchProducts({ silent: true })
       } else {
         toast({
-          title: "Error",
-          description: data?.error || `Failed to add images (${res.status})`,
+          title: "Upload failed",
+          description:
+            failures[0] ||
+            "Images were too large (HTTP 413). Try fewer photos or smaller JPG files.",
           variant: "destructive",
         })
       }
@@ -2000,7 +2037,7 @@ export default function ProductsTab() {
               ) : (
                 <>
                   <Upload className="w-4 h-4 mr-2" />
-                  Upload {newImages.length} Image{newImages.length !== 1 ? "s" : ""}
+                  Upload {newImages.length} image{newImages.length !== 1 ? "s" : ""}
                 </>
               )}
             </Button>
