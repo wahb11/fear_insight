@@ -33,6 +33,7 @@ const getColorValue = (colorName: string): string => {
     white: '#ffffff',
     cream: '#fffdd0',
     beige: '#f5f5dc',
+    camel: '#c4a574',
     navy: '#1e3a5f',
     blue: '#2563eb',
     pink: '#ec4899',
@@ -238,7 +239,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   }
 
   return (
-    <div className="max-w-full overflow-x-hidden bg-white pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-neutral-900 sm:pb-0">
+    <div className="max-w-full overflow-x-hidden bg-white pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-neutral-900 lg:pb-0">
       {/* Breadcrumb — mobile header is nav-only (no utility strip) */}
       <div className="border-b border-neutral-100 px-4 pb-2 pt-20 sm:px-6 sm:pt-28 lg:px-8 lg:pt-32">
         <div className="mx-auto flex max-w-6xl items-center gap-2 font-nike text-xs text-neutral-500">
@@ -293,10 +294,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             )}
           </div>
 
-          {/* Main image */}
+          {/* Main image — capped height so title/price/CTA stay on first screen */}
           <div className="min-w-0 w-full max-w-full lg:col-span-6">
             <div
-              className="relative aspect-square w-full max-w-full overflow-hidden bg-neutral-50 touch-pan-y sm:aspect-[4/5] lg:aspect-[5/6] lg:max-h-[560px]"
+              className="relative mx-auto h-[min(52vw,38vh)] w-full max-w-full overflow-hidden bg-neutral-50 touch-pan-y sm:h-[min(48vw,42vh)] lg:h-auto lg:aspect-[5/6] lg:max-h-[560px]"
               onTouchStart={onGalleryTouchStart}
               onTouchEnd={onGalleryTouchEnd}
             >
@@ -305,7 +306,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   key={selectedImage}
                   src={mainSrc}
                   alt={`${product.name} — Fear Insight`}
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover object-center"
                   onError={() => setImageError(true)}
                   draggable={false}
                   initial={{ opacity: 0 }}
@@ -362,13 +363,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             </div>
 
             {/* Mobile / tablet horizontal thumbs */}
-            <div className="mt-2.5 flex max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
+            <div className="mt-2 flex max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
               {images.map((image, index) => (
                 <button
                   key={`m-thumb-${index}`}
                   type="button"
                   onClick={() => setSelectedImage(index)}
-                  className={`h-14 w-14 shrink-0 overflow-hidden border ${
+                  className={`h-12 w-12 shrink-0 overflow-hidden border sm:h-14 sm:w-14 ${
                     selectedImage === index ? 'border-neutral-900' : 'border-neutral-200'
                   }`}
                 >
@@ -387,11 +388,11 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               </span>
             )}
 
-            <h1 className="break-words text-2xl font-black leading-tight tracking-tight text-neutral-900 sm:text-3xl lg:text-4xl">
+            <h1 className="mt-1 break-words text-xl font-black leading-tight tracking-tight text-neutral-900 sm:text-3xl lg:text-4xl">
               {product.name}
             </h1>
 
-            <div className="mt-2 flex items-center gap-2">
+            <div className="mt-1.5 flex items-center gap-2">
               <div className="flex items-center gap-0.5">
                 {[...Array(5)].map((_, i) => (
                   <Star
@@ -409,7 +410,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               </span>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2.5">
+            <div className="mt-2 flex flex-wrap items-center gap-2.5">
               <span className="font-nike text-xl font-semibold text-neutral-900 sm:text-2xl">
                 ${discountedPrice.toFixed(2)}
               </span>
@@ -425,13 +426,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               )}
             </div>
 
-            <p className="font-nike mt-3 max-w-md text-sm leading-relaxed text-neutral-600">
+            <p className="font-nike mt-2 line-clamp-3 max-w-md text-sm leading-relaxed text-neutral-600 sm:mt-3 sm:line-clamp-none">
               {shortDescription}
             </p>
 
             {/* Color */}
             {availableColors.length > 0 && (
-              <div className="mt-5">
+              <div className="mt-4 sm:mt-5">
                 <p className="font-nike text-sm text-neutral-800">
                   Color:{' '}
                   <span className="font-semibold capitalize">{selectedColor || '—'}</span>
@@ -441,7 +442,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                     const active = selectedColor === color.name
                     const swatch = getColorValue(color.name)
                     const isLight =
-                      ['#ffffff', '#fffdd0', '#f5f5dc', '#fffff0', '#fff'].includes(
+                      ['#ffffff', '#fffdd0', '#f5f5dc', '#fffff0', '#fff', '#c4a574'].includes(
                         swatch.toLowerCase()
                       )
                     return (
@@ -451,7 +452,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                         onClick={() => setSelectedColor(color.name)}
                         aria-label={color.name}
                         title={color.name}
-                        className={`h-10 w-10 shrink-0 rounded-full border-2 transition-all sm:h-8 sm:w-8 ${
+                        className={`h-9 w-9 shrink-0 rounded-full border-2 transition-all sm:h-8 sm:w-8 ${
                           active
                             ? 'border-neutral-900 ring-2 ring-neutral-900/10 ring-offset-1'
                             : isLight
@@ -468,7 +469,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
             {/* Size */}
             {availableSizes.length > 0 && (
-              <div className="mt-4">
+              <div className="mt-3 sm:mt-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-nike text-sm text-neutral-800">
                     Size:{' '}
@@ -491,7 +492,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                         key={size.name}
                         type="button"
                         onClick={() => setSelectedSize(size.name)}
-                        className={`min-h-11 min-w-[3rem] px-3 py-2.5 font-nike text-sm font-semibold transition-colors sm:min-h-0 sm:min-w-[2.75rem] sm:px-2.5 sm:py-2 ${
+                        className={`min-h-10 min-w-[2.75rem] px-3 py-2 font-nike text-sm font-semibold transition-colors sm:min-h-0 sm:min-w-[2.75rem] sm:px-2.5 sm:py-2 ${
                           active
                             ? 'bg-neutral-900 text-white'
                             : 'border border-neutral-200 bg-white text-neutral-900 hover:border-neutral-400'
@@ -505,13 +506,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               </div>
             )}
 
-            {/* CTA row — desktop / in-flow */}
-            <div className="mt-5 hidden gap-2 sm:flex">
+            {/* CTA — always in the page flow so narrow desktop windows still see it */}
+            <div className="mt-4 flex gap-2 sm:mt-5">
               <button
                 type="button"
                 onClick={handleAddToCart}
                 disabled={!hasRequiredSelections || isOutOfStock || isAdding}
-                className="font-nike inline-flex flex-1 items-center justify-center gap-2 bg-neutral-900 px-5 py-3 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-45"
+                className="font-nike inline-flex flex-1 items-center justify-center gap-2 bg-neutral-900 px-5 py-3.5 text-[0.7rem] font-bold uppercase tracking-[0.16em] text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-45 sm:py-3"
               >
                 <ShoppingBag className="h-4 w-4" />
                 {isOutOfStock
@@ -529,7 +530,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
                 aria-pressed={saved}
                 onClick={() => toggle(product.id)}
-                className="flex h-11 w-11 shrink-0 items-center justify-center border border-neutral-200 text-neutral-700 transition-colors hover:border-neutral-900 hover:text-neutral-900"
+                className="flex h-12 w-12 shrink-0 items-center justify-center border border-neutral-200 text-neutral-700 transition-colors hover:border-neutral-900 hover:text-neutral-900 sm:h-11 sm:w-11"
               >
                 <Heart className={`h-4 w-4 ${saved ? 'fill-neutral-900 text-neutral-900' : ''}`} />
               </button>
@@ -554,8 +555,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         </div>
       </section>
 
-      {/* Sticky mobile buy bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:hidden">
+      {/* Sticky buy bar — phones + tablets (hidden on desktop product layout) */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center gap-2">
           <div className="min-w-0 flex-1">
             <p className="truncate font-nike text-xs font-semibold text-neutral-900">
@@ -578,7 +579,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             type="button"
             onClick={handleAddToCart}
             disabled={!hasRequiredSelections || isOutOfStock || isAdding}
-            className="font-nike inline-flex h-11 shrink-0 items-center justify-center gap-1.5 bg-neutral-900 px-4 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-white disabled:cursor-not-allowed disabled:opacity-45"
+            className="font-nike inline-flex h-11 min-w-[7.5rem] shrink-0 items-center justify-center gap-1.5 bg-neutral-900 px-4 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-white disabled:cursor-not-allowed disabled:opacity-45"
           >
             <ShoppingBag className="h-3.5 w-3.5" />
             {isOutOfStock
