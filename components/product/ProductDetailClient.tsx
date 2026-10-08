@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -12,6 +12,8 @@ import {
   RotateCcw,
   Shield,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ZoomIn,
   Shirt,
   Layers,
@@ -96,6 +98,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const [showSizeChart, setShowSizeChart] = useState(false)
   const [activeTab, setActiveTab] = useState<InfoTab>('details')
   const [lightbox, setLightbox] = useState(false)
+  const touchStartX = useRef<number | null>(null)
 
   const availableSizes = useMemo<VariantOption[]>(() => {
     const color = selectedColor || availableColors[0]?.name || ''
@@ -217,31 +220,45 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const onesize = isOnesizeProduct(product)
 
   const scrollThumbs = (dir: 1 | -1) => {
+    if (images.length < 2) return
     setSelectedImage((prev) => (prev + dir + images.length) % images.length)
   }
 
+  const onGalleryTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null
+  }
+
+  const onGalleryTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null || images.length < 2) return
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current
+    const dx = endX - touchStartX.current
+    touchStartX.current = null
+    if (Math.abs(dx) < 40) return
+    scrollThumbs(dx < 0 ? 1 : -1)
+  }
+
   return (
-    <div className="bg-white text-neutral-900">
-      {/* Breadcrumb */}
-      <div className="border-b border-neutral-100 px-4 pb-2 pt-28 sm:px-6 sm:pt-32 lg:px-8">
+    <div className="max-w-full overflow-x-hidden bg-white pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-neutral-900 sm:pb-0">
+      {/* Breadcrumb — mobile header is nav-only (no utility strip) */}
+      <div className="border-b border-neutral-100 px-4 pb-2 pt-20 sm:px-6 sm:pt-28 lg:px-8 lg:pt-32">
         <div className="mx-auto flex max-w-6xl items-center gap-2 font-nike text-xs text-neutral-500">
-          <Link href="/" className="transition-colors hover:text-neutral-900">
+          <Link href="/" className="shrink-0 transition-colors hover:text-neutral-900">
             Home
           </Link>
-          <span>/</span>
-          <Link href="/fear" className="transition-colors hover:text-neutral-900">
+          <span className="shrink-0">/</span>
+          <Link href="/fear" className="shrink-0 transition-colors hover:text-neutral-900">
             Shop
           </Link>
-          <span>/</span>
-          <span className="truncate text-neutral-900">{product.name}</span>
+          <span className="shrink-0">/</span>
+          <span className="min-w-0 truncate text-neutral-900">{product.name}</span>
         </div>
       </div>
 
       {/* Primary product section */}
-      <section className="px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-        <div className="mx-auto grid max-w-6xl items-start gap-5 lg:grid-cols-12 lg:gap-6">
+      <section className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+        <div className="mx-auto grid max-w-6xl items-start gap-4 sm:gap-5 lg:grid-cols-12 lg:gap-6">
           {/* Thumbnails — desktop left rail */}
-          <div className="hidden lg:col-span-1 lg:flex lg:flex-col lg:items-center lg:gap-2">
+          <div className="hidden min-w-0 lg:col-span-1 lg:flex lg:flex-col lg:items-center lg:gap-2">
             <div className="flex max-h-[420px] flex-col gap-2 overflow-y-auto pr-1">
               {images.map((image, index) => (
                 <button
@@ -277,8 +294,12 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           </div>
 
           {/* Main image */}
-          <div className="lg:col-span-6">
-            <div className="relative aspect-square overflow-hidden bg-neutral-50 sm:aspect-[4/5] lg:aspect-[5/6] lg:max-h-[560px]">
+          <div className="min-w-0 w-full max-w-full lg:col-span-6">
+            <div
+              className="relative aspect-square w-full max-w-full overflow-hidden bg-neutral-50 touch-pan-y sm:aspect-[4/5] lg:aspect-[5/6] lg:max-h-[560px]"
+              onTouchStart={onGalleryTouchStart}
+              onTouchEnd={onGalleryTouchEnd}
+            >
               <AnimatePresence mode="wait">
                 <motion.img
                   key={selectedImage}
@@ -286,24 +307,62 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   alt={`${product.name} — Fear Insight`}
                   className="absolute inset-0 h-full w-full object-cover"
                   onError={() => setImageError(true)}
+                  draggable={false}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.25 }}
                 />
               </AnimatePresence>
+
+              {images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => scrollThumbs(-1)}
+                    aria-label="Previous image"
+                    className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center bg-white/90 text-neutral-900 shadow-sm backdrop-blur-sm lg:hidden"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollThumbs(1)}
+                    aria-label="Next image"
+                    className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center bg-white/90 text-neutral-900 shadow-sm backdrop-blur-sm lg:hidden"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                  <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 lg:hidden">
+                    {images.map((_, index) => (
+                      <button
+                        key={`dot-${index}`}
+                        type="button"
+                        aria-label={`Go to image ${index + 1}`}
+                        onClick={() => setSelectedImage(index)}
+                        className={`h-1.5 rounded-full transition-all ${
+                          selectedImage === index
+                            ? 'w-4 bg-neutral-900'
+                            : 'w-1.5 bg-neutral-900/30'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+
               <button
                 type="button"
                 onClick={() => setLightbox(true)}
                 aria-label="Zoom image"
-                className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
+                className="absolute bottom-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
               >
                 <ZoomIn className="h-4 w-4" />
               </button>
             </div>
 
             {/* Mobile / tablet horizontal thumbs */}
-            <div className="mt-2.5 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+            <div className="mt-2.5 flex max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
               {images.map((image, index) => (
                 <button
                   key={`m-thumb-${index}`}
@@ -321,14 +380,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           </div>
 
           {/* Purchase panel */}
-          <div className="flex flex-col lg:col-span-5 lg:sticky lg:top-32">
+          <div className="flex min-w-0 w-full max-w-full flex-col lg:col-span-5 lg:sticky lg:top-32">
             {(product.featured || product.best_seller) && (
               <span className="mb-2 inline-flex w-fit items-center rounded-full bg-neutral-100 px-2.5 py-0.5 font-nike text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-neutral-700">
                 {product.best_seller ? 'Bestseller' : 'New Arrival'}
               </span>
             )}
 
-            <h1 className="text-3xl font-black leading-tight tracking-tight text-neutral-900 sm:text-4xl">
+            <h1 className="break-words text-2xl font-black leading-tight tracking-tight text-neutral-900 sm:text-3xl lg:text-4xl">
               {product.name}
             </h1>
 
@@ -377,9 +436,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   Color:{' '}
                   <span className="font-semibold capitalize">{selectedColor || '—'}</span>
                 </p>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mt-2 flex max-w-full flex-wrap gap-2.5">
                   {availableColors.map((color) => {
                     const active = selectedColor === color.name
+                    const swatch = getColorValue(color.name)
+                    const isLight =
+                      ['#ffffff', '#fffdd0', '#f5f5dc', '#fffff0', '#fff'].includes(
+                        swatch.toLowerCase()
+                      )
                     return (
                       <button
                         key={color.name}
@@ -387,12 +451,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                         onClick={() => setSelectedColor(color.name)}
                         aria-label={color.name}
                         title={color.name}
-                        className={`h-8 w-8 rounded-full border-2 transition-all ${
+                        className={`h-10 w-10 shrink-0 rounded-full border-2 transition-all sm:h-8 sm:w-8 ${
                           active
                             ? 'border-neutral-900 ring-2 ring-neutral-900/10 ring-offset-1'
-                            : 'border-neutral-200 hover:border-neutral-400'
+                            : isLight
+                              ? 'border-neutral-300 hover:border-neutral-500'
+                              : 'border-neutral-200 hover:border-neutral-400'
                         }`}
-                        style={{ backgroundColor: getColorValue(color.name) }}
+                        style={{ backgroundColor: swatch }}
                       />
                     )
                   })}
@@ -417,7 +483,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                     Size Guide
                   </button>
                 </div>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mt-2 flex max-w-full flex-wrap gap-2">
                   {availableSizes.map((size) => {
                     const active = selectedSize === size.name
                     return (
@@ -425,7 +491,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                         key={size.name}
                         type="button"
                         onClick={() => setSelectedSize(size.name)}
-                        className={`min-w-[2.75rem] px-2.5 py-2 font-nike text-sm font-semibold transition-colors ${
+                        className={`min-h-11 min-w-[3rem] px-3 py-2.5 font-nike text-sm font-semibold transition-colors sm:min-h-0 sm:min-w-[2.75rem] sm:px-2.5 sm:py-2 ${
                           active
                             ? 'bg-neutral-900 text-white'
                             : 'border border-neutral-200 bg-white text-neutral-900 hover:border-neutral-400'
@@ -439,8 +505,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               </div>
             )}
 
-            {/* CTA row */}
-            <div className="mt-5 flex gap-2">
+            {/* CTA row — desktop / in-flow */}
+            <div className="mt-5 hidden gap-2 sm:flex">
               <button
                 type="button"
                 onClick={handleAddToCart}
@@ -470,15 +536,15 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             </div>
 
             {/* Trust row */}
-            <div className="mt-4 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-4">
+            <div className="mt-4 grid grid-cols-3 gap-1.5 border-t border-neutral-100 pt-4 sm:gap-2">
               {[
                 { icon: Truck, label: 'Free Shipping' },
                 { icon: RotateCcw, label: 'Easy Returns' },
                 { icon: Shield, label: 'Secure Payment' },
               ].map(({ icon: Icon, label }) => (
-                <div key={label} className="flex flex-col items-center gap-1 text-center">
-                  <Icon className="h-3.5 w-3.5 text-neutral-500" strokeWidth={1.75} />
-                  <span className="font-nike text-[0.6rem] uppercase tracking-[0.08em] text-neutral-500">
+                <div key={label} className="flex min-w-0 flex-col items-center gap-1 text-center">
+                  <Icon className="h-3.5 w-3.5 shrink-0 text-neutral-500" strokeWidth={1.75} />
+                  <span className="font-nike text-[0.55rem] uppercase leading-tight tracking-[0.06em] text-neutral-500 sm:text-[0.6rem] sm:tracking-[0.08em]">
                     {label}
                   </span>
                 </div>
@@ -488,13 +554,53 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         </div>
       </section>
 
+      {/* Sticky mobile buy bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:hidden">
+        <div className="mx-auto flex max-w-6xl items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-nike text-xs font-semibold text-neutral-900">
+              {product.name}
+            </p>
+            <p className="font-nike text-sm font-semibold text-neutral-900">
+              ${discountedPrice.toFixed(2)}
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+            aria-pressed={saved}
+            onClick={() => toggle(product.id)}
+            className="flex h-11 w-11 shrink-0 items-center justify-center border border-neutral-200 text-neutral-700"
+          >
+            <Heart className={`h-4 w-4 ${saved ? 'fill-neutral-900 text-neutral-900' : ''}`} />
+          </button>
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={!hasRequiredSelections || isOutOfStock || isAdding}
+            className="font-nike inline-flex h-11 shrink-0 items-center justify-center gap-1.5 bg-neutral-900 px-4 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-white disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            <ShoppingBag className="h-3.5 w-3.5" />
+            {isOutOfStock
+              ? 'Sold out'
+              : addedFlash
+                ? 'Added'
+                : isAdding
+                  ? '…'
+                  : !hasRequiredSelections
+                    ? 'Select'
+                    : 'Add'}
+          </button>
+        </div>
+      </div>
+
       {/* Info tabs — compact, no stretched empty column */}
       <section className="border-t border-neutral-100 px-4 py-8 sm:px-6 sm:py-9 lg:px-8">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-6xl min-w-0">
           <div
             role="tablist"
             aria-label="Product information"
-            className="flex gap-5 overflow-x-auto border-b border-neutral-200 sm:gap-7"
+            className="flex max-w-full gap-5 overflow-x-auto overscroll-x-contain border-b border-neutral-200 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-7 [&::-webkit-scrollbar]:hidden"
           >
             {TABS.map((tab) => {
               const active = activeTab === tab.id
@@ -600,7 +706,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               )}
             </div>
 
-            <div className="relative aspect-[4/3] max-h-56 overflow-hidden bg-neutral-100 sm:max-h-64 lg:max-h-72">
+            <div className="relative aspect-[4/3] max-h-48 w-full max-w-full overflow-hidden bg-neutral-100 sm:max-h-64 lg:max-h-72">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={detailImage}
@@ -615,9 +721,9 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       {/* You may also like */}
       {relatedProducts.length > 0 && (
         <section className="border-t border-neutral-100 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-          <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-6xl min-w-0">
             <div className="mb-5 flex items-end justify-between gap-4">
-              <h2 className="font-nike-display text-xl uppercase tracking-[0.04em] text-neutral-900 sm:text-2xl">
+              <h2 className="font-nike-display min-w-0 text-xl uppercase tracking-[0.04em] text-neutral-900 sm:text-2xl">
                 You May Also Like
               </h2>
               <Link
@@ -639,7 +745,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   <Link
                     key={item.id}
                     href={`/product/${item.id}`}
-                    className="group block"
+                    className="group block min-w-0"
                   >
                     <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -656,7 +762,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                           e.stopPropagation()
                           toggle(item.id)
                         }}
-                        className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center bg-white/90 text-neutral-700 shadow-sm transition-opacity group-hover:opacity-100 opacity-0"
+                        className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center bg-white/90 text-neutral-700 shadow-sm opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                       >
                         <Heart className={`h-3.5 w-3.5 ${has(item.id) ? 'fill-neutral-900 text-neutral-900' : ''}`} />
                       </button>
@@ -683,14 +789,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           role="dialog"
           aria-modal="true"
           aria-label="Product image zoom"
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-3 sm:p-4"
           onClick={() => setLightbox(false)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={mainSrc}
             alt={product.name}
-            className="max-h-[90vh] max-w-full object-contain"
+            className="max-h-[85vh] max-w-full object-contain"
             onClick={(e) => e.stopPropagation()}
           />
         </div>

@@ -34,11 +34,11 @@ export function SizeChart({ isOpen, onClose }: SizeChartProps) {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-stone-900 border border-stone-700 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-stone-900 border border-stone-700 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden"
             >
               {/* Header */}
-              <div className="sticky top-0 bg-stone-900 border-b border-stone-700 px-6 py-4 flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-stone-100">Size Guide</h2>
+              <div className="sticky top-0 bg-stone-900 border-b border-stone-700 px-4 py-4 flex items-center justify-between sm:px-6">
+                <h2 className="text-xl font-bold text-stone-100 sm:text-2xl">Size Guide</h2>
                 <button
                   onClick={onClose}
                   className="p-2 hover:bg-stone-800 rounded-lg transition-colors"
@@ -48,20 +48,20 @@ export function SizeChart({ isOpen, onClose }: SizeChartProps) {
               </div>
 
               {/* Content */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <p className="text-stone-300 mb-6 text-sm">
                   All measurements are in inches. Please refer to the chart below to find your perfect fit.
                 </p>
 
                 {/* Size Chart Table */}
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
+                <div className="max-w-full overflow-x-auto overscroll-x-contain -mx-1 px-1">
+                  <table className="w-full min-w-[18rem] border-collapse text-sm sm:text-base">
                     <thead>
                       <tr className="bg-stone-800/50">
-                        <th className="border border-stone-700 px-4 py-3 text-left text-stone-100 font-semibold">Size</th>
-                        <th className="border border-stone-700 px-4 py-3 text-left text-stone-100 font-semibold">Chest (inches)</th>
-                        <th className="border border-stone-700 px-4 py-3 text-left text-stone-100 font-semibold">Length (inches)</th>
-                        <th className="border border-stone-700 px-4 py-3 text-left text-stone-100 font-semibold">Sleeve (inches)</th>
+                        <th className="border border-stone-700 px-2 py-2.5 text-left text-stone-100 font-semibold sm:px-4 sm:py-3">Size</th>
+                        <th className="border border-stone-700 px-2 py-2.5 text-left text-stone-100 font-semibold sm:px-4 sm:py-3">Chest</th>
+                        <th className="border border-stone-700 px-2 py-2.5 text-left text-stone-100 font-semibold sm:px-4 sm:py-3">Length</th>
+                        <th className="border border-stone-700 px-2 py-2.5 text-left text-stone-100 font-semibold sm:px-4 sm:py-3">Sleeve</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -70,10 +70,10 @@ export function SizeChart({ isOpen, onClose }: SizeChartProps) {
                           key={row.size}
                           className={index % 2 === 0 ? "bg-stone-900" : "bg-stone-800/30"}
                         >
-                          <td className="border border-stone-700 px-4 py-3 text-stone-100 font-semibold">{row.size}</td>
-                          <td className="border border-stone-700 px-4 py-3 text-stone-300">{row.chest}</td>
-                          <td className="border border-stone-700 px-4 py-3 text-stone-300">{row.length}</td>
-                          <td className="border border-stone-700 px-4 py-3 text-stone-300">{row.sleeve}</td>
+                          <td className="border border-stone-700 px-2 py-2.5 text-stone-100 font-semibold sm:px-4 sm:py-3">{row.size}</td>
+                          <td className="border border-stone-700 px-2 py-2.5 text-stone-300 sm:px-4 sm:py-3">{row.chest}</td>
+                          <td className="border border-stone-700 px-2 py-2.5 text-stone-300 sm:px-4 sm:py-3">{row.length}</td>
+                          <td className="border border-stone-700 px-2 py-2.5 text-stone-300 sm:px-4 sm:py-3">{row.sleeve}</td>
                         </tr>
                       ))}
                     </tbody>
