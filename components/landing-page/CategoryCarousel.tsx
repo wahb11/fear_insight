@@ -45,12 +45,12 @@ const SNAP_STRENGTH = 0.16
 const SNAP_THRESHOLD = 0.08
 const INERTIA_BOOST = 1.35
 
-const PANEL_W_DESKTOP = 260
-const PANEL_H_DESKTOP = 310
+const PANEL_W_DESKTOP = 280
+const PANEL_H_DESKTOP = 340
 const PANEL_W_MOBILE = 170
 const PANEL_H_MOBILE = 210
 
-const SPREAD_DESKTOP = 195
+const SPREAD_DESKTOP = 210
 const SPREAD_MOBILE = 88
 const YAW = 46
 const DEPTH = 110
@@ -399,12 +399,13 @@ export default function CategoryCarousel() {
       aria-label="Product categories carousel. Drag, use arrow buttons, or keyboard arrows to change category."
       className="category-carousel relative flex flex-col justify-center overflow-hidden bg-white text-neutral-900 outline-none [contain:paint] focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       style={{
+        // Keep desktop tall; only trim on narrow phones
         minHeight: isMobile
-          ? 'min(72svh, 520px)'
-          : 'min(100svh - 6.75rem, 640px)',
-        maxHeight: isMobile
           ? 'min(78svh, 560px)'
           : 'min(100svh - 6.75rem, 720px)',
+        maxHeight: isMobile
+          ? 'min(86svh, 640px)'
+          : 'min(100svh - 5.5rem, 860px)',
       }}
     >
       <div
@@ -463,11 +464,13 @@ export default function CategoryCarousel() {
 
         <div
           ref={stageRef}
-          className="relative mx-auto min-h-0 w-full flex-1 cursor-grab touch-pan-y select-none overflow-hidden active:cursor-grabbing"
+          className="relative mx-auto w-full shrink-0 cursor-grab touch-pan-y select-none overflow-hidden active:cursor-grabbing"
           style={{
-            perspective: isMobile ? '800px' : '1100px',
+            perspective: isMobile ? '800px' : '1200px',
             perspectiveOrigin: '50% 50%',
-            maxHeight: panelH + 48,
+            // Fixed stage height — flex-1 + min-h-0 was crushing panels into a thin strip
+            height: panelH + (isMobile ? 48 : 72),
+            minHeight: panelH + (isMobile ? 48 : 72),
             touchAction: 'pan-y',
           }}
         >
