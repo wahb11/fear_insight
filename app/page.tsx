@@ -16,14 +16,15 @@ export default function FearInsightLanding() {
   const prefersReducedMotion = useReducedMotion()
   const sectionReveal = prefersReducedMotion
     ? {
-        initial: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-        whileInView: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
+        initial: { opacity: 1, y: 0 },
+        whileInView: { opacity: 1, y: 0 },
         transition: { duration: 0 },
       }
     : {
-        initial: { opacity: 0, y: 36, scale: 0.985, filter: "blur(8px)" },
-        whileInView: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-        transition: { duration: 0.85, ease: [0.22, 1, 0.36, 1] as const },
+        // No blur — filter blur was expensive and made carousels look blank while waiting
+        initial: { opacity: 0, y: 24 },
+        whileInView: { opacity: 1, y: 0 },
+        transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
       }
 
   return (

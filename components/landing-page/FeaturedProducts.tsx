@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useFeaturedProducts } from '@/hooks/useFeaturedProducts'
 import { Product } from '@/types/products'
 
@@ -20,27 +20,30 @@ type CarouselItem = {
   href: string
 }
 
-/** Previous hardcoded drop — used until admin featured cutouts exist */
+/**
+ * Lightweight local fallbacks — used until admin featured cutouts exist.
+ * Avoid the multi‑MB slider*.png files; they blocked the carousel for seconds.
+ */
 const FALLBACK_PRODUCTS: CarouselItem[] = [
   {
     id: 'fallback-fear',
     name: 'Fear Hoodie',
     detail: 'Statement weight · Fear collection',
-    image: '/images/slider1.png',
+    image: '/images/carousel-fear.jpg',
     href: '/fear',
   },
   {
     id: 'fallback-insignia',
     name: 'Insignia Hoodie',
     detail: 'Mark of origin · Insignia collection',
-    image: '/images/slider2.png',
+    image: '/images/carousel-signature.jpg',
     href: '/insignia',
   },
   {
     id: 'fallback-oversized',
     name: 'Oversized Hoodie',
     detail: 'Relaxed volume · Oversized collection',
-    image: '/images/slider3.png',
+    image: '/images/carousel-oversize.jpg',
     href: '/oversized',
   },
 ]
@@ -214,7 +217,8 @@ function poseForOffset(offset: number, poses: PoseSet): SlotPose {
  */
 export default function FeaturedProducts() {
   const router = useRouter()
-  const { data, isLoading } = useFeaturedProducts()
+  // Never block the UI on the network — fall back immediately, swap in when ready
+  const { data } = useFeaturedProducts()
   const products = useMemo(() => {
     const fromDb = toCarouselItems(data || [])
     return fromDb.length > 0 ? fromDb : FALLBACK_PRODUCTS
@@ -621,23 +625,18 @@ export default function FeaturedProducts() {
       const content = contentRef.current
       if (!section || !content || total === 0) return
 
-      gsap.set(content, { opacity: 0, y: reducedMotion ? 0 : 20 })
+      // Show immediately — don't leave an empty stage waiting on ScrollTrigger
+      gsap.set(content, { opacity: 1, y: 0 })
+      inViewRef.current = true
+      startFloat()
 
       ScrollTrigger.create({
         trigger: section,
-        start: 'top 78%',
+        start: 'top 85%',
         once: true,
         onEnter: () => {
-          gsap.to(content, {
-            opacity: 1,
-            y: 0,
-            duration: reducedMotion ? 0.3 : 0.7,
-            ease: 'power2.out',
-            onComplete: () => {
-              inViewRef.current = true
-              startFloat()
-            },
-          })
+          inViewRef.current = true
+          startFloat()
         },
       })
     },
@@ -776,23 +775,6 @@ export default function FeaturedProducts() {
 
   const product = products[activeIndex] || products[0]
 
-  if (isLoading) {
-    return (
-      <section
-        id="bestsellers"
-        className="relative flex min-h-[320px] items-center justify-center overflow-hidden px-3 py-16 text-neutral-900 sm:min-h-[420px]"
-        style={{
-          backgroundImage: `
-            radial-gradient(ellipse 90% 55% at 50% 40%, rgba(255,255,255,0.97) 0%, transparent 68%),
-            linear-gradient(180deg, #fafafa 0%, #f2f2f2 45%, #ebebeb 68%, #e0e0e0 100%)
-          `,
-        }}
-      >
-        <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
-      </section>
-    )
-  }
-
   // Always have FALLBACK_PRODUCTS — empty state should never show
   if (total === 0) {
     return null
@@ -882,7 +864,11 @@ export default function FeaturedProducts() {
                     itemRefs.current[i] = el
                   }}
                   className="absolute left-1/2 top-[48%] w-full will-change-transform"
-                  style={{ opacity: 0 }}
+                  style={{
+                    opacity: i === 0 ? 1 : 0,
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: i === 0 ? 20 : 1,
+                  }}
                   aria-hidden={!isActive}
                 >
                   <div
@@ -922,8 +908,9 @@ export default function FeaturedProducts() {
                       className="h-auto w-full select-none"
                       style={{ willChange: isActive ? 'filter' : 'auto' }}
                       draggable={false}
-                      decoding="async"
+                      decoding={i === 0 ? 'sync' : 'async'}
                       loading={i === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={i === 0 ? 'high' : 'auto'}
                       sizes="(max-width: 639px) 52vw, (max-width: 767px) 280px, 380px"
                     />
                   </Link>

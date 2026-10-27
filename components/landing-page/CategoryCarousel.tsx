@@ -102,19 +102,10 @@ export default function CategoryCarousel() {
 
   const [index, setIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
-  const [imgReady, setImgReady] = useState<Record<string, boolean>>({})
 
   const panelW = isMobile ? PANEL_W_MOBILE : PANEL_W_DESKTOP
   const panelH = isMobile ? PANEL_H_MOBILE : PANEL_H_DESKTOP
   const active = categories[index] || categories[0]
-
-  useEffect(() => {
-    categories.forEach((cat) => {
-      const img = new window.Image()
-      img.onload = () => setImgReady((prev) => ({ ...prev, [cat.id]: true }))
-      img.src = cat.image
-    })
-  }, [categories])
 
   useEffect(() => {
     activeIndex.current = 0
@@ -473,6 +464,10 @@ export default function CategoryCarousel() {
           <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
             {categories.map((cat, i) => {
               const isActive = i === index
+              // Seed transforms so faces aren't blank/stacked before the rAF loop starts
+              const seedOffset = i === 0 ? 0 : i === 1 ? 1 : i === total - 1 ? -1 : 2
+              const seedSpread = isMobile ? SPREAD_MOBILE : SPREAD_DESKTOP
+              const seedVisible = Math.abs(seedOffset) <= 1
               return (
                 <button
                   key={cat.id}
@@ -493,27 +488,22 @@ export default function CategoryCarousel() {
                     transformOrigin: 'center center',
                     willChange: 'transform, opacity',
                     boxShadow: '0 18px 36px rgba(0,0,0,0.14)',
+                    opacity: seedVisible ? 1 - Math.abs(seedOffset) * 0.18 : 0,
+                    zIndex: Math.round(100 - Math.abs(seedOffset) * 40),
+                    transform: `translate(-50%, -50%) translateX(${seedOffset * seedSpread}px) translateZ(${-Math.min(Math.abs(seedOffset), 1) * DEPTH}px) rotateY(${-seedOffset * YAW}deg) scale(${1 - Math.min(Math.abs(seedOffset), 1) * 0.12})`,
                   }}
                 >
-                  <span className="absolute inset-0 overflow-hidden rounded-[1px]">
-                    {imgReady[cat.id] ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={cat.image}
-                        alt=""
-                        className="h-full w-full object-cover"
-                        draggable={false}
-                      />
-                    ) : (
-                      <span className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-neutral-100 via-neutral-200 to-neutral-300 px-4">
-                        <span className="font-nike-display text-xl uppercase tracking-wider text-neutral-800">
-                          {cat.title}
-                        </span>
-                        <span className="font-nike text-[0.6rem] uppercase tracking-[0.2em] text-neutral-500">
-                          {cat.placeholderLabel}
-                        </span>
-                      </span>
-                    )}
+                  <span className="absolute inset-0 overflow-hidden rounded-[1px] bg-neutral-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={cat.image}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      draggable={false}
+                      decoding={i === 0 ? 'sync' : 'async'}
+                      loading={i <= 1 ? 'eager' : 'lazy'}
+                      fetchPriority={i === 0 ? 'high' : 'auto'}
+                    />
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/5" />
                     <span
                       className="pointer-events-none absolute inset-0 bg-white transition-opacity duration-200"

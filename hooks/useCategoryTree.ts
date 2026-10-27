@@ -14,5 +14,6 @@ export function useCategoryTree() {
     queryKey: ['categoryTree'],
     queryFn: fetchCategoryTree,
     staleTime: 60_000,
+    placeholderData: FALLBACK_CATEGORY_TREE,
   })
 }
