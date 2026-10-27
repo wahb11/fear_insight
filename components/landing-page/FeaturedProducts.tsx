@@ -21,29 +21,29 @@ type CarouselItem = {
 }
 
 /**
- * Lightweight local fallbacks — used until admin featured cutouts exist.
- * Avoid the multi‑MB slider*.png files; they blocked the carousel for seconds.
+ * Transparent cutout PNGs — needed for the soft floor-shadow studio look.
+ * Load stays fast because the carousel no longer waits on fetch / opacity gates.
  */
 const FALLBACK_PRODUCTS: CarouselItem[] = [
   {
     id: 'fallback-fear',
     name: 'Fear Hoodie',
     detail: 'Statement weight · Fear collection',
-    image: '/images/carousel-fear.jpg',
+    image: '/images/slider1.png',
     href: '/fear',
   },
   {
     id: 'fallback-insignia',
     name: 'Insignia Hoodie',
     detail: 'Mark of origin · Insignia collection',
-    image: '/images/carousel-signature.jpg',
+    image: '/images/slider2.png',
     href: '/insignia',
   },
   {
     id: 'fallback-oversized',
     name: 'Oversized Hoodie',
     detail: 'Relaxed volume · Oversized collection',
-    image: '/images/carousel-oversize.jpg',
+    image: '/images/slider3.png',
     href: '/oversized',
   },
 ]
@@ -882,6 +882,9 @@ export default function FeaturedProducts() {
                         'radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.28) 38%, rgba(0,0,0,0.08) 62%, transparent 78%)',
                       filter: isMobile ? 'blur(10px)' : 'blur(14px)',
                       transformOrigin: 'center center',
+                      // Seed visible floor shadow so it doesn’t wait on GSAP
+                      opacity: i === 0 ? 0.7 : i === 1 || i === products.length - 1 ? 0.45 : 0,
+                      transform: `translateX(-50%) scale(${i === 0 ? 1 : 0.72}, ${i === 0 ? 0.8 : 0.576})`,
                     }}
                   />
                   <Link
@@ -905,7 +908,7 @@ export default function FeaturedProducts() {
                       }}
                       src={p.image}
                       alt={isActive ? p.name : ''}
-                      className="h-auto w-full select-none"
+                      className="h-auto w-full select-none drop-shadow-[0_24px_40px_rgba(0,0,0,0.22)]"
                       style={{ willChange: isActive ? 'filter' : 'auto' }}
                       draggable={false}
                       decoding={i === 0 ? 'sync' : 'async'}

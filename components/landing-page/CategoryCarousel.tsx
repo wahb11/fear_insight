@@ -487,7 +487,8 @@ export default function CategoryCarousel() {
                     transformStyle: 'preserve-3d',
                     transformOrigin: 'center center',
                     willChange: 'transform, opacity',
-                    boxShadow: '0 18px 36px rgba(0,0,0,0.14)',
+                    boxShadow:
+                      '0 22px 44px rgba(0,0,0,0.22), 0 8px 16px rgba(0,0,0,0.12)',
                     opacity: seedVisible ? 1 - Math.abs(seedOffset) * 0.18 : 0,
                     zIndex: Math.round(100 - Math.abs(seedOffset) * 40),
                     transform: `translate(-50%, -50%) translateX(${seedOffset * seedSpread}px) translateZ(${-Math.min(Math.abs(seedOffset), 1) * DEPTH}px) rotateY(${-seedOffset * YAW}deg) scale(${1 - Math.min(Math.abs(seedOffset), 1) * 0.12})`,
