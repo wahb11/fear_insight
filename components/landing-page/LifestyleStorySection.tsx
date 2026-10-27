@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { optimizedImage, optimizedSrcSet } from '@/lib/image-url'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -141,7 +142,9 @@ export default function LifestyleStorySection() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/carousel-fear.jpg"
+              src={optimizedImage('/images/carousel-fear.jpg', 1200)}
+              srcSet={optimizedSrcSet('/images/carousel-fear.jpg', [640, 1080, 1920])}
+              sizes="100vw"
               alt="Fear Insight Fear collection"
               className="h-full w-full object-cover"
               style={{ filter: 'contrast(1.08) saturate(0.82) brightness(0.78)' }}

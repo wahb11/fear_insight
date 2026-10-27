@@ -22,6 +22,23 @@ export default function JourneyBanner() {
   const actionsRef = useRef<HTMLDivElement>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [watchOpen, setWatchOpen] = useState(false)
+  const [videoActive, setVideoActive] = useState(false)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section || videoActive) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVideoActive(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '400px 0px' }
+    )
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [videoActive])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -102,24 +119,26 @@ export default function JourneyBanner() {
           aria-hidden
         >
           <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-800" />
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ filter: 'brightness(0.72) contrast(1.1)' }}
-            onLoadedData={(e) => {
-              e.currentTarget.play().catch(() => {})
-            }}
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
-            }}
-          >
-            {/* PLACEHOLDER: swap to /videos/journey-banner.mp4 when that asset is added */}
-            <source src="/hero.mp4" type="video/mp4" />
-          </video>
+          {videoActive && (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ filter: 'brightness(0.72) contrast(1.1)' }}
+              onLoadedData={(e) => {
+                e.currentTarget.play().catch(() => {})
+              }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            >
+              {/* PLACEHOLDER: swap to /videos/journey-banner.mp4 when that asset is added */}
+              <source src="/hero.mp4" type="video/mp4" />
+            </video>
+          )}
         </div>
 
         {/* Scrim for contrast — heavier at bottom-left where copy sits */}

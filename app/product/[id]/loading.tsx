@@ -19,7 +19,7 @@ export default function ProductLoading() {
             {/* Image Section Skeleton */}
             <div className="space-y-3 sm:space-y-4">
               {/* Main Image */}
-              <div className="relative h-72 sm:h-96 lg:h-[500px] bg-neutral-50 rounded-lg border border-neutral-200 overflow-hidden">
+              <div className="relative h-[min(125vw,68svh)] sm:h-[min(100vw,70svh)] lg:h-[500px] bg-neutral-50 rounded-lg border border-neutral-200 overflow-hidden">
                 <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-100" />
                 {/* Shimmer effect */}
                 <div

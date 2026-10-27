@@ -7,7 +7,14 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+    minimumCacheTTL: 2678400,
   },
   webpack: (config, { webpack }) => {
     // Never compile these — they ship Node ESM / WASM that SWC cannot parse.

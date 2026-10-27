@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { optimizedImage, optimizedSrcSet } from '@/lib/image-url'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -92,7 +93,9 @@ export default function ProductFeatureSection() {
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/slider1.png"
+              src={optimizedImage('/images/slider1.png', 1080)}
+              srcSet={optimizedSrcSet('/images/slider1.png', [640, 828, 1080])}
+              sizes="(min-width: 768px) 55vw, 100vw"
               alt="Fear Insight Fear Hoodie"
               className="relative z-10 h-full w-full object-contain drop-shadow-[0_28px_50px_rgba(0,0,0,0.18)]"
               decoding="async"

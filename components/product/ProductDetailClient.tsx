@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import {
   Star,
@@ -26,6 +25,7 @@ import { useAllProducts } from '@/hooks/useAllProducts'
 import { Product } from '@/types/products'
 import { isOnesizeProduct } from '@/lib/collections'
 import { sizesForColor } from '@/lib/product-variants'
+import { optimizedImage, optimizedSrcSet } from '@/lib/image-url'
 
 const getColorValue = (colorName: string): string => {
   const colorMap: Record<string, string> = {
@@ -99,6 +99,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const [showSizeChart, setShowSizeChart] = useState(false)
   const [activeTab, setActiveTab] = useState<InfoTab>('details')
   const [lightbox, setLightbox] = useState(false)
+  const [loadedSrcs, setLoadedSrcs] = useState<Record<string, boolean>>({})
+  const markLoaded = useCallback((src: string) => {
+    setLoadedSrcs((prev) => (prev[src] ? prev : { ...prev, [src]: true }))
+  }, [])
   const touchStartX = useRef<number | null>(null)
 
   const availableSizes = useMemo<VariantOption[]>(() => {
@@ -170,6 +174,18 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     setImageError(false)
   }, [selectedImage, selectedColor])
 
+  useEffect(() => {
+    if (images.length < 2) return
+    const neighbors = [
+      images[(selectedImage + 1) % images.length],
+      images[(selectedImage - 1 + images.length) % images.length],
+    ]
+    neighbors.forEach((src) => {
+      const img = new window.Image()
+      img.src = optimizedImage(src, 1080)
+    })
+  }, [images, selectedImage])
+
   const relatedProducts = useMemo(() => {
     if (!allProducts?.length) return []
     return allProducts
@@ -217,6 +233,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     'Premium Fear Insight piece — built for presence, cut with intention.'
 
   const mainSrc = imageError ? fallbackImage : images[selectedImage] || fallbackImage
+  const mainDisplaySrc = optimizedImage(mainSrc, 1080)
+  const mainLoaded = !!loadedSrcs[mainDisplaySrc]
   const detailImage = images[Math.min(1, images.length - 1)] || mainSrc
   const onesize = isOnesizeProduct(product)
 
@@ -275,9 +293,11 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={image}
+                    src={optimizedImage(image, 128)}
                     alt=""
-                    className="h-full w-full object-cover"
+                    className="h-full w-full bg-neutral-100 object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </button>
               ))}
@@ -297,24 +317,32 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           {/* Main image — natural portrait fit, no horizontal crop */}
           <div className="min-w-0 w-full max-w-full lg:col-span-6">
             <div
-              className="relative flex w-full max-w-full items-center justify-center overflow-hidden bg-neutral-50 touch-pan-y lg:aspect-[5/6] lg:max-h-[560px]"
+              className="relative h-[min(125vw,68svh)] w-full max-w-full overflow-hidden bg-neutral-50 touch-pan-y sm:h-[min(100vw,70svh)] lg:h-auto lg:aspect-[5/6] lg:max-h-[560px]"
               onTouchStart={onGalleryTouchStart}
               onTouchEnd={onGalleryTouchEnd}
+              aria-busy={!mainLoaded}
             >
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={selectedImage}
-                  src={mainSrc}
-                  alt={`${product.name} — Fear Insight`}
-                  className="relative z-0 mx-auto h-auto max-h-[min(68svh,560px)] w-full object-contain object-center lg:absolute lg:inset-0 lg:h-full lg:max-h-none lg:object-cover"
-                  onError={() => setImageError(true)}
-                  draggable={false}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                />
-              </AnimatePresence>
+              {!mainLoaded && <div className="carousel-shimmer absolute inset-0" aria-hidden />}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                key={mainDisplaySrc}
+                ref={(el) => {
+                  if (el?.complete && el.naturalWidth > 0) markLoaded(mainDisplaySrc)
+                }}
+                src={mainDisplaySrc}
+                alt={`${product.name} — Fear Insight`}
+                className={`absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-300 lg:object-cover ${
+                  mainLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={() => markLoaded(mainDisplaySrc)}
+                onError={() => {
+                  markLoaded(mainDisplaySrc)
+                  setImageError(true)
+                }}
+                fetchPriority="high"
+                decoding="async"
+                draggable={false}
+              />
 
               {images.length > 1 && (
                 <>
@@ -374,7 +402,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={image} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={optimizedImage(image, 128)}
+                    alt=""
+                    className="h-full w-full bg-neutral-100 object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </button>
               ))}
             </div>
@@ -710,9 +744,11 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             <div className="relative aspect-[4/3] max-h-48 w-full max-w-full overflow-hidden bg-neutral-100 sm:max-h-64 lg:max-h-72">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={detailImage}
+                src={optimizedImage(detailImage, 640)}
                 alt={`${product.name} detail`}
                 className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -751,9 +787,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                     <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={img}
+                        src={optimizedImage(img, 384)}
+                        srcSet={optimizedSrcSet(img, [256, 384, 640])}
+                        sizes="(min-width: 1024px) 25vw, 50vw"
                         alt={item.name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <button
                         type="button"
@@ -795,7 +835,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={mainSrc}
+            src={optimizedImage(mainSrc, 1920, 85)}
             alt={product.name}
             className="max-h-[85vh] max-w-full object-contain"
             onClick={(e) => e.stopPropagation()}

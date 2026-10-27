@@ -18,11 +18,11 @@ export default function HeroCanvas() {
     const container = containerRef.current
     if (!container) return
 
-    const prefersReduced =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // Mouse-reactive effect is invisible on touch screens; skip WebGL there entirely
+    const isTouch = window.matchMedia('(pointer: coarse)').matches
 
-    if (prefersReduced) return
+    if (prefersReduced || isTouch) return
 
     const width = container.clientWidth
     const height = container.clientHeight
@@ -72,9 +72,17 @@ export default function HeroCanvas() {
 
     let frameId = 0
     let disposed = false
+    let visible = true
+
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      const wasVisible = visible
+      visible = entry.isIntersecting
+      if (visible && !wasVisible && !disposed) animate()
+    })
+    visibilityObserver.observe(container)
 
     const animate = () => {
-      if (disposed) return
+      if (disposed || !visible) return
       frameId = requestAnimationFrame(animate)
 
       mouse.x += (target.x - mouse.x) * 0.04
@@ -102,6 +110,7 @@ export default function HeroCanvas() {
     return () => {
       disposed = true
       cancelAnimationFrame(frameId)
+      visibilityObserver.disconnect()
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('resize', onResize)
       geometry.dispose()

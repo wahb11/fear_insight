@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useCategoryTree } from '@/hooks/useCategoryTree'
 import { Category } from '@/types/categories'
 import { FALLBACK_CATEGORY_TREE } from '@/lib/categories'
+import { optimizedImage, optimizedSrcSet } from '@/lib/image-url'
 
 gsap.registerPlugin(useGSAP)
 
@@ -516,7 +517,8 @@ export default function CategoryCarousel() {
                     )}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={cat.image}
+                      src={optimizedImage(cat.image, 640)}
+                      srcSet={optimizedSrcSet(cat.image, [384, 640])}
                       alt=""
                       className={`h-full w-full object-cover transition-opacity duration-300 ${
                         imgLoaded[cat.id] ? 'opacity-100' : 'opacity-0'

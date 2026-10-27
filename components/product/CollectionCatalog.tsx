@@ -19,6 +19,7 @@ import {
   filterByCategoryTree,
 } from "@/lib/collections"
 import { FALLBACK_CATEGORY_TREE } from "@/lib/categories"
+import { optimizedImage, optimizedSrcSet } from "@/lib/image-url"
 import { useCategoryTree } from "@/hooks/useCategoryTree"
 
 
@@ -555,9 +556,11 @@ export default function CollectionCatalog({ collection }: { collection: Collecti
                             <div className="relative aspect-square overflow-hidden">
                               {firstImage ? (
                                 <img
-                                  src={firstImage}
+                                  src={optimizedImage(firstImage, 640)}
+                                  srcSet={optimizedSrcSet(firstImage, [384, 640, 828])}
+                                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                                   alt={`${product.name} - Shop at Fear Insight`}
-                                  className="w-full h-full object-cover"
+                                  className="w-full h-full bg-neutral-100 object-cover"
                                   loading="lazy"
                                   decoding="async"
                                 />

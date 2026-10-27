@@ -9,6 +9,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useFeaturedProducts } from '@/hooks/useFeaturedProducts'
 import { Product } from '@/types/products'
+import { optimizedImage, optimizedSrcSet } from '@/lib/image-url'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
@@ -278,21 +279,6 @@ export default function FeaturedProducts() {
       mqMobile.removeEventListener('change', syncMobile)
     }
   }, [])
-
-  // Warm the first cutout early so mobile doesn’t wait on scroll
-  useEffect(() => {
-    const first = products[0]?.image
-    if (!first || typeof window === 'undefined') return
-    const link = document.createElement('link')
-    link.rel = 'preload'
-    link.as = 'image'
-    link.href = first
-    link.setAttribute('fetchpriority', 'high')
-    document.head.appendChild(link)
-    return () => {
-      link.remove()
-    }
-  }, [products])
 
   // Reset carousel when product list changes
   useEffect(() => {
@@ -946,16 +932,16 @@ export default function FeaturedProducts() {
                           markImageLoaded(p.id)
                         }
                       }}
-                      src={p.image}
+                      src={optimizedImage(p.image, 828)}
+                      srcSet={optimizedSrcSet(p.image, [384, 640, 828])}
                       alt={isActive ? p.name : ''}
-                      className={`relative z-10 h-auto w-full select-none drop-shadow-[0_24px_40px_rgba(0,0,0,0.22)] transition-opacity duration-300 ${
+                      className={`relative z-10 aspect-square w-full select-none object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.22)] transition-opacity duration-300 ${
                         imgLoaded[p.id] ? 'opacity-100' : 'opacity-0'
                       }`}
                       style={{ willChange: isActive && !isMobile ? 'filter' : 'auto' }}
                       draggable={false}
                       decoding="async"
-                      loading={i === 0 ? 'eager' : 'lazy'}
-                      fetchPriority={i === 0 ? 'high' : 'auto'}
+                      loading="lazy"
                       sizes="(max-width: 639px) 52vw, (max-width: 767px) 280px, 380px"
                       onLoad={() => markImageLoaded(p.id)}
                       onError={() => markImageLoaded(p.id)}
