@@ -21,10 +21,19 @@ export default function FearInsightLanding() {
         transition: { duration: 0 },
       }
     : {
-        // No blur — filter blur was expensive and made carousels look blank while waiting
-        initial: { opacity: 0, y: 24 },
+        // Light fade only — keep mobile feel snappy
+        initial: { opacity: 0, y: 16 },
         whileInView: { opacity: 1, y: 0 },
-        transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
+        transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
+      }
+
+  // Carousels mount visible so phones never stare at an empty section
+  const carouselReveal = prefersReducedMotion
+    ? sectionReveal
+    : {
+        initial: { opacity: 1, y: 0 },
+        whileInView: { opacity: 1, y: 0 },
+        transition: { duration: 0 },
       }
 
   return (
@@ -33,32 +42,28 @@ export default function FearInsightLanding() {
         <Hero />
 
         {/* Category carousel — keeps #about for nav anchors */}
-        <motion.div viewport={{ once: true, margin: "-12% 0px -8% 0px" }} {...sectionReveal}>
+        <motion.div viewport={{ once: true, margin: "0px 0px -5% 0px" }} {...carouselReveal}>
           <CategoryCarousel />
         </motion.div>
 
         {/* Brand statement pause + journey video banner */}
         <motion.div
-          viewport={{ once: true, margin: "-12% 0px -8% 0px" }}
+          viewport={{ once: true, margin: "-8% 0px -6% 0px" }}
           {...sectionReveal}
-          transition={{ ...sectionReveal.transition, delay: prefersReducedMotion ? 0 : 0.06 }}
+          transition={{ ...sectionReveal.transition, delay: prefersReducedMotion ? 0 : 0.04 }}
         >
           <BrandStatement />
         </motion.div>
         <motion.div
-          viewport={{ once: true, margin: "-12% 0px -8% 0px" }}
+          viewport={{ once: true, margin: "-8% 0px -6% 0px" }}
           {...sectionReveal}
-          transition={{ ...sectionReveal.transition, delay: prefersReducedMotion ? 0 : 0.1 }}
+          transition={{ ...sectionReveal.transition, delay: prefersReducedMotion ? 0 : 0.06 }}
         >
           <JourneyBanner />
         </motion.div>
 
         {/* Featured products showcase */}
-        <motion.div
-          viewport={{ once: true, margin: "-12% 0px -8% 0px" }}
-          {...sectionReveal}
-          transition={{ ...sectionReveal.transition, delay: prefersReducedMotion ? 0 : 0.12 }}
-        >
+        <motion.div viewport={{ once: true, margin: "0px 0px -5% 0px" }} {...carouselReveal}>
           <FeaturedProducts />
         </motion.div>
 

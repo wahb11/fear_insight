@@ -152,8 +152,9 @@ const MOBILE_POSES: PoseSet = {
   left: {
     xPercent: -102,
     scale: 0.5,
-    blur: 8,
-    opacity: 0.7,
+    // Keep blur light on phones — CSS filter blur is expensive
+    blur: 2,
+    opacity: 0.75,
     rotation: 0,
     zIndex: 5,
     shadowOpacity: 0.4,
@@ -162,8 +163,8 @@ const MOBILE_POSES: PoseSet = {
   right: {
     xPercent: 2,
     scale: 0.5,
-    blur: 8,
-    opacity: 0.7,
+    blur: 2,
+    opacity: 0.75,
     rotation: 0,
     zIndex: 5,
     shadowOpacity: 0.4,
@@ -172,7 +173,7 @@ const MOBILE_POSES: PoseSet = {
   offLeft: {
     xPercent: -145,
     scale: 0.36,
-    blur: 12,
+    blur: 4,
     opacity: 0,
     rotation: 0,
     zIndex: 1,
@@ -182,7 +183,7 @@ const MOBILE_POSES: PoseSet = {
   offRight: {
     xPercent: 45,
     scale: 0.36,
-    blur: 12,
+    blur: 4,
     opacity: 0,
     rotation: 0,
     zIndex: 1,
@@ -248,6 +249,13 @@ export default function FeaturedProducts() {
   const [reducedMotion, setReducedMotion] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [imgLoaded, setImgLoaded] = useState<Record<string, boolean>>({})
+
+  const markImageLoaded = useCallback((id: string) => {
+    setImgLoaded((prev) => (prev[id] ? prev : { ...prev, [id]: true }))
+  }, [])
+
+  const activeImageReady = !!(products[activeIndex] && imgLoaded[products[activeIndex].id])
 
   useEffect(() => {
     const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -271,6 +279,21 @@ export default function FeaturedProducts() {
     }
   }, [])
 
+  // Warm the first cutout early so mobile doesn’t wait on scroll
+  useEffect(() => {
+    const first = products[0]?.image
+    if (!first || typeof window === 'undefined') return
+    const link = document.createElement('link')
+    link.rel = 'preload'
+    link.as = 'image'
+    link.href = first
+    link.setAttribute('fetchpriority', 'high')
+    document.head.appendChild(link)
+    return () => {
+      link.remove()
+    }
+  }, [products])
+
   // Reset carousel when product list changes
   useEffect(() => {
     currentIndexRef.current = 0
@@ -278,6 +301,7 @@ export default function FeaturedProducts() {
     itemRefs.current = []
     shadowRefs.current = []
     imgRefs.current = []
+    setImgLoaded({})
   }, [total])
 
   const killFloat = useCallback(() => {
@@ -481,12 +505,18 @@ export default function FeaturedProducts() {
 
       const amplitude = mobile
         ? offset === 0
-          ? 8
-          : 5
+          ? 5
+          : 3
         : offset === 0
           ? 14
           : 9
-      const duration = offset === 0 ? 2.5 : 2.9 + i * 0.12
+      const duration = mobile
+        ? offset === 0
+          ? 3.2
+          : 3.6
+        : offset === 0
+          ? 2.5
+          : 2.9 + i * 0.12
       const direction = offset === 0 ? -1 : offset < 0 ? 1 : -1
 
       const tween = gsap.to(el, {
@@ -787,7 +817,7 @@ export default function FeaturedProducts() {
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="Featured products. Swipe or use the dots to browse on mobile; arrow buttons on larger screens."
-      className="relative overflow-hidden px-3 py-10 text-neutral-900 outline-none [contain:paint] focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:px-4 sm:py-14 md:py-20"
+      className="relative overflow-hidden px-3 py-8 text-neutral-900 outline-none [contain:paint] focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:px-4 sm:py-14 md:py-20"
     >
       <div
         className="pointer-events-none absolute inset-0"
@@ -823,9 +853,10 @@ export default function FeaturedProducts() {
 
         <div
           ref={stageRef}
-          className="relative mx-auto mt-0 flex h-[250px] w-full max-w-5xl cursor-grab items-center justify-center overflow-hidden active:cursor-grabbing sm:h-[380px] md:h-[460px] lg:h-[500px]"
+          className="relative mx-auto mt-0 flex h-[min(52vw,260px)] w-full max-w-5xl cursor-grab items-center justify-center overflow-hidden active:cursor-grabbing sm:h-[380px] md:h-[460px] lg:h-[500px]"
           role="region"
           aria-labelledby="featured-products-heading"
+          aria-busy={!activeImageReady}
           style={{
             touchAction: 'pan-y',
             WebkitUserSelect: 'none',
@@ -880,7 +911,7 @@ export default function FeaturedProducts() {
                     style={{
                       background:
                         'radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.28) 38%, rgba(0,0,0,0.08) 62%, transparent 78%)',
-                      filter: isMobile ? 'blur(10px)' : 'blur(14px)',
+                      filter: isMobile ? 'blur(8px)' : 'blur(14px)',
                       transformOrigin: 'center center',
                       // Seed visible floor shadow so it doesn’t wait on GSAP
                       opacity: i === 0 ? 0.7 : i === 1 || i === products.length - 1 ? 0.45 : 0,
@@ -901,20 +932,33 @@ export default function FeaturedProducts() {
                       }
                     }}
                   >
+                    {!imgLoaded[p.id] && (
+                      <span
+                        className="carousel-shimmer absolute inset-x-[8%] inset-y-[10%] z-0 rounded-sm"
+                        aria-hidden
+                      />
+                    )}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       ref={(el) => {
                         imgRefs.current[i] = el
+                        if (el?.complete && el.naturalWidth > 0) {
+                          markImageLoaded(p.id)
+                        }
                       }}
                       src={p.image}
                       alt={isActive ? p.name : ''}
-                      className="h-auto w-full select-none drop-shadow-[0_24px_40px_rgba(0,0,0,0.22)]"
-                      style={{ willChange: isActive ? 'filter' : 'auto' }}
+                      className={`relative z-10 h-auto w-full select-none drop-shadow-[0_24px_40px_rgba(0,0,0,0.22)] transition-opacity duration-300 ${
+                        imgLoaded[p.id] ? 'opacity-100' : 'opacity-0'
+                      }`}
+                      style={{ willChange: isActive && !isMobile ? 'filter' : 'auto' }}
                       draggable={false}
-                      decoding={i === 0 ? 'sync' : 'async'}
+                      decoding="async"
                       loading={i === 0 ? 'eager' : 'lazy'}
                       fetchPriority={i === 0 ? 'high' : 'auto'}
                       sizes="(max-width: 639px) 52vw, (max-width: 767px) 280px, 380px"
+                      onLoad={() => markImageLoaded(p.id)}
+                      onError={() => markImageLoaded(p.id)}
                     />
                   </Link>
                 </div>
@@ -924,6 +968,14 @@ export default function FeaturedProducts() {
         </div>
 
         <div className="relative z-20 mt-1 flex flex-col items-center gap-1.5 px-2 text-center sm:mt-0 sm:gap-2 md:gap-3">
+          <p
+            className={`font-nike text-[0.6rem] uppercase tracking-[0.16em] text-neutral-400 transition-opacity duration-300 ${
+              activeImageReady ? 'h-0 overflow-hidden opacity-0' : 'opacity-100'
+            }`}
+            aria-live="polite"
+          >
+            Loading look…
+          </p>
           <h3
             ref={brandRef}
             className="font-nike-display text-xl uppercase tracking-[0.06em] text-black sm:text-3xl md:text-4xl"

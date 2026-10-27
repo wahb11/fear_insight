@@ -102,10 +102,16 @@ export default function CategoryCarousel() {
 
   const [index, setIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [imgLoaded, setImgLoaded] = useState<Record<string, boolean>>({})
 
   const panelW = isMobile ? PANEL_W_MOBILE : PANEL_W_DESKTOP
   const panelH = isMobile ? PANEL_H_MOBILE : PANEL_H_DESKTOP
   const active = categories[index] || categories[0]
+  const activeImageReady = active ? !!imgLoaded[active.id] : true
+
+  const markImageLoaded = useCallback((id: string) => {
+    setImgLoaded((prev) => (prev[id] ? prev : { ...prev, [id]: true }))
+  }, [])
 
   useEffect(() => {
     activeIndex.current = 0
@@ -393,8 +399,12 @@ export default function CategoryCarousel() {
       aria-label="Product categories carousel. Drag, use arrow buttons, or keyboard arrows to change category."
       className="category-carousel relative flex flex-col justify-center overflow-hidden bg-white text-neutral-900 outline-none [contain:paint] focus-visible:ring-2 focus-visible:ring-neutral-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       style={{
-        minHeight: 'min(100svh - 6.75rem, 640px)',
-        maxHeight: 'min(100svh - 6.75rem, 720px)',
+        minHeight: isMobile
+          ? 'min(72svh, 520px)'
+          : 'min(100svh - 6.75rem, 640px)',
+        maxHeight: isMobile
+          ? 'min(78svh, 560px)'
+          : 'min(100svh - 6.75rem, 720px)',
       }}
     >
       <div
@@ -411,18 +421,18 @@ export default function CategoryCarousel() {
       <div className="relative z-10 mx-auto flex h-full min-h-0 w-full max-w-7xl flex-1 flex-col px-4 py-5 md:px-8 md:py-6">
         <header
           data-carousel-chrome
-          className="mb-3 flex shrink-0 items-end justify-between gap-4 md:mb-4"
+          className="mb-2 flex shrink-0 items-end justify-between gap-3 sm:mb-3 md:mb-4 md:gap-4"
         >
-          <div>
-            <p className="font-nike mb-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-neutral-500">
+          <div className="min-w-0">
+            <p className="font-nike mb-1 text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-neutral-500 sm:text-[0.65rem]">
               Shop by category
             </p>
-            <h2 className="font-nike-display text-2xl uppercase tracking-[0.04em] text-black md:text-4xl">
+            <h2 className="font-nike-display text-xl uppercase tracking-[0.04em] text-black sm:text-2xl md:text-4xl">
               Categories
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <p className="font-nike-display hidden text-lg tracking-widest text-neutral-400 sm:block" aria-live="polite">
               <span ref={indexRef} className="text-black">
                 01
@@ -435,7 +445,7 @@ export default function CategoryCarousel() {
                 type="button"
                 onClick={() => navigateBy(-1)}
                 aria-label="Previous category"
-                className="flex h-10 w-10 items-center justify-center border border-neutral-900 bg-white text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
+                className="flex h-11 w-11 items-center justify-center border border-neutral-900 bg-white text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 sm:h-10 sm:w-10"
               >
                 <ChevronLeft className="h-5 w-5" aria-hidden />
               </button>
@@ -443,7 +453,7 @@ export default function CategoryCarousel() {
                 type="button"
                 onClick={() => navigateBy(1)}
                 aria-label="Next category"
-                className="flex h-10 w-10 items-center justify-center border border-neutral-900 bg-white text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
+                className="flex h-11 w-11 items-center justify-center border border-neutral-900 bg-white text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 sm:h-10 sm:w-10"
               >
                 <ChevronRight className="h-5 w-5" aria-hidden />
               </button>
@@ -495,15 +505,26 @@ export default function CategoryCarousel() {
                   }}
                 >
                   <span className="absolute inset-0 overflow-hidden rounded-[1px] bg-neutral-200">
+                    {!imgLoaded[cat.id] && (
+                      <span
+                        className="carousel-shimmer absolute inset-0"
+                        aria-hidden
+                      />
+                    )}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={cat.image}
                       alt=""
-                      className="h-full w-full object-cover"
+                      className={`h-full w-full object-cover transition-opacity duration-300 ${
+                        imgLoaded[cat.id] ? 'opacity-100' : 'opacity-0'
+                      }`}
                       draggable={false}
-                      decoding={i === 0 ? 'sync' : 'async'}
+                      decoding="async"
                       loading={i <= 1 ? 'eager' : 'lazy'}
                       fetchPriority={i === 0 ? 'high' : 'auto'}
+                      sizes="(max-width: 767px) 170px, 260px"
+                      onLoad={() => markImageLoaded(cat.id)}
+                      onError={() => markImageLoaded(cat.id)}
                     />
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/5" />
                     <span
@@ -519,7 +540,7 @@ export default function CategoryCarousel() {
 
         <div
           data-carousel-chrome
-          className="mt-3 flex shrink-0 flex-col gap-3 sm:mt-4 sm:flex-row sm:items-end sm:justify-between"
+          className="mt-2 flex shrink-0 flex-col gap-3 sm:mt-4 sm:flex-row sm:items-end sm:justify-between"
         >
           <div className="min-w-0 max-w-xl">
             <p
@@ -530,7 +551,7 @@ export default function CategoryCarousel() {
             </p>
             <h3
               ref={titleRef}
-              className="font-nike-display mb-1 break-words text-[clamp(1.5rem,7vw,3rem)] uppercase leading-none tracking-[0.04em] text-black md:text-5xl"
+              className="font-nike-display mb-1 break-words text-[clamp(1.35rem,6.5vw,3rem)] uppercase leading-none tracking-[0.04em] text-black md:text-5xl"
             >
               {categories[0]?.title}
             </h3>
@@ -540,13 +561,21 @@ export default function CategoryCarousel() {
             >
               {categories[0]?.description}
             </p>
+            <p
+              className={`font-nike mt-1.5 text-[0.6rem] uppercase tracking-[0.16em] text-neutral-400 transition-opacity duration-300 sm:mt-2 ${
+                activeImageReady ? 'opacity-0' : 'opacity-100'
+              }`}
+              aria-live="polite"
+            >
+              {activeImageReady ? '\u00a0' : 'Loading look…'}
+            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 sm:flex-col sm:items-end">
             <button
               type="button"
               onClick={openActiveCategory}
-              className="font-nike inline-flex items-center border border-neutral-900 bg-neutral-900 px-5 py-2.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-white hover:text-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
+              className="font-nike inline-flex min-h-11 items-center border border-neutral-900 bg-neutral-900 px-5 py-2.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-white hover:text-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 sm:min-h-0"
             >
               Shop {active?.title ?? 'category'}
             </button>

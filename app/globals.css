@@ -105,6 +105,8 @@
     max-width: 100%;
     overflow-x: hidden;
     overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   @media (min-width: 768px) {
     html {
@@ -120,5 +122,35 @@
     overflow-x: hidden;
     overflow-x: clip;
     overflow-wrap: anywhere;
+  }
+}
+
+/* Non-blocking carousel image placeholders */
+@keyframes carousel-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.carousel-shimmer {
+  background-image: linear-gradient(
+    110deg,
+    #e8e8e8 0%,
+    #e8e8e8 35%,
+    #f5f5f5 50%,
+    #e8e8e8 65%,
+    #e8e8e8 100%
+  );
+  background-size: 200% 100%;
+  animation: carousel-shimmer 1.15s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-shimmer {
+    animation: none;
+    background: #e8e8e8;
   }
 }
