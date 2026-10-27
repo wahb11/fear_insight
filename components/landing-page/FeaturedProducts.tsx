@@ -701,8 +701,12 @@ export default function FeaturedProducts() {
     let moved = false
     let captured = false
     let tapLink: HTMLAnchorElement | null = null
+    let startTime = 0
+    let maxTravel = 0
 
-    const threshold = () => (isMobileRef.current ? 36 : 48)
+    const threshold = () => (isMobileRef.current ? 28 : 48)
+    const TAP_SLOP = 10
+    const TAP_MAX_MS = 450
 
     const onDown = (e: PointerEvent) => {
       if ((e.target as HTMLElement).closest('button')) return
@@ -714,6 +718,8 @@ export default function FeaturedProducts() {
       tapLink = (e.target as HTMLElement).closest('a[data-featured-product]')
       startX = e.clientX
       startY = e.clientY
+      startTime = performance.now()
+      maxTravel = 0
       // Do NOT capture yet — capturing kills the following click on the product link
     }
 
@@ -721,6 +727,7 @@ export default function FeaturedProducts() {
       if (!dragging) return
       const dx = e.clientX - startX
       const dy = e.clientY - startY
+      maxTravel = Math.max(maxTravel, Math.hypot(dx, dy))
 
       if (!axis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
         axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
@@ -764,13 +771,21 @@ export default function FeaturedProducts() {
         return
       }
 
-      // Tap (not a swipe) on a product image → navigate
-      if (tapLink) {
+      maxTravel = Math.max(maxTravel, Math.hypot(dx, e.clientY - startY))
+      const isTap =
+        e.type === 'pointerup' &&
+        maxTravel <= TAP_SLOP &&
+        performance.now() - startTime <= TAP_MAX_MS
+
+      // Only a quick, near-stationary touch opens the product; short swipes,
+      // page scrolls (pointercancel) and long presses never navigate
+      suppressClickRef.current = true
+      window.setTimeout(() => {
+        suppressClickRef.current = false
+      }, 400)
+      if (isTap && tapLink) {
         const href = tapLink.getAttribute('href')
-        if (href) {
-          suppressClickRef.current = true
-          router.push(href)
-        }
+        if (href) router.push(href)
       }
       tapLink = null
       axis = null

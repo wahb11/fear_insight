@@ -99,6 +99,7 @@ export default function CategoryCarousel() {
   const lastMoveTime = useRef(0)
   const pointerId = useRef<number | null>(null)
   const suppressClickUntil = useRef(0)
+  const pressStartTime = useRef(0)
   const sensitivityRef = useRef(DRAG_SENSITIVITY_DESKTOP)
 
   const [index, setIndex] = useState(0)
@@ -279,7 +280,10 @@ export default function CategoryCarousel() {
     const onPointerDown = (e: PointerEvent) => {
       if ((e.target as HTMLElement).closest('[data-carousel-chrome]')) return
       isDragging.current = true
-      dragMoved.current = false
+      // Touching a still-spinning carousel should only stop it, never open a card
+      dragMoved.current =
+        Math.abs(currentVelocity.current) > 0.4 || Math.abs(targetVelocity.current) > 0.4
+      pressStartTime.current = performance.now()
       dragStartX.current = e.clientX
       lastMoveX.current = e.clientX
       lastMoveTime.current = performance.now()
@@ -295,7 +299,7 @@ export default function CategoryCarousel() {
       const deltaX = e.clientX - lastMoveX.current
       const dt = Math.max(now - lastMoveTime.current, 1)
 
-      if (Math.abs(e.clientX - dragStartX.current) > 4) dragMoved.current = true
+      if (Math.abs(e.clientX - dragStartX.current) > 6) dragMoved.current = true
 
       // Direct 1:1 tracking while dragging — feels immediate on touch
       const sensitivity = sensitivityRef.current
@@ -316,7 +320,10 @@ export default function CategoryCarousel() {
 
     const onPointerUp = (e: PointerEvent) => {
       if (pointerId.current !== null && e.pointerId === pointerId.current) {
-        if (dragMoved.current) suppressClickUntil.current = Date.now() + 280
+        const longPress = performance.now() - pressStartTime.current > 450
+        if (dragMoved.current || longPress || e.type !== 'pointerup') {
+          suppressClickUntil.current = Date.now() + 350
+        }
         // Boost leftover velocity into coasting inertia
         targetVelocity.current = currentVelocity.current * INERTIA_BOOST
         isDragging.current = false
